@@ -1,0 +1,83 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel} % Cambiado a inglés
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{hyperref}
+
+% -------------------- Layout --------------------
+\geometry{left=0.75in, right=0.75in, top=0.75in, bottom=0.75in}
+
+\titlespacing*{\section}{0pt}{2pt plus 1pt minus 1pt}{8pt plus 1pt minus 1pt}
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{}{0pt}{}[\vspace{-3pt}\titlerule\vspace{-4pt}]
+
+\setlist[itemize]{left=0pt, topsep=2pt, partopsep=0pt, parsep=0pt, itemsep=1pt, after=\vspace{-2pt}}
+\setlength{\parskip}{3pt plus 1pt minus 1pt}
+
+\begin{document}
+\pagestyle{empty}
+
+\begin{center}
+    {\LARGE \textbf{Benjamin Schindler}} \\
+    \vspace{0.15cm}
+    \textbf{CTO | AI Engineer} \\
+    \vspace{0.05cm}
+    \textbf{Master of Science in Data Science} \\
+    \vspace{0.15cm}
+    +(56 9) 56279434 \hspace{0.5cm} \texttt{benjamin.schindlerv@gmail.com} \\
+    \vspace{0.05cm}
+    % REMINDER: Change this when you customize your LinkedIn URL
+    \href{https://www.linkedin.com/in/benjamin-schindler-92881a2b2/}{LinkedIn}
+\end{center}
+
+\section*{Profile}
+Product-oriented AI Engineer focused on agentic systems, RAG, and production deployment. I build end-to-end solutions: from architectural design and integration with clinical/business stakeholders to rollout with observability and metrics, continuously iterating to maximize impact on end users.
+
+\section*{Experience}
+\begin{itemize}[left=0pt,noitemsep,nolistsep]
+
+    \item \textbf{Doctor911} \hfill \textit{Mar. 2025 -- Present} \\
+    \textit{Chief Technology Officer (CTO)} \hfill \textit{Jan. 2026 -- Present} \\
+    - Leading technical strategy, roadmap, and execution, prioritizing architectural design and team coordination. \\
+    - Defining engineering standards (quality, security, observability) and optimizing the delivery process (CI/CD). \\
+    - Designing and developing AI/Data Science products (Agents, RAG), ensuring reliability and scalability. \\
+    - Integrating end-to-end clinical and business workflows (WhatsApp/web), ensuring traceability and clear metrics. \\
+    - Focus on impact: reduced purchase friction and improved recommendation experience for end users. \\
+
+    \textit{AI Engineer} \hfill \textit{Mar. 2025 -- Jan. 2026} \\
+    - Built multi-agent chatbots (LangGraph) with RAG and context management integrated into WhatsApp Business and web. \\
+    - Implemented native payments and catalogs in WhatsApp for automated exam recommendations and purchasing. \\
+    - Developed data pipelines and production services, evaluating and applying iterative improvements with real feedback. \\
+    - Deployed cloud infrastructure (Cloud Run, Vertex AI) with advanced monitoring to ensure high availability. \\
+
+    \item \textbf{WiseConn Latam} \hfill \textit{Dec. 2024 -- Mar. 2025} \\
+    \textit{Data Science Intern} \\
+    - Performed time series forecasting with deep models (Transformers/CNN/LSTM): cleaning and training. \\
+    - Implemented reproducible pipelines and experimentation to compare approaches (metrics, validation, tracking). \\
+    - Integrated models into AWS (SageMaker, S3), enabling efficient consumption and pipeline traceability. \\
+
+    \item \textbf{Unitti} \hfill \textit{Sep. 2023 -- Jul. 2024} \\
+    \textit{Intern (Software Engineer $\rightarrow$ AI)} \\
+    - Developed Python APIs on PostgreSQL with automated testing, improving backend stability and response times. \\
+    - Created a "Natural Language $\rightarrow$ SQL" App (Flask, LLMs, Azure/GCP) for business queries in natural language. \\
+    - Iterated the product with real users to improve query accuracy and response clarity. \\
+
+\end{itemize}
+
+\section*{Education}
+\begin{itemize}[left=0pt,itemsep=0.3em]
+    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Master of Science in Data Science} \hfill \textit{2024 -- Present}
+    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Computer Engineering} \hfill \textit{2020 -- Jul. 2025}
+    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Industrial Engineering} \hfill \textit{2020 -- Jul. 2025}
+\end{itemize}
+
+\section*{Additional Information}
+\begin{itemize}[left=0pt,noitemsep,nolistsep]
+    \item \textbf{Skills:} Python, Pandas, SQL/NoSQL, TensorFlow; LLMs: LangChain/LangGraph, RAG; Cloud: GCP (Vertex AI, Cloud Run), AWS; Web: TypeScript, React; DevOps: Linux, CI/CD, Monitoring.
+    \item \textbf{Languages:} English (Advanced), German (Basic).
+\end{itemize}
+
+\end{document}

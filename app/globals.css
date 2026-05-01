@@ -1,26 +1,181 @@
 @import "tailwindcss";
 
+/* warm-concise palette inspired by lucasparra.vercel.app */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --surface: #111111;
+  --surface-raised: #161616;
+  --border: #1f1f1f;
+  --border-strong: #2a2a2a;
+  --foreground: #ededed;
+  --foreground-dim: #9aa0a6;
+  --foreground-muted: #6b7280;
+  --accent: #10ffa5;
+  --accent-dim: #10b981;
+  --accent-warm: #ff6b35;
+  --accent-cyan: #22d3ee;
+  --accent-magenta: #f472b6;
+  --accent-gold: #d4a853;
+  --accent-gold-soft: #b88a3a;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-dim: var(--foreground-dim);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-magenta: var(--accent-magenta);
+  --color-accent-gold: var(--accent-gold);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, "JetBrains Mono", monospace;
+  --font-serif: var(--font-dm-serif), Georgia, serif;
+  --font-warm: var(--font-dm-sans), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Concise mode: warm off-white palette (inspired by lucasparra.vercel.app) +
+   DM Sans body type. Overrides the dark tokens above for the whole page chrome. */
+html.concise {
+  --background: #efe7d4;
+  --surface: #e6dcc4;
+  --surface-raised: #dccfb1;
+  --border: rgba(40, 30, 14, 0.10);
+  --border-strong: rgba(40, 30, 14, 0.20);
+  --foreground: #1a1612;
+  --foreground-dim: #4d4538;
+  --foreground-muted: #74695a;
+  --accent: #2a2218;
+  --accent-dim: #4a3e2c;
+  color-scheme: light;
+}
+html.concise body {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-feature-settings: normal;
+}
+html.concise ::selection {
+  background: var(--accent-gold);
+  color: var(--background);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Section anchor offset for sticky nav */
+section {
+  scroll-margin-top: 4.5rem;
+}
+
+/* Scanline overlay (used only on hero) */
+.scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: scanShift 8s linear infinite;
+}
+
+@keyframes scanShift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(3px); }
+}
+
+/* Soft CRT vignette (hero) */
+.crt-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: var(--background);
+}
+
+/* Grid background pattern */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Blinking caret */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.caret {
+  display: inline-block;
+  width: 0.55ch;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+/* Subtle pulse for "live" things */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+.pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+/* Fallback: animate body color/bg so non-VT browsers still get a smooth swap.
+   The View Transitions cross-fade itself is injected as a raw <style> tag in
+   layout.tsx (Lightning CSS strips the unknown ::view-transition-* selectors). */
+body {
+  transition: background-color 380ms ease, color 380ms ease;
+}
+
+/* Reduced motion: kill animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+  .scanlines::before {
+    animation: none;
+  }
+}
+
+/* Focus rings */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Benjamin Schindler — CV site
 
-## Getting Started
+Single-page portfolio with animated, interactive visualizations for each
+role and the master's thesis. Built with Next.js 16 and deployed on Vercel.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** for styling, dark / terminal aesthetic
+- **Framer Motion** for animations
+- **Recharts** for line / bar charts
+- **D3** + raw SVG for the bespoke thesis scatter
+- **next/font** self-hosted: JetBrains Mono + Inter
+
+## What's interactive
+
+| Section | Visualization |
+|---|---|
+| Hero | Terminal-style typewriter (`whoami` → identity lines) |
+| Doctor911 | Multi-agent graph with animated edges and traveling tokens; hover a node to highlight its subtree |
+| WiseConn | Soil-moisture forecasting — animated draw, switch between Transformer / LSTM / CNN |
+| Unitti | NL → LLM → SQL → Result pipeline with looping data flow (hover to pause) |
+| Master's thesis | Embedding-space scatter with 4 modes (Anchors / SMOTE / LLM raw / LLM + filter) — recreates slides 4 & 17 of the defense |
+
+All visualizations honor `prefers-reduced-motion`.
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev   # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production build:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploying to Vercel
 
-## Learn More
+1. Push this repo to GitHub.
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repo.
+3. Vercel detects Next.js automatically — no config needed.
+4. First deploy publishes to `<repo-name>.vercel.app`.
+5. Push to `main` to redeploy; PRs get preview URLs.
 
-To learn more about Next.js, take a look at the following resources:
+No env vars required. The site is fully static (no backend, no database).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/                       # Next.js App Router
+  layout.tsx               # Fonts, metadata
+  page.tsx                 # Section composition
+  globals.css              # Tailwind + theme tokens + scanline keyframes
+  opengraph-image.tsx      # Generated OG card (1200×630)
+  sitemap.ts / robots.ts   # SEO
 
-## Deploy on Vercel
+components/
+  Hero.tsx                 # Terminal typewriter
+  Profile.tsx
+  Navigation.tsx           # Sticky nav + CV download
+  ExperienceTimeline.tsx
+  ExperienceCard.tsx       # Mounts the right viz per role
+  ThesisSection.tsx
+  EducationSection.tsx
+  SkillsSection.tsx
+  ContactSection.tsx
+  Footer.tsx
+  SectionHeader.tsx
+  icons/Brands.tsx         # Inline brand SVGs (Linkedin, Github)
+  viz/
+    ForecastingChart.tsx   # WiseConn
+    AgentGraph.tsx         # Doctor911
+    NL2SQLPipeline.tsx     # Unitti
+    ThesisScatter.tsx      # Thesis showpiece
+    ThesisResultsBars.tsx  # Companion ΔF1 bar chart
+    primitives/            # TerminalLine, useInView, colors
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+lib/
+  data.ts                  # CV content as typed object
+  synthetic.ts             # Seeded RNG + chart data generators
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+public/
+  cv.pdf                   # Downloadable CV
+```
+
+## Updating CV content
+
+Everything visible flows from `lib/data.ts` (profile, experience, education,
+thesis stats, skills). Edit there and content propagates everywhere on the
+site. The PDF in `public/cv.pdf` is downloaded as-is.
+
+## Updating the thesis numbers
+
+The ΔF1 bars and stats panel use `thesis.results` and `thesis.stats` in
+`lib/data.ts`. They mirror the defense slide deck values — update both if
+your final paper diverges.
