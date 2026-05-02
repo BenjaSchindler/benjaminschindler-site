@@ -1,5 +1,6 @@
 "use client";
-import { profile } from "@/lib/data";
+import { useData } from "@/lib/data";
+import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { LinkedinIcon } from "./icons/Brands";
@@ -7,70 +8,76 @@ import { useViewMode } from "@/lib/ViewMode";
 
 export function ContactSection() {
   const { detailed } = useViewMode();
+  const { profile } = useData();
+  const t = useT();
 
   return (
     <section id="contact" className="py-20 sm:py-28 px-6 sm:px-8">
       <div className="max-w-5xl mx-auto">
-        <SectionHeader index="05" title="contact" subtitle="open to interesting problems" />
+        <SectionHeader
+          index="05"
+          title={t.section.contactTitle}
+          subtitle={t.section.contactSubtitle}
+        />
 
         {detailed ? (
           <div className="mt-8 grid sm:grid-cols-2 gap-3">
             <ContactCard
               icon={<Mail className="size-5" />}
-              label="email"
+              label={t.contact.email}
               value={profile.email}
               href={`mailto:${profile.email}`}
             />
             <ContactCard
               icon={<LinkedinIcon className="size-5" />}
-              label="linkedin"
+              label={t.contact.linkedin}
               value="/in/benjamin-schindler"
               href={profile.linkedin}
               external
             />
             <ContactCard
               icon={<Phone className="size-5" />}
-              label="phone"
+              label={t.contact.phone}
               value={profile.phone}
               href={`tel:${profile.phone.replace(/\s/g, "")}`}
             />
             <ContactCard
               icon={<MapPin className="size-5" />}
-              label="based in"
+              label={t.contact.basedIn}
               value={profile.location}
             />
           </div>
         ) : (
           <div className="mt-8 max-w-2xl">
             <p className="font-serif text-2xl sm:text-3xl text-[var(--foreground)] leading-tight tracking-tight">
-              Building production AI that pays back —{" "}
+              {t.contactPrompt}{" "}
               <span className="italic text-[var(--accent-gold-soft)]">
-                let&apos;s talk.
+                {t.contactPromptHighlight}
               </span>
             </p>
             <ul className="mt-7 space-y-3 text-sm sm:text-base font-normal">
               <ContactRow
                 icon={<Mail className="size-4" />}
-                label="Email"
+                label={t.contact.email}
                 value={profile.email}
                 href={`mailto:${profile.email}`}
               />
               <ContactRow
                 icon={<LinkedinIcon className="size-4" />}
-                label="LinkedIn"
+                label={t.contact.linkedin}
                 value="/in/benjamin-schindler"
                 href={profile.linkedin}
                 external
               />
               <ContactRow
                 icon={<Phone className="size-4" />}
-                label="Phone"
+                label={t.contact.phone}
                 value={profile.phone}
                 href={`tel:${profile.phone.replace(/\s/g, "")}`}
               />
               <ContactRow
                 icon={<MapPin className="size-4" />}
-                label="Based in"
+                label={t.contact.basedIn}
                 value={profile.location}
               />
             </ul>
@@ -131,14 +138,18 @@ function ContactCard({
     <>
       <span className="text-[var(--accent)]">{icon}</span>
       <div className="min-w-0">
-        <div className="font-mono text-xs text-[var(--foreground-muted)]">{label}/</div>
-        <div className="font-mono text-sm text-[var(--foreground)] truncate">{value}</div>
+        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
+          {label}
+        </div>
+        <div className="mt-0.5 font-mono text-sm text-[var(--foreground)] truncate">
+          {value}
+        </div>
       </div>
     </>
   );
 
   const className =
-    "flex items-center gap-4 p-4 rounded border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/40 hover:bg-[var(--surface-raised)] transition-colors";
+    "flex items-center gap-4 p-4 rounded-md border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/40 hover:bg-[var(--surface-raised)] transition-colors";
 
   if (!href) {
     return <div className={className}>{inner}</div>;

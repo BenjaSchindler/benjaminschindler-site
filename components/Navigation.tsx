@@ -2,20 +2,23 @@
 import { useEffect, useState } from "react";
 import { Download, Menu, X } from "lucide-react";
 import { useViewMode } from "@/lib/ViewMode";
+import { useT } from "@/lib/i18n";
 import { ViewModeToggle } from "./ViewModeToggle";
-
-const links = [
-  { href: "#experience", label: "experience" },
-  { href: "#thesis", label: "thesis" },
-  { href: "#education", label: "education" },
-  { href: "#skills", label: "skills" },
-  { href: "#contact", label: "contact" },
-];
+import { LanguageToggle } from "./LanguageToggle";
 
 export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { detailed } = useViewMode();
+  const t = useT();
+
+  const links = [
+    { href: "#experience", label: t.nav.experience },
+    { href: "#thesis", label: t.nav.thesis },
+    { href: "#education", label: t.nav.education },
+    { href: "#skills", label: t.nav.skills },
+    { href: "#contact", label: t.nav.contact },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -23,15 +26,6 @@ export function Navigation() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const brand = detailed ? (
-    <>
-      <span className="text-[var(--accent)]">~/</span>benjamin
-      <span className="caret align-baseline">&nbsp;</span>
-    </>
-  ) : (
-    <span className="tracking-tight">Benjamin Schindler</span>
-  );
 
   return (
     <nav
@@ -44,13 +38,13 @@ export function Navigation() {
       <div className="max-w-5xl mx-auto px-6 sm:px-8 h-14 flex items-center justify-between gap-4">
         <a
           href="#top"
-          className={`text-sm transition-colors ${
+          className={`text-sm font-medium tracking-tight text-[var(--foreground)] transition-colors ${
             detailed
-              ? "font-mono text-[var(--foreground)] hover:text-[var(--accent)]"
-              : "font-medium text-[var(--foreground)] hover:text-[var(--foreground-dim)]"
+              ? "hover:text-[var(--accent)]"
+              : "hover:text-[var(--foreground-dim)]"
           }`}
         >
-          {brand}
+          Benjamin Schindler
         </a>
 
         <div className="hidden md:flex items-center gap-1 text-xs">
@@ -58,13 +52,13 @@ export function Navigation() {
             <a
               key={l.href}
               href={l.href}
-              className={`px-2.5 py-1.5 rounded transition-colors ${
+              className={`px-2.5 py-1.5 rounded transition-colors text-[var(--foreground-dim)] ${
                 detailed
-                  ? "font-mono text-[var(--foreground-dim)] hover:text-[var(--accent)]"
-                  : "text-[var(--foreground-dim)] hover:text-[var(--foreground)]"
+                  ? "hover:text-[var(--accent)]"
+                  : "hover:text-[var(--foreground)]"
               }`}
             >
-              {detailed ? l.label : capitalize(l.label)}
+              {l.label}
             </a>
           ))}
           <span aria-hidden className="mx-2 h-4 w-px bg-[var(--border-strong)]" />
@@ -78,14 +72,16 @@ export function Navigation() {
                 : "border border-[var(--border-strong)] text-[var(--foreground)] hover:border-[var(--foreground-dim)]"
             }`}
           >
-            <Download className="size-3" /> {detailed ? "cv.pdf" : "Resume"}
+            <Download className="size-3" /> {t.nav.resume}
           </a>
+          <LanguageToggle />
         </div>
 
         <div className="md:hidden flex items-center gap-2">
           <ViewModeToggle compact />
+          <LanguageToggle compact />
           <button
-            aria-label="Open menu"
+            aria-label={t.nav.openMenu}
             onClick={() => setOpen((v) => !v)}
             className="p-2 text-[var(--foreground-dim)]"
           >
@@ -96,11 +92,7 @@ export function Navigation() {
 
       {open && (
         <div className="md:hidden border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur">
-          <div
-            className={`max-w-5xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm ${
-              detailed ? "font-mono" : ""
-            }`}
-          >
+          <div className="max-w-5xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
             {links.map((l) => (
               <a
                 key={l.href}
@@ -108,7 +100,7 @@ export function Navigation() {
                 onClick={() => setOpen(false)}
                 className="py-2 text-[var(--foreground-dim)] hover:text-[var(--foreground)]"
               >
-                {detailed ? l.label : capitalize(l.label)}
+                {l.label}
               </a>
             ))}
             <a
@@ -118,15 +110,11 @@ export function Navigation() {
                 detailed ? "text-[var(--accent)]" : "text-[var(--foreground)]"
               }`}
             >
-              <Download className="size-3.5" /> {detailed ? "download cv.pdf" : "Download resume"}
+              <Download className="size-3.5" /> {t.nav.downloadResume}
             </a>
           </div>
         </div>
       )}
     </nav>
   );
-}
-
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }

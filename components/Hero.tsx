@@ -1,35 +1,10 @@
 "use client";
-import { TerminalLine } from "./viz/primitives/TerminalLine";
-import { profile } from "@/lib/data";
-import { ChevronDown, Mail, Download } from "lucide-react";
+import { motion } from "framer-motion";
+import { useData } from "@/lib/data";
+import { useT } from "@/lib/i18n";
+import { ChevronDown, Mail, Download, ArrowRight } from "lucide-react";
 import { LinkedinIcon } from "./icons/Brands";
 import { useViewMode } from "@/lib/ViewMode";
-
-const SPEEDS = { prompt: 28, name: 45, detail: 60 } as const;
-
-const LINES = [
-  { text: "whoami", speed: SPEEDS.prompt },
-  { text: profile.name.toLowerCase(), speed: SPEEDS.name },
-  {
-    text: `${profile.title.toLowerCase()} · ${profile.subtitle.toLowerCase()}`,
-    speed: SPEEDS.detail,
-  },
-  {
-    text: `based in ${profile.location.toLowerCase()} · building agentic systems · production-first`,
-    speed: SPEEDS.detail,
-  },
-];
-
-const GAP = 200;
-const delays: number[] = (() => {
-  const acc: number[] = [];
-  let t = 0;
-  for (const l of LINES) {
-    acc.push(t);
-    t += (l.text.length / l.speed) * 1000 + GAP;
-  }
-  return acc;
-})();
 
 export function Hero() {
   const { detailed } = useViewMode();
@@ -37,6 +12,8 @@ export function Hero() {
 }
 
 function HeroConcise() {
+  const { profile } = useData();
+  const t = useT();
   return (
     <section
       id="top"
@@ -48,7 +25,7 @@ function HeroConcise() {
             aria-hidden
             className="size-1.5 rounded-full bg-[var(--accent-gold)]"
           />
-          Open to opportunities · {profile.location}
+          {t.hero.openToOpportunities} · {profile.location}
         </p>
 
         <h1 className="mt-7 font-serif text-5xl sm:text-6xl md:text-7xl tracking-tight leading-[1.02] text-[var(--foreground)]">
@@ -90,14 +67,14 @@ function HeroConcise() {
             className="group inline-flex items-center gap-2 text-[var(--foreground)] underline underline-offset-[6px] decoration-[var(--border-strong)] hover:decoration-[var(--accent-gold)] transition-colors"
           >
             <Download className="size-4 text-[var(--foreground-muted)] group-hover:text-[var(--accent-gold)] transition-colors" />
-            Resume
+            {t.quickLinks.resume}
           </a>
         </div>
       </div>
 
       <a
         href="#experience"
-        aria-label="Scroll to experience"
+        aria-label={t.hero.scrollToExperience}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[var(--foreground-muted)] hover:text-[var(--accent-gold)] transition-colors"
       >
         <ChevronDown className="size-5" strokeWidth={1.5} />
@@ -106,134 +83,117 @@ function HeroConcise() {
   );
 }
 
+const STAGGER = 0.08;
+const fadeIn = (delay: number) => ({
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] as const },
+});
+
 function HeroDetailed() {
+  const { profile } = useData();
+  const t = useT();
   return (
     <section
       id="top"
-      className="relative min-h-screen flex items-center overflow-hidden grid-bg crt-vignette scanlines"
+      className="relative min-h-screen flex items-center overflow-hidden"
     >
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[var(--background)]" />
-
       <div className="relative w-full max-w-5xl mx-auto px-6 sm:px-8 pt-20 pb-28">
-        <div className="mb-6 flex items-center gap-3 text-xs font-mono text-[var(--foreground-dim)]">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="size-1.5 rounded-full bg-[var(--accent)] pulse-dot" />
-            <span>online</span>
+        <motion.div
+          {...fadeIn(0)}
+          className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] uppercase tracking-[0.18em] text-[var(--foreground-muted)]"
+        >
+          <span className="inline-flex items-center gap-1.5 text-[var(--foreground-dim)]">
+            <span className="size-1.5 rounded-full bg-[var(--accent-warm)] pulse-dot" />
+            <span>{t.hero.available}</span>
           </span>
-          <span className="text-[var(--foreground-muted)]">·</span>
-          <span>chile · gmt-3</span>
-          <span className="text-[var(--foreground-muted)]">·</span>
-          <span>v 2026.05</span>
-        </div>
+          <span aria-hidden>·</span>
+          <span>{t.hero.statusLocation}</span>
+        </motion.div>
 
-        <div className="font-mono leading-7 sm:leading-8 text-[var(--foreground)] space-y-1.5">
-          <div className="text-sm sm:text-base">
-            <TerminalLine
-              text={LINES[0].text}
-              prompt="$ "
-              speed={LINES[0].speed}
-              delay={delays[0]}
-            />
-          </div>
+        <motion.h1
+          {...fadeIn(STAGGER * 1)}
+          className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[var(--foreground)] leading-[1.05]"
+        >
+          {profile.name}
+        </motion.h1>
 
-          <div className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight pt-1">
-            <TerminalLine
-              text={LINES[1].text}
-              speed={LINES[1].speed}
-              delay={delays[1]}
-              showCaret={false}
-            />
-          </div>
-
-          <div className="text-sm sm:text-lg text-[var(--foreground-dim)] pt-1">
-            <TerminalLine
-              text={LINES[2].text}
-              prompt="> "
-              promptColor="var(--accent)"
-              speed={LINES[2].speed}
-              delay={delays[2]}
-              showCaret={false}
-            />
-          </div>
-
-          <div className="text-sm sm:text-lg text-[var(--foreground-dim)]">
-            <TerminalLine
-              text={LINES[3].text}
-              prompt="> "
-              promptColor="var(--accent)"
-              speed={LINES[3].speed}
-              delay={delays[3]}
-              showCaret={false}
-            />
-          </div>
-        </div>
+        <motion.p
+          {...fadeIn(STAGGER * 2)}
+          className="mt-3 text-base sm:text-lg text-[var(--foreground-dim)] leading-relaxed"
+        >
+          {profile.title} · {profile.subtitle}
+        </motion.p>
 
         <div className="mt-7 grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
+          <motion.div {...fadeIn(STAGGER * 3)} className="md:col-span-2">
             <p className="text-base sm:text-lg leading-relaxed text-[var(--foreground)]">
               {profile.bio}
             </p>
-            <div className="mt-3 flex flex-wrap gap-1.5 font-mono text-[10px]">
-              {profile.tags.map((t) => (
+            <div className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
+              {profile.tags.map((tag) => (
                 <span
-                  key={t}
-                  className="px-2 py-0.5 rounded-full border border-[var(--border-strong)] text-[var(--foreground-dim)] bg-[var(--surface)]/60"
+                  key={tag}
+                  className="px-2 py-0.5 rounded-full border border-[var(--border)] text-[var(--foreground-dim)] bg-[var(--surface)]"
                 >
-                  {t}
+                  {tag}
                 </span>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="space-y-2">
+          <motion.div {...fadeIn(STAGGER * 4)} className="space-y-2">
             <QuickLink
               icon={<Mail className="size-3.5" />}
-              label="email"
+              label={t.quickLinks.email}
               value={profile.email}
               href={`mailto:${profile.email}`}
             />
             <QuickLink
               icon={<LinkedinIcon className="size-3.5" />}
-              label="linkedin"
+              label={t.quickLinks.linkedin}
               value="benjamin-schindler"
               href={profile.linkedin}
               external
             />
             <QuickLink
               icon={<Download className="size-3.5" />}
-              label="cv"
+              label={t.quickLinks.resume}
               value="cv.pdf"
               href="/cv.pdf"
               download
             />
-          </div>
+          </motion.div>
         </div>
 
-        <div className="mt-7 flex flex-wrap gap-2 text-sm font-mono">
+        <motion.div
+          {...fadeIn(STAGGER * 5)}
+          className="mt-8 flex flex-wrap gap-2 text-sm"
+        >
           <a
             href="#experience"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded border border-[var(--accent)]/40 bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[var(--accent)] text-white hover:bg-[var(--accent-dim)] transition-colors font-medium"
           >
-            ./explore_experience
+            {t.hero.exploreExperience} <ArrowRight className="size-3.5" />
           </a>
           <a
             href="#thesis"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded border border-[var(--accent-warm)]/40 text-[var(--accent-warm)] hover:bg-[var(--accent-warm)]/10 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--accent-warm)]/50 text-[var(--accent-warm)] hover:bg-[var(--accent-warm)]/10 transition-colors font-medium"
           >
-            ./thesis
+            {t.hero.readThesis} <ArrowRight className="size-3.5" />
           </a>
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded border border-[var(--border-strong)] hover:border-[var(--foreground-dim)] text-[var(--foreground-dim)] hover:text-[var(--foreground)] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--border-strong)] hover:border-[var(--foreground-dim)] text-[var(--foreground-dim)] hover:text-[var(--foreground)] transition-colors font-medium"
           >
-            ./contact
+            {t.hero.getInTouch} <ArrowRight className="size-3.5" />
           </a>
-        </div>
+        </motion.div>
       </div>
 
       <a
         href="#experience"
-        aria-label="Scroll to experience"
+        aria-label={t.hero.scrollToExperience}
         className="absolute bottom-5 left-1/2 -translate-x-1/2 text-[var(--foreground-muted)] hover:text-[var(--accent)] transition-colors"
       >
         <ChevronDown className="size-6 animate-bounce" strokeWidth={1.5} />
@@ -262,10 +222,12 @@ function QuickLink({
       href={href}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       {...(download ? { download: "Benjamin_Schindler_CV.pdf" } : {})}
-      className="group flex items-center gap-2.5 p-2 rounded border border-[var(--border)] bg-[var(--surface)]/70 backdrop-blur-sm hover:border-[var(--accent)]/40 hover:bg-[var(--surface-raised)] transition-colors"
+      className="group flex items-center gap-2.5 p-2 rounded-md border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/40 hover:bg-[var(--surface-raised)] transition-colors"
     >
       <span className="text-[var(--foreground-muted)] group-hover:text-[var(--accent)]">{icon}</span>
-      <span className="font-mono text-[10px] text-[var(--foreground-muted)]">{label}/</span>
+      <span className="text-[10px] uppercase tracking-[0.14em] text-[var(--foreground-muted)] shrink-0">
+        {label}
+      </span>
       <span className="font-mono text-xs text-[var(--foreground)] truncate">{value}</span>
     </a>
   );

@@ -1,55 +1,33 @@
 "use client";
-import { profile } from "@/lib/data";
-import { useViewMode } from "@/lib/ViewMode";
+import { useData } from "@/lib/data";
+import { useT } from "@/lib/i18n";
 
 export function Footer() {
-  const { detailed } = useViewMode();
+  const { profile } = useData();
+  const t = useT();
 
   return (
     <footer className="border-t border-[var(--border)] py-10 px-6 sm:px-8 mt-20">
-      <div
-        className={`max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between text-xs text-[var(--foreground-muted)] ${
-          detailed ? "font-mono" : ""
-        }`}
-      >
-        <div className="flex items-center gap-2">
-          {detailed ? (
-            <>
-              <span className="text-[var(--accent)]">$</span>
-              <span>echo &quot;built with next.js · deployed on vercel&quot;</span>
-            </>
-          ) : (
-            <span>© {new Date().getFullYear()} Benjamin Schindler</span>
-          )}
-        </div>
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between text-xs text-[var(--foreground-muted)]">
+        <span>
+          © {new Date().getFullYear()} Benjamin Schindler · {t.footer.copyrightSuffix}
+        </span>
         <div className="flex items-center gap-3">
           <a
             href={`mailto:${profile.email}`}
-            className={`hover:text-[var(--foreground)] transition-colors ${
-              detailed ? "hover:text-[var(--accent)]" : ""
-            }`}
+            className="hover:text-[var(--foreground)] transition-colors"
           >
-            {detailed ? "mail" : "Email"}
+            {t.footer.email}
           </a>
-          <span>·</span>
+          <span aria-hidden>·</span>
           <a
             href={profile.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className={`transition-colors ${
-              detailed
-                ? "hover:text-[var(--accent)]"
-                : "hover:text-[var(--foreground)]"
-            }`}
+            className="hover:text-[var(--foreground)] transition-colors"
           >
-            {detailed ? "linkedin" : "LinkedIn"}
+            {t.footer.linkedin}
           </a>
-          {detailed && (
-            <>
-              <span>·</span>
-              <span>© {new Date().getFullYear()}</span>
-            </>
-          )}
         </div>
       </div>
     </footer>

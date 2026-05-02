@@ -22,7 +22,7 @@ export function SectionHeader({ index, title, subtitle, accent = "green" }: Prop
           {String(parseInt(index, 10)).padStart(2, "0")}
         </span>
         <span aria-hidden className="h-px w-6 bg-[var(--accent-gold)]" />
-        <h2 className="font-serif text-3xl sm:text-4xl tracking-tight text-[var(--foreground)] capitalize">
+        <h2 className="font-serif text-3xl sm:text-4xl tracking-tight text-[var(--foreground)]">
           {title}
         </h2>
       </header>
@@ -31,14 +31,17 @@ export function SectionHeader({ index, title, subtitle, accent = "green" }: Prop
 
   return (
     <header className="flex items-end gap-4 border-b border-[var(--border)] pb-3">
-      <span className="font-mono text-xs" style={{ color }}>
-        [{index}]
+      <span
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+        style={{ color }}
+      >
+        {index}
       </span>
-      <h2 className="font-mono text-2xl sm:text-3xl tracking-tight text-[var(--foreground)]">
+      <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--foreground)]">
         {title}
       </h2>
       {subtitle && (
-        <span className="font-mono text-xs text-[var(--foreground-muted)] hidden sm:inline ml-auto">
+        <span className="text-xs text-[var(--foreground-muted)] hidden sm:inline ml-auto">
           {subtitle}
         </span>
       )}

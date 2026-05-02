@@ -1,16 +1,23 @@
 "use client";
-import { skills, languages } from "@/lib/data";
+import { useData } from "@/lib/data";
+import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
 import { motion } from "framer-motion";
 import { useViewMode } from "@/lib/ViewMode";
 
 export function SkillsSection() {
   const { detailed } = useViewMode();
+  const { skills, languages } = useData();
+  const t = useT();
 
   return (
     <section id="skills" className="py-20 sm:py-28 px-6 sm:px-8">
       <div className="max-w-5xl mx-auto">
-        <SectionHeader index="04" title="skills" subtitle="tools / frameworks / languages" />
+        <SectionHeader
+          index="04"
+          title={t.section.skillsTitle}
+          subtitle={t.section.skillsSubtitle}
+        />
 
         {detailed ? (
           <>
@@ -24,14 +31,14 @@ export function SkillsSection() {
                   transition={{ duration: 0.4, delay: idx * 0.05 }}
                   className="p-4 rounded border border-[var(--border)] bg-[var(--surface)]"
                 >
-                  <h3 className="font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
                     {group}
                   </h3>
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {items.map((it) => (
                       <li
                         key={it}
-                        className="font-mono text-xs px-2 py-1 rounded bg-[var(--surface-raised)] border border-[var(--border-strong)] text-[var(--foreground-dim)] hover:text-[var(--foreground)] hover:border-[var(--accent)]/40 transition-colors"
+                        className="font-mono text-xs px-2 py-1 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--foreground-dim)] hover:text-[var(--foreground)] hover:border-[var(--accent)]/40 transition-colors"
                       >
                         {it}
                       </li>
@@ -42,14 +49,14 @@ export function SkillsSection() {
             </div>
 
             <div className="mt-8 p-4 rounded border border-[var(--border)] bg-[var(--surface)]">
-              <h3 className="font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
-                Languages
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                {t.education.languagesGroup}
               </h3>
               <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
                 {languages.map((l) => (
                   <li key={l.name} className="flex items-baseline gap-2">
                     <span className="text-sm text-[var(--foreground)]">{l.name}</span>
-                    <span className="font-mono text-xs text-[var(--foreground-muted)]">{l.level}</span>
+                    <span className="text-xs text-[var(--foreground-muted)]">{l.level}</span>
                   </li>
                 ))}
               </ul>
@@ -72,7 +79,7 @@ export function SkillsSection() {
             ))}
             <div className="py-5 grid sm:grid-cols-[170px_1fr] gap-2 sm:gap-10">
               <dt className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-gold-soft)] sm:pt-1">
-                Languages
+                {t.education.languagesGroup}
               </dt>
               <dd className="text-sm sm:text-base text-[var(--foreground)] font-normal leading-relaxed">
                 {languages

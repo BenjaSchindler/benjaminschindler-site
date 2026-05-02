@@ -1,22 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { thesis } from "@/lib/data";
+import { useData, type ThesisResultId } from "@/lib/data";
 import { palette } from "./primitives/colors";
 
 type Props = {
-  highlightMethod?: string | null;
+  highlightId?: ThesisResultId | null;
 };
 
-const COLOR_FOR_METHOD: Record<string, string> = {
-  "Soft weighting": palette.orange,
-  "Binary filter": palette.amber,
-  "SMOTE (ref.)": palette.textMuted,
-  EDA: palette.textMuted,
-  "Inverse trans.": palette.textMuted,
+const COLOR_FOR_ID: Record<ThesisResultId, string> = {
+  "soft-weighting": palette.orange,
+  "binary-filter": palette.amber,
+  smote: palette.textMuted,
+  eda: palette.textMuted,
+  "inverse-trans": palette.textMuted,
 };
 
-export function ThesisResultsBars({ highlightMethod }: Props) {
+export function ThesisResultsBars({ highlightId }: Props) {
+  const { thesis } = useData();
   // Range used to scale bars: cover both negatives and positives symmetrically.
   const maxAbs = Math.max(...thesis.results.map((r) => Math.abs(r.delta)));
   const span = maxAbs * 1.2;
@@ -28,10 +29,10 @@ export function ThesisResultsBars({ highlightMethod }: Props) {
       </div>
       <ul className="space-y-1.5">
         {thesis.results.map((r) => {
-          const isHighlighted = highlightMethod === r.method;
+          const isHighlighted = highlightId === r.id;
           const isPositive = r.delta > 0;
           const barWidthPct = (Math.abs(r.delta) / span) * 50; // % of half-range
-          const color = COLOR_FOR_METHOD[r.method] ?? palette.textDim;
+          const color = COLOR_FOR_ID[r.id] ?? palette.textDim;
           return (
             <li key={r.method} className="flex items-center gap-2">
               <div

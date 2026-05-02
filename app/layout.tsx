@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import { ViewModeProvider } from "@/lib/ViewMode";
+import { LanguageProvider } from "@/lib/Language";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -74,7 +75,9 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <ViewModeProvider>{children}</ViewModeProvider>
+        <LanguageProvider>
+          <ViewModeProvider>{children}</ViewModeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

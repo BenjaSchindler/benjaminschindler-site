@@ -3,24 +3,30 @@ import dynamic from "next/dynamic";
 import type { Experience } from "@/lib/data";
 import { motion } from "framer-motion";
 import { useViewMode } from "@/lib/ViewMode";
+import { useT } from "@/lib/i18n";
 
 const ForecastingChart = dynamic(
   () => import("./viz/ForecastingChart").then((m) => m.ForecastingChart),
-  { ssr: false, loading: () => <VizSkeleton label="loading forecast..." /> },
+  { ssr: false, loading: () => <VizSkeleton labelKey="loadingForecast" /> },
 );
 const AgentGraph = dynamic(
   () => import("./viz/AgentGraph").then((m) => m.AgentGraph),
-  { ssr: false, loading: () => <VizSkeleton label="loading agent graph..." /> },
+  { ssr: false, loading: () => <VizSkeleton labelKey="loadingAgentGraph" /> },
 );
 const NL2SQLPipeline = dynamic(
   () => import("./viz/NL2SQLPipeline").then((m) => m.NL2SQLPipeline),
-  { ssr: false, loading: () => <VizSkeleton label="loading pipeline..." /> },
+  { ssr: false, loading: () => <VizSkeleton labelKey="loadingPipeline" /> },
 );
 
-function VizSkeleton({ label }: { label: string }) {
+function VizSkeleton({
+  labelKey,
+}: {
+  labelKey: "loadingForecast" | "loadingAgentGraph" | "loadingPipeline";
+}) {
+  const t = useT();
   return (
-    <div className="aspect-[5/3] rounded border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center font-mono text-xs text-[var(--foreground-muted)]">
-      {label}
+    <div className="aspect-[5/3] rounded border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center text-xs text-[var(--foreground-muted)]">
+      {t.viz[labelKey]}
     </div>
   );
 }
@@ -75,6 +81,7 @@ function ExperienceCardConcise({ exp }: { exp: Experience }) {
 }
 
 function ExperienceCardDetailed({ exp }: { exp: Experience }) {
+  const t = useT();
   const Viz =
     exp.viz === "forecasting"
       ? ForecastingChart
@@ -102,9 +109,9 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
           </span>
         </div>
         {exp.impact && (
-          <p className="mt-3 flex gap-2.5 text-[13px] sm:text-sm leading-relaxed text-[var(--foreground)] border-l-2 border-[var(--accent)] pl-3">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--accent)] shrink-0 pt-1">
-              impact
+          <p className="mt-3 flex gap-2.5 text-[13px] sm:text-sm leading-relaxed text-[var(--foreground)] border-l-2 border-[var(--accent-warm)] pl-3">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-warm)] shrink-0 pt-[3px]">
+              {t.experienceCard.impact}
             </span>
             <span>{exp.impact}</span>
           </p>
@@ -113,7 +120,7 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
           {exp.stack.map((s) => (
             <li
               key={s}
-              className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-strong)] text-[var(--foreground-muted)]"
+              className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-raised)] text-[var(--foreground-dim)]"
             >
               {s}
             </li>
@@ -126,8 +133,8 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
           {exp.roles.map((r) => (
             <div key={r.title}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h4 className="text-sm sm:text-base text-[var(--foreground)]">
-                  <span className="text-[var(--accent)]">›</span> {r.title}
+                <h4 className="text-sm sm:text-base font-medium text-[var(--foreground)]">
+                  {r.title}
                 </h4>
                 <span className="font-mono text-[10px] sm:text-[11px] text-[var(--foreground-muted)]">
                   {r.period}
@@ -136,7 +143,7 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
               <ul className="mt-2.5 space-y-1.5 text-[13px] sm:text-sm text-[var(--foreground-dim)] leading-relaxed">
                 {r.bullets.map((b, i) => (
                   <li key={i} className="flex gap-2">
-                    <span className="mt-1.5 size-1 rounded-full bg-[var(--foreground-muted)] shrink-0" />
+                    <span className="mt-2 size-1 rounded-full bg-[var(--accent)] shrink-0" />
                     <span>{b}</span>
                   </li>
                 ))}

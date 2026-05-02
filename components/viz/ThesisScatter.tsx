@@ -5,14 +5,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { buildThesisScatter } from "@/lib/synthetic";
 import { palette, classColors } from "./primitives/colors";
 import { ThesisResultsBars } from "./ThesisResultsBars";
+import type { ThesisResultId } from "@/lib/data";
 
 type Mode = "anchors" | "smote" | "llm" | "filter";
 
-const MODES: Array<{ id: Mode; label: string; resultMethod: string | null; tagline: string }> = [
-  { id: "anchors", label: "anchors", resultMethod: null, tagline: "10 real samples · the starting point" },
-  { id: "smote", label: "smote", resultMethod: "SMOTE (ref.)", tagline: "linear interpolation · controlled but no text" },
-  { id: "llm", label: "llm raw", resultMethod: null, tagline: "fluid text · uncontrolled geometry" },
-  { id: "filter", label: "llm + filter", resultMethod: "Soft weighting", tagline: "ours · keep only points in the safe region" },
+const MODES: Array<{
+  id: Mode;
+  label: string;
+  resultId: ThesisResultId | null;
+  tagline: string;
+}> = [
+  { id: "anchors", label: "anchors", resultId: null, tagline: "10 real samples · the starting point" },
+  { id: "smote", label: "smote", resultId: "smote", tagline: "linear interpolation · controlled but no text" },
+  { id: "llm", label: "llm raw", resultId: null, tagline: "fluid text · uncontrolled geometry" },
+  { id: "filter", label: "llm + filter", resultId: "soft-weighting", tagline: "ours · keep only points in the safe region" },
 ];
 
 const VIEW = 320; // SVG square viewBox size
@@ -276,7 +282,7 @@ export function ThesisScatter() {
 
           {/* Side panel: results bars + legend */}
           <div className="sm:col-span-2 p-3 bg-[var(--surface-raised)] border-t sm:border-t-0 sm:border-l border-[var(--border)] flex flex-col gap-3">
-            <ThesisResultsBars highlightMethod={activeMode.resultMethod} />
+            <ThesisResultsBars highlightId={activeMode.resultId} />
 
             <div className="rounded border border-[var(--border)] bg-[var(--surface)] p-3">
               <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] mb-2">

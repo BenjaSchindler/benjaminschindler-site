@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
-import { thesis } from "@/lib/data";
+import { useData } from "@/lib/data";
+import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
 import { FileText, ExternalLink } from "lucide-react";
 import { useViewMode } from "@/lib/ViewMode";
@@ -9,24 +10,31 @@ const ThesisScatter = dynamic(
   () => import("./viz/ThesisScatter").then((m) => m.ThesisScatter),
   {
     ssr: false,
-    loading: () => (
-      <div className="aspect-square rounded border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center font-mono text-xs text-[var(--foreground-muted)]">
-        loading scatter...
-      </div>
-    ),
+    loading: () => <ScatterSkeleton />,
   },
 );
 
+function ScatterSkeleton() {
+  const t = useT();
+  return (
+    <div className="aspect-square rounded border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center text-xs text-[var(--foreground-muted)]">
+      {t.viz.loadingScatter}
+    </div>
+  );
+}
+
 export function ThesisSection() {
   const { detailed } = useViewMode();
+  const { thesis } = useData();
+  const t = useT();
 
   return (
     <section id="thesis" className="py-20 sm:py-28 px-6 sm:px-8">
       <div className="max-w-5xl mx-auto">
         <SectionHeader
           index="02"
-          title={detailed ? "master's thesis" : "Master's thesis"}
-          subtitle={`defense · ${thesis.date}`}
+          title={t.section.thesisTitle}
+          subtitle={`${t.section.thesisSubtitle} · ${thesis.date}`}
           accent="warm"
         />
 
@@ -37,6 +45,8 @@ export function ThesisSection() {
 }
 
 function ThesisConcise() {
+  const { thesis } = useData();
+  const t = useT();
   return (
     <div className="mt-8 grid sm:grid-cols-[170px_1fr] gap-3 sm:gap-10">
       <div className="text-sm font-medium text-[var(--foreground-muted)] sm:pt-2 flex items-center gap-2">
@@ -57,7 +67,7 @@ function ThesisConcise() {
           · {thesis.institution}
         </p>
         <p className="mt-4 text-sm text-[var(--foreground-muted)] font-medium">
-          Advised by {thesis.advisor}.
+          {t.thesis.advisedBy} {thesis.advisor}.
         </p>
       </div>
     </div>
@@ -65,6 +75,8 @@ function ThesisConcise() {
 }
 
 function ThesisDetailed() {
+  const { thesis } = useData();
+  const t = useT();
   return (
     <div className="mt-8 grid lg:grid-cols-5 gap-6">
       <div className="lg:col-span-2 space-y-4">
@@ -79,22 +91,22 @@ function ThesisDetailed() {
           {thesis.abstract}
         </p>
 
-        <dl className="grid grid-cols-2 gap-3 font-mono text-xs">
-          <DetailedStat label="configs" value={thesis.stats.configs.toLocaleString()} />
-          <DetailedStat label="p-value" value={thesis.stats.pValue} />
-          <DetailedStat label="cohen d" value={thesis.stats.cohenD.toFixed(2)} />
-          <DetailedStat label="win-rate" value={thesis.stats.winRate} />
+        <dl className="grid grid-cols-2 gap-3">
+          <DetailedStat label={t.thesis.configs} value={thesis.stats.configs.toLocaleString()} />
+          <DetailedStat label={t.thesis.pValue} value={thesis.stats.pValue} />
+          <DetailedStat label={t.thesis.cohenD} value={thesis.stats.cohenD.toFixed(2)} />
+          <DetailedStat label={t.thesis.winRate} value={thesis.stats.winRate} />
         </dl>
 
-        <div className="pt-2 flex flex-wrap gap-2">
+        <div className="pt-2 flex flex-wrap items-center gap-3 gap-y-1.5 text-xs">
           <a
             href="/cv.pdf"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-[var(--accent-warm)]/40 text-[var(--accent-warm)] hover:bg-[var(--accent-warm)]/10 font-mono text-xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[var(--accent-warm)]/50 text-[var(--accent-warm)] hover:bg-[var(--accent-warm)]/10 font-medium transition-colors"
           >
-            <FileText className="size-3.5" /> defense slides
+            <FileText className="size-3.5" /> {t.thesis.defenseSlides}
           </a>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs text-[var(--foreground-muted)]">
-            <ExternalLink className="size-3.5" /> advised by {thesis.advisor}
+          <span className="inline-flex items-center gap-1.5 text-[var(--foreground-muted)]">
+            <ExternalLink className="size-3.5" /> {t.thesis.advisedBy} {thesis.advisor}
           </span>
         </div>
       </div>
@@ -109,10 +121,10 @@ function ThesisDetailed() {
 function DetailedStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="p-3 rounded border border-[var(--border)] bg-[var(--surface)]">
-      <dt className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)]">
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
         {label}
       </dt>
-      <dd className="mt-0.5 text-base text-[var(--accent-warm)]">{value}</dd>
+      <dd className="mt-1 font-mono text-base text-[var(--accent-warm)]">{value}</dd>
     </div>
   );
 }

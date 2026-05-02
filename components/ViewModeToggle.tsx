@@ -1,13 +1,13 @@
 "use client";
 import { useViewMode } from "@/lib/ViewMode";
+import { useT } from "@/lib/i18n";
 
 export function ViewModeToggle({ compact = false }: { compact?: boolean }) {
   const { detailed, toggle } = useViewMode();
-  const typeClass = detailed
-    ? "font-mono tracking-wide"
-    : "uppercase tracking-[0.18em]";
+  const t = useT();
+  const labelClass = "uppercase tracking-[0.18em]";
   const offColor = detailed
-    ? "text-[var(--foreground)]"
+    ? "text-[var(--foreground-muted)]"
     : "text-[var(--accent-gold)]";
   const onColor = detailed
     ? "text-[var(--accent)]"
@@ -19,15 +19,15 @@ export function ViewModeToggle({ compact = false }: { compact?: boolean }) {
       role="switch"
       aria-checked={detailed}
       aria-label={
-        detailed ? "Switch to concise view" : "Switch to technical view"
+        detailed ? t.viewMode.switchToConcise : t.viewMode.switchToTechnical
       }
       onClick={toggle}
       className={`group inline-flex items-center gap-2 select-none ${
         compact ? "text-[10px]" : "text-[10px] sm:text-[11px]"
       }`}
     >
-      <span className={`${typeClass} transition-colors ${offColor}`}>
-        {detailed ? "concise" : "Concise"}
+      <span className={`${labelClass} transition-colors ${offColor}`}>
+        {t.viewMode.concise}
       </span>
       <span
         aria-hidden
@@ -45,8 +45,8 @@ export function ViewModeToggle({ compact = false }: { compact?: boolean }) {
           }`}
         />
       </span>
-      <span className={`${typeClass} transition-colors ${onColor}`}>
-        {detailed ? "technical" : "Technical"}
+      <span className={`${labelClass} transition-colors ${onColor}`}>
+        {t.viewMode.technical}
       </span>
     </button>
   );
