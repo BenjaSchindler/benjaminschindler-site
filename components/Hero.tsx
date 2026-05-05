@@ -5,6 +5,29 @@ import { useT } from "@/lib/i18n";
 import { ChevronDown, Mail, Download, ArrowRight } from "lucide-react";
 import { LinkedinIcon } from "./icons/Brands";
 import { useViewMode } from "@/lib/ViewMode";
+import { BioAttention } from "./viz/BioAttention";
+import { useLanguage } from "@/lib/Language";
+
+const BIO_TOKENS_EN = [
+  "AI",
+  "Engineer",
+  "agentic",
+  "RAG",
+  "production",
+  "design",
+  "rollout",
+  "impact",
+];
+const BIO_TOKENS_ES = [
+  "IA",
+  "Ingeniero",
+  "agénticos",
+  "RAG",
+  "producción",
+  "diseño",
+  "rollout",
+  "impacto",
+];
 
 export function Hero() {
   const { detailed } = useViewMode();
@@ -93,6 +116,8 @@ const fadeIn = (delay: number) => ({
 function HeroDetailed() {
   const { profile } = useData();
   const t = useT();
+  const { lang } = useLanguage();
+  const bioTokens = lang === "es" ? BIO_TOKENS_ES : BIO_TOKENS_EN;
   return (
     <section
       id="top"
@@ -127,9 +152,11 @@ function HeroDetailed() {
 
         <div className="mt-7 grid md:grid-cols-3 gap-6">
           <motion.div {...fadeIn(STAGGER * 3)} className="md:col-span-2">
-            <p className="text-base sm:text-lg leading-relaxed text-[var(--foreground)]">
-              {profile.bio}
-            </p>
+            <BioAttention
+              text={profile.bio}
+              tokens={bioTokens}
+              className="text-base sm:text-lg leading-relaxed text-[var(--foreground)]"
+            />
             <div className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
               {profile.tags.map((tag) => (
                 <span
