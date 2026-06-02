@@ -85,7 +85,7 @@ function HeroConcise() {
             LinkedIn
           </a>
           <a
-            href="/cv.pdf"
+            href={t.resumeHref}
             download="Benjamin_Schindler_CV.pdf"
             className="group inline-flex items-center gap-2 text-[var(--foreground)] underline underline-offset-[6px] decoration-[var(--border-strong)] hover:decoration-[var(--accent-gold)] transition-colors"
           >
@@ -187,7 +187,7 @@ function HeroDetailed() {
               icon={<Download className="size-3.5" />}
               label={t.quickLinks.resume}
               value="cv.pdf"
-              href="/cv.pdf"
+              href={t.resumeHref}
               download
             />
           </motion.div>

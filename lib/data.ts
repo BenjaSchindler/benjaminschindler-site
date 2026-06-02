@@ -39,6 +39,16 @@ export type Education = {
   period: string;
   progress: number;
   note?: string;
+  grade?: string;
+};
+
+export type Project = {
+  name: string;
+  context: string; // e.g. "Client work"
+  tagline: string;
+  description: string;
+  stack: string[];
+  highlights: string[];
 };
 
 export type ThesisResultId =
@@ -78,6 +88,7 @@ export type LanguagesList = Array<{ name: string; level: string }>;
 export type DataSet = {
   profile: Profile;
   experience: Experience[];
+  projects: Project[];
   education: Education[];
   thesis: Thesis;
   skills: Skills;
@@ -134,7 +145,7 @@ const dataEn: DataSet = {
     },
     {
       company: "WiseConn Latam",
-      period: "Dec 2024 — Mar 2025",
+      period: "Sep 2024 — Mar 2025",
       impact:
         "Streamlined the company's entire data system and deployed forecasting models in production — predicting risk and reducing operational costs.",
       viz: "forecasting",
@@ -143,7 +154,7 @@ const dataEn: DataSet = {
         {
           company: "WiseConn Latam",
           title: "Data Science Intern",
-          period: "Dec 2024 — Mar 2025",
+          period: "Sep 2024 — Mar 2025",
           bullets: [
             "Time series forecasting with deep models (Transformers / CNN / LSTM): cleaning, training, evaluation.",
             "Reproducible pipelines and experimentation comparing approaches (metrics, validation, tracking).",
@@ -154,7 +165,7 @@ const dataEn: DataSet = {
     },
     {
       company: "Unitti",
-      period: "Sep 2023 — Jul 2024",
+      period: "Jul 2022 — Jul 2024",
       impact:
         "Accelerated internal development by 20 % and opened the data layer to non-technical users via a natural-language query tool.",
       viz: "nl2sql",
@@ -162,8 +173,8 @@ const dataEn: DataSet = {
       roles: [
         {
           company: "Unitti",
-          title: "Intern · Software Engineer → AI",
-          period: "Sep 2023 — Jul 2024",
+          title: "Jr AI Engineer",
+          period: "Jul 2022 — Jul 2024",
           bullets: [
             "Developed Python APIs on PostgreSQL with automated testing — improved backend stability and response times.",
             'Built a "Natural Language → SQL" app (Flask, LLMs, Azure / GCP) for business queries in plain language.',
@@ -173,25 +184,56 @@ const dataEn: DataSet = {
       ],
     },
   ],
+  projects: [
+    {
+      name: "MiAutoCheck",
+      context: "Client work",
+      tagline: "Multimodal, multi-agent used-vehicle valuation API",
+      description:
+        "A VLM inspection agent plus five parallel research agents (pricing, reliability, recalls, ownership cost, competitors) consolidated by a supervisor into PDF valuation reports.",
+      stack: ["LangGraph", "FastAPI", "GPT-5-mini", "Anthropic", "Tavily", "Railway"],
+      highlights: [
+        "VLM inspection from photos: identification, condition, damages, odometer, dashboard.",
+        "Five specialized research agents run in parallel; a supervisor cross-validates and consolidates.",
+        "Anthropic prompt caching + Tavily deep research; MercadoPago payments and S3 report storage.",
+      ],
+    },
+    {
+      name: "EPE",
+      context: "Client work",
+      tagline: "Workplace emotional well-being platform",
+      description:
+        "LLM pipeline for emotion classification, thought analysis and personalized exercises — built with safety guardrails, prompt A/B versioning, evals and observability.",
+      stack: ["FastAPI", "React Native", "React", "OpenAI", "Langfuse", "PostgreSQL"],
+      highlights: [
+        "Crisis-detection and PII-redaction safety guardrails for a sensitive domain.",
+        "Versioned prompts with deterministic per-user A/B allocation; LLM-as-judge evals + drift monitoring.",
+        "Langfuse observability and privacy-first k-anonymous analytics for HR dashboards.",
+      ],
+    },
+  ],
   education: [
     {
       institution: "Universidad Adolfo Ibáñez",
       degree: "Master of Science in Data Science",
-      period: "2024 — Present",
-      progress: 0.85,
-      note: "Thesis: Geometric filtering for LLM-based data augmentation",
+      period: "2024 — 2026",
+      progress: 1,
+      grade: "GPA 4.0 / 4.0",
+      note: "Graduated with Maximum Distinction · Thesis: geometric filtering for LLM-based data augmentation",
     },
     {
       institution: "Universidad Adolfo Ibáñez",
       degree: "Computer Engineering",
       period: "2020 — Jul 2025",
       progress: 1,
+      grade: "GPA 3.7 / 4.0",
     },
     {
       institution: "Universidad Adolfo Ibáñez",
       degree: "Industrial Engineering",
       period: "2020 — Jul 2025",
       progress: 1,
+      grade: "GPA 3.7 / 4.0",
     },
   ],
   thesis: {
@@ -282,7 +324,7 @@ const dataEs: DataSet = {
     },
     {
       company: "WiseConn Latam",
-      period: "Dic 2024 — Mar 2025",
+      period: "Sep 2024 — Mar 2025",
       impact:
         "Optimicé todo el sistema de datos de la empresa y desplegué modelos de forecasting en producción — prediciendo riesgo y reduciendo costos operacionales.",
       viz: "forecasting",
@@ -291,7 +333,7 @@ const dataEs: DataSet = {
         {
           company: "WiseConn Latam",
           title: "Practicante de Ciencia de Datos",
-          period: "Dic 2024 — Mar 2025",
+          period: "Sep 2024 — Mar 2025",
           bullets: [
             "Forecasting de series de tiempo con modelos profundos (Transformers / CNN / LSTM): limpieza, entrenamiento, evaluación.",
             "Pipelines reproducibles y experimentación comparando enfoques (métricas, validación, tracking).",
@@ -302,7 +344,7 @@ const dataEs: DataSet = {
     },
     {
       company: "Unitti",
-      period: "Sep 2023 — Jul 2024",
+      period: "Jul 2022 — Jul 2024",
       impact:
         "Aceleré el desarrollo interno en un 20 % y abrí la capa de datos a usuarios no técnicos mediante una herramienta de consulta en lenguaje natural.",
       viz: "nl2sql",
@@ -310,8 +352,8 @@ const dataEs: DataSet = {
       roles: [
         {
           company: "Unitti",
-          title: "Practicante · Ingeniero de Software → IA",
-          period: "Sep 2023 — Jul 2024",
+          title: "Ingeniero IA Jr.",
+          period: "Jul 2022 — Jul 2024",
           bullets: [
             "Desarrollé APIs en Python sobre PostgreSQL con testing automatizado — mejoré la estabilidad y los tiempos de respuesta del backend.",
             'Construí una app de "Lenguaje Natural → SQL" (Flask, LLMs, Azure / GCP) para consultas de negocio en lenguaje sencillo.',
@@ -321,25 +363,56 @@ const dataEs: DataSet = {
       ],
     },
   ],
+  projects: [
+    {
+      name: "MiAutoCheck",
+      context: "Trabajo de cliente",
+      tagline: "API multimodal y multiagente de tasación de autos usados",
+      description:
+        "Un agente de inspección VLM más cinco agentes de research en paralelo (precio, fiabilidad, recalls, costo de propiedad, competencia) consolidados por un supervisor en reportes PDF de tasación.",
+      stack: ["LangGraph", "FastAPI", "GPT-5-mini", "Anthropic", "Tavily", "Railway"],
+      highlights: [
+        "Inspección VLM desde fotos: identificación, estado, daños, odómetro, tablero.",
+        "Cinco agentes de research especializados en paralelo; un supervisor cruza y consolida.",
+        "Prompt caching de Anthropic + deep research con Tavily; pagos MercadoPago y almacenamiento S3.",
+      ],
+    },
+    {
+      name: "EPE",
+      context: "Trabajo de cliente",
+      tagline: "Plataforma de bienestar emocional laboral",
+      description:
+        "Pipeline LLM para clasificación de emociones, análisis de pensamientos y ejercicios personalizados — con guardrails de seguridad, versionado A/B de prompts, evals y observabilidad.",
+      stack: ["FastAPI", "React Native", "React", "OpenAI", "Langfuse", "PostgreSQL"],
+      highlights: [
+        "Guardrails de seguridad: detección de crisis y redacción de PII para un dominio sensible.",
+        "Prompts versionados con A/B determinístico por usuario; evals con LLM-as-judge + detección de drift.",
+        "Observabilidad con Langfuse y analítica k-anónima para los dashboards de RRHH.",
+      ],
+    },
+  ],
   education: [
     {
       institution: "Universidad Adolfo Ibáñez",
       degree: "Magíster en Ciencia de Datos",
-      period: "2024 — Presente",
-      progress: 0.85,
-      note: "Tesis: Filtrado geométrico para data augmentation con LLMs",
+      period: "2024 — 2026",
+      progress: 1,
+      grade: "7,0 / 7,0",
+      note: "Aprobado con Distinción Máxima · Tesis: filtrado geométrico para data augmentation con LLMs",
     },
     {
       institution: "Universidad Adolfo Ibáñez",
       degree: "Ingeniería Civil Informática",
       period: "2020 — Jul 2025",
       progress: 1,
+      grade: "6,5 / 7,0",
     },
     {
       institution: "Universidad Adolfo Ibáñez",
       degree: "Ingeniería Civil Industrial",
       period: "2020 — Jul 2025",
       progress: 1,
+      grade: "6,5 / 7,0",
     },
   ],
   thesis: {

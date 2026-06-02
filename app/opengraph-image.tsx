@@ -97,7 +97,7 @@ export default async function OpenGraphImage() {
           }}
         >
           <div style={{ display: "flex" }}>
-            Santiago, Chile · GMT−3 · v2026.05
+            Santiago, Chile · GMT−3 · v2026.06
           </div>
           <div style={{ display: "flex", color: "#5db5e0" }}>
             benjaminschindler.vercel.app

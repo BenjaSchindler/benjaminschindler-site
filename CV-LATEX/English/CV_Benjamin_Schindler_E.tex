@@ -1,0 +1,88 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% -------------------- Layout --------------------
+\geometry{left=0.5in, right=0.5in, top=0.35in, bottom=0.35in}
+
+\titlespacing*{\section}{0pt}{4pt plus 1pt minus 1pt}{3pt plus 1pt minus 0pt}
+\titleformat{\section}
+  {\normalfont\large\bfseries}{}{0pt}{}[\vspace{-3pt}\titlerule\vspace{-1pt}]
+
+\setlist[itemize]{left=0pt, topsep=1pt, partopsep=0pt, parsep=0pt, itemsep=0pt, after=\vspace{-2pt}}
+\setlength{\parskip}{1pt plus 1pt minus 1pt}
+
+\begin{document}
+\pagestyle{empty}
+
+\begin{center}
+    {\LARGE \textbf{Benjamin Schindler}} \\
+    \vspace{0.06cm}
+    \textbf{AI Engineer \& AI Engineering Lead} \\
+    \vspace{0.02cm}
+    \textbf{Agentic AI Systems | RAG | Product AI | M.Sc. Data Science} \\
+    \vspace{0.06cm}
+    +(56 9) 56279434 \hspace{0.35cm} \texttt{benjamin.schindlerv@gmail.com} \hspace{0.35cm} Santiago, Chile \\
+    \vspace{0.02cm}
+    \href{https://www.linkedin.com/in/benjamin-schindler-92881a2b2/}{LinkedIn}
+    \hspace{0.35cm}
+    \href{https://benjaminschindler.vercel.app/}{Portfolio}
+    \hspace{0.35cm}
+    \href{https://github.com/BenjaSchindler}{GitHub}
+\end{center}
+
+\section*{Profile}
+AI Engineer who builds and ships production LLM systems --- multi-agent workflows, RAG, recommendation flows, and the deterministic-agentic hybrid patterns that keep them safe in regulated domains. Owns systems end-to-end, from problem framing and evals to deployment and monitoring. Most recently CTO at Doctor911, where the AI products I designed and shipped contributed to a 10$\times$ increase in web traffic and the company reaching profitability.
+
+\section*{Experience}
+\begin{itemize}[left=0pt,noitemsep,nolistsep]
+
+    \item \textbf{Doctor911} \hfill \textit{Mar. 2025 -- Present} \\
+    \textit{Chief Technology Officer \& AI Engineering Lead (promoted)} \hfill \textit{Jan. 2026 -- Present} \\
+    - Lead AI engineering and product across web, WhatsApp, and internal operations; own the AI roadmap and technical standards (evals, observability, HITL safety, CI/CD). \\
+    - Shipped the AI products underpinning the company's 10$\times$ traffic increase and path to profitability; promoted IC $\rightarrow$ CTO in under a year. \\[2pt]
+    \textit{AI Engineer} \hfill \textit{Mar. 2025 -- Jan. 2026} \\
+    - Shipped two production multi-agent AI systems on LangGraph + GCP (Cloud Run, Vertex AI, CI/CD, monitoring; see \textit{Selected Projects}), plus an XGBoost medical exam recommender wired as a shared tool across agents. \\
+    - Architected a deterministic-agentic hybrid pattern combining LangGraph orchestration with structured business rules for payments, booking, and doctor-in-the-loop clinical decisions. \\
+
+    \item \textbf{WiseConn Latam} \hfill \textit{Sep. 2024 -- Mar. 2025} \\
+    \textit{Data Science Intern} \\
+    - Built CNN-based time-series forecasting for irrigation scheduling and classification models for solar installation analysis (see \textit{Selected Projects}). \\
+    - Led a data governance initiative to organize company data across departments. \\
+    - Integrated reproducible model workflows into AWS (SageMaker, S3) with validation and metric tracking. \\
+
+    \item \textbf{Unitti} \hfill \textit{Jul. 2022 -- Jul. 2024} \\
+    \textit{Jr. AI Engineer} \\
+    - Developed Python APIs on PostgreSQL with automated testing, improving backend stability and query performance. \\
+    - Built a Natural Language $\rightarrow$ SQL application (Flask, LLMs, Azure, GCP), improving SQL generation quality through user-feedback loops. \\
+
+\end{itemize}
+
+\section*{Selected Projects}
+\begin{itemize}[left=0pt,noitemsep,nolistsep]
+    \item \textbf{Doctor911 Conversational AI Platform} --- production multi-agent systems on LangGraph + FastAPI + Cloud Run spanning WhatsApp (4 agents: \textit{welcome}, \textit{commerce}, \textit{support}, \textit{async-order}) and Web (2 agents with a $\sim$100 ms semantic intent router). Form-based RAG recommender and an XGBoost exam recommender wired as shared tools; integrates Meta Flows, WhatsApp catalogs, Transbank, Supabase, and Cloud SQL.
+    \item \textbf{Direct Client Work} --- two end-to-end AI products delivered for external clients. \textbf{MiAutoCheck:} multimodal, multi-agent used-vehicle valuation API (VLM inspection + 5 parallel research agents + supervisor consolidation $\rightarrow$ PDF reports; GPT-5-mini, Anthropic prompt caching, Tavily). \textbf{EPE:} workplace well-being platform with LLM safety guardrails (crisis / PII), per-user prompt A/B versioning, LLM-as-judge evals + drift monitoring, and Langfuse observability.
+    \item \textbf{Doctor911 Internal Ops Agent (OpenClaw)} --- internal agent built on the OpenClaw open-source framework to automate team coordination, recurring operational tasks, and management workflows.
+\end{itemize}
+
+\section*{Education}
+\begin{itemize}[left=0pt,itemsep=0.1em]
+    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Master of Science in Data Science} \hfill \textit{GPA 4.0 / 4.0} \\
+    Graduated with Maximum Distinction. Thesis (\textit{SMOTE-LLM}): hybrid LLM + embedding-space oversampling for imbalanced text classification; +2.25 pp over SMOTE.
+    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Software Engineering} \& \textit{Industrial Engineering} \hfill \textit{GPA 3.7 / 4.0}
+\end{itemize}
+
+\section*{Technical Stack}
+\begin{itemize}[left=0pt,noitemsep,nolistsep]
+    \item \textbf{AI / ML:} LangGraph, LangChain, multi-agent orchestration, RAG (embeddings + vector retrieval), tool-calling, structured outputs, human-in-the-loop workflows, recommendation flows, Natural Language $\rightarrow$ SQL, forecasting. LLM providers: OpenAI, Anthropic, Gemini. Classical ML: XGBoost, PyTorch, TensorFlow, Pandas.
+    \item \textbf{Serving, MLOps \& Cloud:} FastAPI, Docker, REST APIs, CI/CD, model \& LLM evals, observability and monitoring, structured logging; GCP (Cloud Run, Vertex AI, Cloud SQL), AWS (SageMaker, S3), Supabase, PostgreSQL, Linux.
+    \item \textbf{Languages \& Frameworks:} Python, TypeScript, SQL/NoSQL, Next.js, React, Flask.
+    \item \textbf{Spoken Languages:} Spanish (Native), English (Advanced), German (Basic).
+\end{itemize}
+
+\end{document}

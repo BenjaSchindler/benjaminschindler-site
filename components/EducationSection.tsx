@@ -45,6 +45,9 @@ export function EducationSection() {
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <h3 className="text-base sm:text-lg text-[var(--foreground)]">{e.degree}</h3>
                         <span className="font-mono text-xs text-[var(--foreground-muted)]">{e.period}</span>
+                        {e.grade && (
+                          <span className="font-mono text-xs text-[var(--accent)]">{e.grade}</span>
+                        )}
                       </div>
                       {e.note && (
                         <p className="mt-1 text-sm text-[var(--foreground-dim)]">{e.note}</p>
@@ -105,6 +108,14 @@ export function EducationSection() {
                       <span className="font-semibold text-[var(--accent-gold-soft)]">
                         {Math.round(e.progress * 100)}% · {t.education.inProgress}
                       </span>
+                    )}
+                    {e.grade && (
+                      <>
+                        {" · "}
+                        <span className="font-semibold text-[var(--accent-gold-soft)]">
+                          {e.grade}
+                        </span>
+                      </>
                     )}
                   </p>
                 </div>

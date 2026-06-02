@@ -16,6 +16,7 @@ export function Navigation() {
     { href: "#experience", label: t.nav.experience },
     { href: "#thesis", label: t.nav.thesis },
     { href: "#education", label: t.nav.education },
+    { href: "#projects", label: t.nav.projects },
     { href: "#skills", label: t.nav.skills },
     { href: "#contact", label: t.nav.contact },
   ];
@@ -64,7 +65,7 @@ export function Navigation() {
           <span aria-hidden className="mx-2 h-4 w-px bg-[var(--border-strong)]" />
           <ViewModeToggle />
           <a
-            href="/cv.pdf"
+            href={t.resumeHref}
             download="Benjamin_Schindler_CV.pdf"
             className={`ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors ${
               detailed
@@ -104,7 +105,7 @@ export function Navigation() {
               </a>
             ))}
             <a
-              href="/cv.pdf"
+              href={t.resumeHref}
               download="Benjamin_Schindler_CV.pdf"
               className={`mt-2 inline-flex items-center gap-1.5 py-2 ${
                 detailed ? "text-[var(--accent)]" : "text-[var(--foreground)]"

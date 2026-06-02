@@ -100,7 +100,7 @@ function ThesisDetailed() {
 
         <div className="pt-2 flex flex-wrap items-center gap-3 gap-y-1.5 text-xs">
           <a
-            href="/cv.pdf"
+            href={t.resumeHref}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[var(--accent-warm)]/50 text-[var(--accent-warm)] hover:bg-[var(--accent-warm)]/10 font-medium transition-colors"
           >
             <FileText className="size-3.5" /> {t.thesis.defenseSlides}

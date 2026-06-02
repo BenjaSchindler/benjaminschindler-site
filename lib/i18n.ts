@@ -5,6 +5,7 @@ type Strings = {
   nav: {
     experience: string;
     thesis: string;
+    projects: string;
     education: string;
     skills: string;
     contact: string;
@@ -31,6 +32,8 @@ type Strings = {
     experienceSubtitle: string;
     thesisTitle: string;
     thesisSubtitle: string; // suffixed with date externally
+    projectsTitle: string;
+    projectsSubtitle: string;
     educationTitle: string;
     educationSubtitle: string;
     skillsTitle: string;
@@ -84,12 +87,14 @@ type Strings = {
   };
   contactPrompt: string;
   contactPromptHighlight: string;
+  resumeHref: string;
 };
 
 const en: Strings = {
   nav: {
     experience: "Experience",
     thesis: "Thesis",
+    projects: "Projects",
     education: "Education",
     skills: "Skills",
     contact: "Contact",
@@ -99,7 +104,7 @@ const en: Strings = {
   },
   hero: {
     available: "Available",
-    statusLocation: "Santiago, Chile · GMT−3 · v2026.05",
+    statusLocation: "Santiago, Chile · GMT−3 · v2026.06",
     openToOpportunities: "Open to opportunities",
     exploreExperience: "Explore experience",
     readThesis: "Read thesis",
@@ -116,6 +121,8 @@ const en: Strings = {
     experienceSubtitle: "hover the visualizations · scroll to play",
     thesisTitle: "Master's thesis",
     thesisSubtitle: "defense",
+    projectsTitle: "Projects",
+    projectsSubtitle: "selected client work",
     educationTitle: "Education",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Skills",
@@ -169,12 +176,14 @@ const en: Strings = {
   },
   contactPrompt: "Building production AI that pays back —",
   contactPromptHighlight: "let's talk.",
+  resumeHref: "/cv.pdf",
 };
 
 const es: Strings = {
   nav: {
     experience: "Experiencia",
     thesis: "Tesis",
+    projects: "Proyectos",
     education: "Educación",
     skills: "Habilidades",
     contact: "Contacto",
@@ -184,7 +193,7 @@ const es: Strings = {
   },
   hero: {
     available: "Disponible",
-    statusLocation: "Santiago, Chile · GMT−3 · v2026.05",
+    statusLocation: "Santiago, Chile · GMT−3 · v2026.06",
     openToOpportunities: "Abierto a oportunidades",
     exploreExperience: "Ver experiencia",
     readThesis: "Leer tesis",
@@ -201,6 +210,8 @@ const es: Strings = {
     experienceSubtitle: "pasa el cursor por las visualizaciones · desplaza para reproducir",
     thesisTitle: "Tesis de Magíster",
     thesisSubtitle: "defensa",
+    projectsTitle: "Proyectos",
+    projectsSubtitle: "trabajo de cliente seleccionado",
     educationTitle: "Educación",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Habilidades",
@@ -254,6 +265,7 @@ const es: Strings = {
   },
   contactPrompt: "IA en producción que paga el retorno —",
   contactPromptHighlight: "hablemos.",
+  resumeHref: "/cv-es.pdf",
 };
 
 const STRINGS: Record<Lang, Strings> = { en, es };
