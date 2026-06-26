@@ -128,7 +128,7 @@ const en: Strings = {
     skillsTitle: "Skills",
     skillsSubtitle: "tools / frameworks / languages",
     contactTitle: "Contact",
-    contactSubtitle: "open to interesting problems",
+    contactSubtitle: "where to find me",
   },
   experienceCard: {
     impact: "Impact",
@@ -174,8 +174,8 @@ const en: Strings = {
     email: "Email",
     linkedin: "LinkedIn",
   },
-  contactPrompt: "Building production AI that pays back —",
-  contactPromptHighlight: "let's talk.",
+  contactPrompt: "I build AI that ships and keeps working.",
+  contactPromptHighlight: "Let's talk.",
   resumeHref: "/cv.pdf",
 };
 
@@ -217,7 +217,7 @@ const es: Strings = {
     skillsTitle: "Habilidades",
     skillsSubtitle: "herramientas / frameworks / lenguajes",
     contactTitle: "Contacto",
-    contactSubtitle: "abierto a problemas interesantes",
+    contactSubtitle: "dónde encontrarme",
   },
   experienceCard: {
     impact: "Impacto",
@@ -263,8 +263,8 @@ const es: Strings = {
     email: "Correo",
     linkedin: "LinkedIn",
   },
-  contactPrompt: "IA en producción que paga el retorno —",
-  contactPromptHighlight: "hablemos.",
+  contactPrompt: "Construyo IA que llega a producción y sigue funcionando.",
+  contactPromptHighlight: "Hablemos.",
   resumeHref: "/cv-es.pdf",
 };
 

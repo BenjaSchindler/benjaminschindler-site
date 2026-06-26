@@ -10,13 +10,13 @@ import { useLanguage } from "@/lib/Language";
 
 const BIO_TOKENS_EN = [
   "AI",
-  "Engineer",
   "agentic",
   "RAG",
   "production",
   "design",
   "rollout",
-  "impact",
+  "iteration",
+  "CTO",
 ];
 const BIO_TOKENS_ES = [
   "IA",
@@ -25,8 +25,8 @@ const BIO_TOKENS_ES = [
   "RAG",
   "producción",
   "diseño",
-  "rollout",
-  "impacto",
+  "despliegue",
+  "CTO",
 ];
 
 export function Hero() {

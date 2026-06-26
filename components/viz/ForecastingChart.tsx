@@ -140,7 +140,7 @@ export function ForecastingChart() {
               cursor={{ stroke: palette.borderStrong, strokeDasharray: "2 3" }}
               formatter={(value, name) => {
                 const label = String(name ?? "");
-                if (value == null) return ["—", label];
+                if (value == null) return ["–", label];
                 if (Array.isArray(value)) {
                   const [lo, hi] = value as [number, number];
                   return [`${lo.toFixed(1)}–${hi.toFixed(1)}%`, label];
