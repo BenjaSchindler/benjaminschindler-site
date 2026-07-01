@@ -14,7 +14,8 @@ export function SkillsSection() {
     <section id="skills" className="py-20 sm:py-28 px-6 sm:px-8">
       <div className="max-w-5xl mx-auto">
         <SectionHeader
-          index="05"
+          index="06"
+          conciseIndex="05"
           title={t.section.skillsTitle}
           subtitle={t.section.skillsSubtitle}
         />

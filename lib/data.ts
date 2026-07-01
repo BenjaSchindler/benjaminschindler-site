@@ -51,6 +51,13 @@ export type Project = {
   highlights: string[];
 };
 
+export type PracticeArea = {
+  id: "harness" | "prompts" | "coevolution" | "evals";
+  title: string;
+  definition: string;
+  evidence: string[];
+};
+
 export type ThesisResultId =
   | "soft-weighting"
   | "binary-filter"
@@ -89,6 +96,7 @@ export type DataSet = {
   profile: Profile;
   experience: Experience[];
   projects: Project[];
+  practice: PracticeArea[];
   education: Education[];
   thesis: Thesis;
   skills: Skills;
@@ -106,7 +114,7 @@ const dataEn: DataSet = {
     phone: "+(56 9) 56279434",
     linkedin: "https://www.linkedin.com/in/benjamin-schindler-92881a2b2/",
     github: "https://github.com/",
-    bio: "AI engineer. I build agentic systems and RAG and take them to production: design, rollout, and the messy iteration that comes after. Currently CTO at Doctor911.",
+    bio: "AI engineer. I build agentic systems and RAG and take them to production: design, rollout, and the iteration that follows. Currently CTO at Doctor911.",
     tags: ["Agentic systems", "RAG", "Production AI", "Multi-agent", "LangGraph", "ML", "Data Science"],
   },
   experience: [
@@ -114,7 +122,7 @@ const dataEn: DataSet = {
       company: "Doctor911",
       period: "Mar 2025 – Present",
       impact:
-        "10× more site visits, real adoption of the chat and AI tools, and the company turned profitable.",
+        "Site traffic grew 10×, the chat and AI tools reached sustained adoption, and the company became profitable.",
       viz: "agent-graph",
       stack: ["LangGraph", "RAG", "Vertex AI", "Cloud Run", "WhatsApp Business", "TypeScript"],
       roles: [
@@ -123,11 +131,11 @@ const dataEn: DataSet = {
           title: "Chief Technology Officer (CTO)",
           period: "Jan 2026 – Present",
           bullets: [
-            "Own technical strategy and the roadmap, and lead the engineering team.",
-            "Set the engineering standards and the CI/CD pipeline.",
-            "Design and build the AI products (agents and RAG) and keep them running in production.",
-            "Wire the clinical and business flows across WhatsApp and web into one system.",
-            "Cut purchase friction and improve how the product recommends exams.",
+            "Define the technical strategy and roadmap; lead the engineering team.",
+            "Establish engineering standards and the CI/CD pipeline.",
+            "Design and build the AI products (agents, RAG) and operate them in production.",
+            "Integrate the clinical and business flows across WhatsApp and web into a single system.",
+            "Reduce purchase friction and improve the product's exam recommendations.",
           ],
         },
         {
@@ -136,9 +144,9 @@ const dataEn: DataSet = {
           period: "Mar 2025 – Jan 2026",
           bullets: [
             "Built multi-agent chatbots (LangGraph) with RAG and context management on WhatsApp Business and web.",
-            "Added native payments and catalogs in WhatsApp, so users get an exam recommendation and pay without leaving the chat.",
-            "Built data pipelines and production services, and tuned them on real user feedback.",
-            "Deployed cloud infrastructure on Cloud Run and Vertex AI, with monitoring to keep it up.",
+            "Integrated native WhatsApp payments and catalogs: users receive an exam recommendation and complete payment without leaving the chat.",
+            "Built data pipelines and production services, and refined them against real user feedback.",
+            "Deployed cloud infrastructure on Cloud Run and Vertex AI, with production monitoring.",
           ],
         },
       ],
@@ -147,7 +155,7 @@ const dataEn: DataSet = {
       company: "WiseConn Latam",
       period: "Sep 2024 – Mar 2025",
       impact:
-        "Streamlined the company's data system and put forecasting models into production, where they flag risk and lower operating costs.",
+        "Consolidated the company's data system and deployed forecasting models to production, where they anticipate risk and reduce operating costs.",
       viz: "forecasting",
       stack: ["Transformers", "LSTM", "CNN", "AWS SageMaker", "S3", "PyTorch"],
       roles: [
@@ -167,7 +175,7 @@ const dataEn: DataSet = {
       company: "Unitti",
       period: "Jul 2022 – Jul 2024",
       impact:
-        "Sped up internal development by 20 % and let non-technical staff query the database in plain language.",
+        "Accelerated internal development by 20 % and enabled non-technical staff to query the database in natural language.",
       viz: "nl2sql",
       stack: ["Python", "Flask", "PostgreSQL", "LLMs", "Azure", "GCP"],
       roles: [
@@ -176,9 +184,9 @@ const dataEn: DataSet = {
           title: "Jr AI Engineer",
           period: "Jul 2022 – Jul 2024",
           bullets: [
-            "Built Python APIs over PostgreSQL with automated tests, which made the backend more stable and faster.",
-            'Built a "Natural Language → SQL" app (Flask, LLMs, Azure / GCP) so the team could query data in plain language.',
-            "Tuned it with real users until queries came back accurate and clear.",
+            "Built Python APIs over PostgreSQL with automated tests, improving backend stability and response times.",
+            'Built a "Natural Language → SQL" application (Flask, LLMs, Azure / GCP) enabling the team to query data in natural language.',
+            "Refined it with real users until results were consistently accurate.",
           ],
         },
       ],
@@ -209,6 +217,52 @@ const dataEn: DataSet = {
         "Crisis detection and PII redaction as safety guardrails.",
         "Versioned prompts with deterministic per-user A/B allocation; LLM-as-judge evals + drift monitoring.",
         "Langfuse observability and privacy-first k-anonymous analytics for HR dashboards.",
+      ],
+    },
+  ],
+  practice: [
+    {
+      id: "harness",
+      title: "Harness Engineering",
+      definition:
+        "The scaffolding that turns a model into a product: orchestration, tool interfaces, guardrails, and state.",
+      evidence: [
+        "LangGraph orchestrators in production at Doctor911 — two agents on web, four on WhatsApp — with the clinical and business flows exposed as tools.",
+        "Guardrails as components, not prompt clauses: crisis detection and PII redaction run in front of the model (EPE).",
+        "Payments (Transbank, MercadoPago), Meta Flows forms, and PDF generation integrated as tools inside the agent graph.",
+      ],
+    },
+    {
+      id: "prompts",
+      title: "Prompt Engineering",
+      definition:
+        "Prompts as versioned, measured artifacts — reviewed, tested, and rolled out like code.",
+      evidence: [
+        "Versioned prompts with deterministic per-user A/B allocation in production (EPE).",
+        "Anthropic prompt caching across MiAutoCheck's five parallel research agents to contain latency and cost.",
+        "NL→SQL prompts refined against real user queries until results were consistently accurate (Unitti).",
+      ],
+    },
+    {
+      id: "coevolution",
+      title: "Model–Harness Co-Evolution",
+      definition:
+        "Models and scaffolding evolve together: each model upgrade is an opportunity to remove harness code, and each workaround marks what the next model should absorb.",
+      evidence: [
+        "Migrated Doctor911's production agents from Gemini to OpenAI behind stable tool interfaces.",
+        "Exam recommendation implemented as a tool call rather than a fifth agent — capability sits at the simplest layer that holds it reliably.",
+        "Each model generation triggers a harness review: scaffolding the new model absorbs is deleted, not maintained.",
+      ],
+    },
+    {
+      id: "evals",
+      title: "Evaluation Benchmarks",
+      definition:
+        "Behavior changes are measured before they ship: prompts, harness, and model swaps land against defined baselines.",
+      evidence: [
+        "LLM-as-judge evaluation with drift monitoring in production, on Langfuse (EPE).",
+        "Deterministic A/B assignment ties each metric shift to the prompt version that caused it (EPE).",
+        "Thesis: a 3,675-configuration benchmark with significance testing — p < 0.0001, Cohen's d = 0.74, win-rate 83.8 %.",
       ],
     },
   ],
@@ -243,7 +297,7 @@ const dataEn: DataSet = {
     institution: "Master of Science in Data Science · UAI",
     date: "April 2026",
     abstract:
-      "LLMs can generate thousands of synthetic training samples, but not all of them help. This thesis scores each candidate by where it lands in embedding space and keeps only the ones near the real data. Result: +2.25 pp macro-F1 over SMOTE across 3,675 configurations (p < 0.0001, d = 0.74, win-rate 83.8 %).",
+      "LLMs can generate thousands of synthetic training samples, but not all of them improve the classifier. This thesis scores each candidate by its position in embedding space and retains only those close to the real data distribution. Result: +2.25 pp macro-F1 over SMOTE across 3,675 configurations (p < 0.0001, d = 0.74, win-rate 83.8 %).",
     results: [
       { id: "soft-weighting", method: "Soft weighting", delta: 2.25, isOurs: true },
       { id: "binary-filter", method: "Binary filter", delta: 2.11, isOurs: true },
@@ -285,7 +339,7 @@ const dataEs: DataSet = {
     phone: "+(56 9) 56279434",
     linkedin: "https://www.linkedin.com/in/benjamin-schindler-92881a2b2/",
     github: "https://github.com/",
-    bio: "Ingeniero de IA. Construyo sistemas agénticos y RAG, y los llevo a producción: diseño, despliegue y todo el ajuste tedioso que viene después. Hoy soy CTO en Doctor911.",
+    bio: "Ingeniero de IA. Construyo sistemas agénticos y RAG, y los llevo a producción: diseño, despliegue y la iteración que viene después. Actualmente CTO en Doctor911.",
     tags: ["Sistemas agénticos", "RAG", "IA en producción", "Multi-agente", "LangGraph", "ML", "Ciencia de datos"],
   },
   experience: [
@@ -293,7 +347,7 @@ const dataEs: DataSet = {
       company: "Doctor911",
       period: "Mar 2025 – Presente",
       impact:
-        "10× más visitas al sitio, adopción real del chat y las herramientas de IA, y la empresa pasó a ser rentable.",
+        "El tráfico del sitio creció 10×, el chat y las herramientas de IA lograron adopción sostenida, y la empresa alcanzó la rentabilidad.",
       viz: "agent-graph",
       stack: ["LangGraph", "RAG", "Vertex AI", "Cloud Run", "WhatsApp Business", "TypeScript"],
       roles: [
@@ -304,9 +358,9 @@ const dataEs: DataSet = {
           bullets: [
             "Defino la estrategia técnica y el roadmap, y lidero al equipo de ingeniería.",
             "Establezco los estándares de ingeniería y el pipeline de CI/CD.",
-            "Diseño y construyo los productos de IA (agentes y RAG) y los mantengo corriendo en producción.",
-            "Conecto los flujos clínicos y de negocio de WhatsApp y la web en un solo sistema.",
-            "Reduzco la fricción de compra y mejoro cómo el producto recomienda exámenes.",
+            "Diseño y construyo los productos de IA (agentes, RAG) y los opero en producción.",
+            "Integro los flujos clínicos y de negocio de WhatsApp y la web en un solo sistema.",
+            "Reduzco la fricción de compra y mejoro las recomendaciones de exámenes del producto.",
           ],
         },
         {
@@ -315,9 +369,9 @@ const dataEs: DataSet = {
           period: "Mar 2025 – Ene 2026",
           bullets: [
             "Construí chatbots multi-agente (LangGraph) con RAG y manejo de contexto en WhatsApp Business y web.",
-            "Sumé pagos y catálogos nativos en WhatsApp: el usuario recibe la recomendación de examen y paga sin salir del chat.",
-            "Construí los pipelines de datos y los servicios productivos, y los ajusté con feedback real de usuarios.",
-            "Desplegué la infraestructura en Cloud Run y Vertex AI, con el monitoreo para mantenerla en pie.",
+            "Integré pagos y catálogos nativos en WhatsApp: el usuario recibe la recomendación de examen y completa el pago sin salir del chat.",
+            "Construí los pipelines de datos y los servicios productivos, y los refiné con feedback real de usuarios.",
+            "Desplegué la infraestructura en Cloud Run y Vertex AI, con monitoreo de producción.",
           ],
         },
       ],
@@ -326,7 +380,7 @@ const dataEs: DataSet = {
       company: "WiseConn Latam",
       period: "Sep 2024 – Mar 2025",
       impact:
-        "Optimicé el sistema de datos de la empresa y puse modelos de forecasting en producción, que anticipan el riesgo y reducen los costos operativos.",
+        "Consolidé el sistema de datos de la empresa y desplegué modelos de forecasting a producción, donde anticipan riesgo y reducen costos operativos.",
       viz: "forecasting",
       stack: ["Transformers", "LSTM", "CNN", "AWS SageMaker", "S3", "PyTorch"],
       roles: [
@@ -355,9 +409,9 @@ const dataEs: DataSet = {
           title: "Ingeniero IA Jr.",
           period: "Jul 2022 – Jul 2024",
           bullets: [
-            "Construí APIs en Python sobre PostgreSQL con tests automatizados que estabilizaron el backend y aceleraron las respuestas.",
-            'Construí una app de "Lenguaje Natural → SQL" (Flask, LLMs, Azure / GCP) para que el equipo consultara los datos en lenguaje natural.',
-            "La ajusté con usuarios reales hasta que las consultas volvían precisas y claras.",
+            "Construí APIs en Python sobre PostgreSQL con tests automatizados, mejorando la estabilidad y los tiempos de respuesta del backend.",
+            'Construí una aplicación de "Lenguaje Natural → SQL" (Flask, LLMs, Azure / GCP) para que el equipo consultara los datos en lenguaje natural.',
+            "La refiné con usuarios reales hasta obtener resultados consistentemente precisos.",
           ],
         },
       ],
@@ -388,6 +442,52 @@ const dataEs: DataSet = {
         "Detección de crisis y redacción de PII como guardrails de seguridad.",
         "Prompts versionados con A/B determinístico por usuario; evals con LLM-as-judge + detección de drift.",
         "Observabilidad con Langfuse y analítica k-anónima para los dashboards de RRHH.",
+      ],
+    },
+  ],
+  practice: [
+    {
+      id: "harness",
+      title: "Ingeniería de harness",
+      definition:
+        "El andamiaje que convierte un modelo en producto: orquestación, interfaces de herramientas, guardrails y estado.",
+      evidence: [
+        "Orquestadores LangGraph en producción en Doctor911 — dos agentes en web, cuatro en WhatsApp — con los flujos clínicos y de negocio expuestos como herramientas.",
+        "Guardrails como componentes, no como cláusulas del prompt: detección de crisis y redacción de PII corren antes del modelo (EPE).",
+        "Pagos (Transbank, MercadoPago), formularios de Meta Flows y generación de PDF integrados como herramientas dentro del grafo de agentes.",
+      ],
+    },
+    {
+      id: "prompts",
+      title: "Ingeniería de prompts",
+      definition:
+        "Prompts como artefactos versionados y medidos: se revisan, se prueban y se despliegan como código.",
+      evidence: [
+        "Prompts versionados con asignación A/B determinística por usuario en producción (EPE).",
+        "Prompt caching de Anthropic en los cinco agentes de research paralelos de MiAutoCheck para contener latencia y costo.",
+        "Prompts de NL→SQL refinados con consultas reales de usuarios hasta lograr resultados consistentemente precisos (Unitti).",
+      ],
+    },
+    {
+      id: "coevolution",
+      title: "Coevolución modelo–harness",
+      definition:
+        "Modelo y andamiaje evolucionan juntos: cada mejora del modelo permite eliminar código del harness, y cada workaround señala lo que el próximo modelo debería absorber.",
+      evidence: [
+        "Migración de los agentes productivos de Doctor911 de Gemini a OpenAI detrás de interfaces de herramientas estables.",
+        "La recomendación de exámenes es un tool call y no un quinto agente: la capacidad vive en la capa más simple que la sostiene con fiabilidad.",
+        "Cada generación de modelos gatilla una revisión del harness: el andamiaje que el modelo absorbe se elimina, no se mantiene.",
+      ],
+    },
+    {
+      id: "evals",
+      title: "Benchmarks de evaluación",
+      definition:
+        "Los cambios de comportamiento se miden antes de desplegarse: prompts, harness y cambios de modelo se contrastan con líneas base definidas.",
+      evidence: [
+        "Evaluación LLM-as-judge con monitoreo de drift en producción, sobre Langfuse (EPE).",
+        "La asignación A/B determinística liga cada movimiento de métrica a la versión de prompt que lo causó (EPE).",
+        "Tesis: benchmark de 3.675 configuraciones con pruebas de significancia — p < 0,0001, d de Cohen = 0,74, tasa de éxito 83,8 %.",
       ],
     },
   ],
@@ -422,7 +522,7 @@ const dataEs: DataSet = {
     institution: "Magíster en Ciencia de Datos · UAI",
     date: "Abril 2026",
     abstract:
-      "Los LLMs pueden generar miles de muestras sintéticas de entrenamiento, pero no todas ayudan. Esta tesis evalúa cada candidata según dónde cae en el espacio de embeddings y conserva solo las que quedan cerca de los datos reales. Resultado: +2,25 pp macro-F1 sobre SMOTE en 3.675 configuraciones (p < 0,0001, d = 0,74, tasa de éxito 83,8 %).",
+      "Los LLMs pueden generar miles de muestras sintéticas de entrenamiento, pero no todas mejoran el clasificador. Esta tesis evalúa cada candidata según su posición en el espacio de embeddings y conserva solo las cercanas a la distribución de los datos reales. Resultado: +2,25 pp macro-F1 sobre SMOTE en 3.675 configuraciones (p < 0,0001, d = 0,74, tasa de éxito 83,8 %).",
     results: [
       { id: "soft-weighting", method: "Ponderación suave", delta: 2.25, isOurs: true },
       { id: "binary-filter", method: "Filtro binario", delta: 2.11, isOurs: true },

@@ -34,6 +34,8 @@ type Strings = {
     thesisSubtitle: string; // suffixed with date externally
     projectsTitle: string;
     projectsSubtitle: string;
+    practiceTitle: string;
+    practiceSubtitle: string;
     educationTitle: string;
     educationSubtitle: string;
     skillsTitle: string;
@@ -118,17 +120,19 @@ const en: Strings = {
   },
   section: {
     experienceTitle: "Experience",
-    experienceSubtitle: "hover the visualizations · scroll to play",
+    experienceSubtitle: "hover the visualizations to explore",
     thesisTitle: "Master's thesis",
     thesisSubtitle: "defense",
     projectsTitle: "Projects",
     projectsSubtitle: "selected client work",
+    practiceTitle: "AI Engineering Practice",
+    practiceSubtitle: "how I work with models",
     educationTitle: "Education",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Skills",
     skillsSubtitle: "tools / frameworks / languages",
     contactTitle: "Contact",
-    contactSubtitle: "where to find me",
+    contactSubtitle: "how to reach me",
   },
   experienceCard: {
     impact: "Impact",
@@ -174,8 +178,8 @@ const en: Strings = {
     email: "Email",
     linkedin: "LinkedIn",
   },
-  contactPrompt: "I build AI that ships and keeps working.",
-  contactPromptHighlight: "Let's talk.",
+  contactPrompt: "I build AI systems that reach production and stay reliable.",
+  contactPromptHighlight: "Get in touch.",
   resumeHref: "/cv.pdf",
 };
 
@@ -207,17 +211,19 @@ const es: Strings = {
   },
   section: {
     experienceTitle: "Experiencia",
-    experienceSubtitle: "pasa el cursor por las visualizaciones · desplaza para reproducir",
+    experienceSubtitle: "pasa el cursor por las visualizaciones",
     thesisTitle: "Tesis de Magíster",
     thesisSubtitle: "defensa",
     projectsTitle: "Proyectos",
     projectsSubtitle: "trabajo de cliente seleccionado",
+    practiceTitle: "Práctica de Ingeniería de IA",
+    practiceSubtitle: "cómo trabajo con modelos",
     educationTitle: "Educación",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Habilidades",
     skillsSubtitle: "herramientas / frameworks / lenguajes",
     contactTitle: "Contacto",
-    contactSubtitle: "dónde encontrarme",
+    contactSubtitle: "cómo contactarme",
   },
   experienceCard: {
     impact: "Impacto",
@@ -263,7 +269,7 @@ const es: Strings = {
     email: "Correo",
     linkedin: "LinkedIn",
   },
-  contactPrompt: "Construyo IA que llega a producción y sigue funcionando.",
+  contactPrompt: "Construyo sistemas de IA que llegan a producción y se mantienen confiables.",
   contactPromptHighlight: "Hablemos.",
   resumeHref: "/cv-es.pdf",
 };

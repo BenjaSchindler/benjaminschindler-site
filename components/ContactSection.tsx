@@ -15,7 +15,8 @@ export function ContactSection() {
     <section id="contact" className="py-20 sm:py-28 px-6 sm:px-8">
       <div className="max-w-5xl mx-auto">
         <SectionHeader
-          index="06"
+          index="07"
+          conciseIndex="06"
           title={t.section.contactTitle}
           subtitle={t.section.contactSubtitle}
         />

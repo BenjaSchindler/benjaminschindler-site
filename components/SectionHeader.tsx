@@ -3,12 +3,14 @@ import { useViewMode } from "@/lib/ViewMode";
 
 type Props = {
   index: string;
+  /** Concise view number, when it differs (sections hidden in concise mode shift the count). */
+  conciseIndex?: string;
   title: string;
   subtitle?: string;
   accent?: "green" | "warm";
 };
 
-export function SectionHeader({ index, title, subtitle, accent = "green" }: Props) {
+export function SectionHeader({ index, conciseIndex, title, subtitle, accent = "green" }: Props) {
   const { detailed } = useViewMode();
   const color = accent === "warm" ? "var(--accent-warm)" : "var(--accent)";
 
@@ -19,7 +21,7 @@ export function SectionHeader({ index, title, subtitle, accent = "green" }: Prop
           aria-hidden
           className="text-xs font-semibold tracking-[0.22em] text-[var(--accent-gold-soft)]"
         >
-          {String(parseInt(index, 10)).padStart(2, "0")}
+          {String(parseInt(conciseIndex ?? index, 10)).padStart(2, "0")}
         </span>
         <span aria-hidden className="h-px w-6 bg-[var(--accent-gold)]" />
         <h2 className="font-serif text-3xl sm:text-4xl tracking-tight text-[var(--foreground)]">
