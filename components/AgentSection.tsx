@@ -248,10 +248,38 @@ export function AgentSection() {
               aria-live="off"
             >
               {traces.length === 0 ? (
-                <p className="text-[var(--foreground-muted)]">
-                  {"// "}
-                  {t.agent.traceEmpty}
-                </p>
+                <div className="space-y-3 text-[var(--foreground-muted)]">
+                  <p>
+                    {"// "}
+                    {t.agent.traceEmpty}
+                  </p>
+                  <div>
+                    <p className="uppercase tracking-[0.14em] text-[9.5px]">
+                      {t.agent.toolsTitle}
+                    </p>
+                    <ul className="mt-1.5 space-y-1">
+                      {t.agent.toolsList.map((tool) => (
+                        <li key={tool.name} className="flex gap-2 items-baseline min-w-0">
+                          <span
+                            aria-hidden
+                            className="size-1.5 rounded-full shrink-0 translate-y-[-1px]"
+                            style={{
+                              background:
+                                tool.name === "show_section" ? palette.orange : palette.cyan,
+                            }}
+                          />
+                          <span className="min-w-0">
+                            <span style={{ color: palette.textDim }}>{tool.name}</span>
+                            <span className="break-words">
+                              {" · "}
+                              {tool.desc}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               ) : (
                 <ol className="space-y-1.5">
                   {traces.map((ev, i) => (

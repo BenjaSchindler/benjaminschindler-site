@@ -131,6 +131,9 @@ async function runLive(
         input,
         tools: CV_TOOLS,
         reasoning: { effort: "none" }, // non-reasoning mode
+        // Sampling params are accepted only because reasoning is off; low
+        // temperature damps rare-token glitches (cross-script token bleed).
+        temperature: 0.2,
         text: { verbosity: "low" },
         max_output_tokens: MAX_OUTPUT_TOKENS,
         store: false, // stateless; the disclaimer promises no stored conversations

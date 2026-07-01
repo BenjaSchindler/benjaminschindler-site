@@ -91,6 +91,8 @@ type Strings = {
     agentLabel: string;
     traceTitle: string;
     traceEmpty: string;
+    toolsTitle: string;
+    toolsList: { name: string; desc: string }[];
     live: string;
     replay: string;
     disclaimer: string;
@@ -198,6 +200,16 @@ const en: Strings = {
     agentLabel: "agent",
     traceTitle: "trace",
     traceEmpty: "send a question to watch the harness work",
+    toolsTitle: "available tools",
+    toolsList: [
+      { name: "get_profile", desc: "identity, contact, resume" },
+      { name: "get_experience", desc: "roles, impact, stack" },
+      { name: "get_projects", desc: "client work: MiAutoCheck, EPE" },
+      { name: "get_thesis", desc: "benchmark, stats, results" },
+      { name: "get_practice", desc: "how he works with models" },
+      { name: "get_education_and_skills", desc: "degrees, skills, languages" },
+      { name: "show_section", desc: "scrolls this page to a section" },
+    ],
     live: "live",
     replay: "replay",
     disclaimer:
@@ -311,6 +323,16 @@ const es: Strings = {
     agentLabel: "agente",
     traceTitle: "trace",
     traceEmpty: "envía una pregunta para ver el harness trabajar",
+    toolsTitle: "herramientas disponibles",
+    toolsList: [
+      { name: "get_profile", desc: "identidad, contacto, CV" },
+      { name: "get_experience", desc: "roles, impacto, stack" },
+      { name: "get_projects", desc: "trabajo de cliente: MiAutoCheck, EPE" },
+      { name: "get_thesis", desc: "benchmark, estadísticas, resultados" },
+      { name: "get_practice", desc: "cómo trabaja con modelos" },
+      { name: "get_education_and_skills", desc: "títulos, habilidades, idiomas" },
+      { name: "show_section", desc: "desplaza esta página a una sección" },
+    ],
     live: "en vivo",
     replay: "replay",
     disclaimer:
