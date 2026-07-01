@@ -8,7 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
-export type Lang = "en" | "es";
+import type { Lang } from "./cvData";
+export type { Lang };
 const STORAGE_KEY = "cv-lang";
 
 type LanguageContextValue = {

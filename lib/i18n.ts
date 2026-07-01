@@ -36,6 +36,8 @@ type Strings = {
     projectsSubtitle: string;
     practiceTitle: string;
     practiceSubtitle: string;
+    agentTitle: string;
+    agentSubtitle: string;
     educationTitle: string;
     educationSubtitle: string;
     skillsTitle: string;
@@ -82,6 +84,20 @@ type Strings = {
     loadingPipeline: string;
     loadingScatter: string;
   };
+  agent: {
+    inputPlaceholder: string;
+    send: string;
+    you: string;
+    agentLabel: string;
+    traceTitle: string;
+    traceEmpty: string;
+    live: string;
+    replay: string;
+    disclaimer: string;
+    limitReached: string;
+    errorLine: string;
+    suggested: string[];
+  };
   footer: {
     copyrightSuffix: string;
     email: string;
@@ -127,6 +143,8 @@ const en: Strings = {
     projectsSubtitle: "selected client work",
     practiceTitle: "AI Engineering Practice",
     practiceSubtitle: "how I work with models",
+    agentTitle: "Ask the Agent",
+    agentSubtitle: "the practice above, running live",
     educationTitle: "Education",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Skills",
@@ -173,6 +191,26 @@ const en: Strings = {
     loadingPipeline: "loading pipeline...",
     loadingScatter: "loading scatter...",
   },
+  agent: {
+    inputPlaceholder: "Ask about the work above…",
+    send: "Send",
+    you: "you",
+    agentLabel: "agent",
+    traceTitle: "trace",
+    traceEmpty: "send a question to watch the harness work",
+    live: "live",
+    replay: "replay",
+    disclaimer:
+      "An agent with read-only tools over this CV's data. Rate-limited; conversations are not stored.",
+    limitReached: "Session limit reached — use the contact section below.",
+    errorLine: "The connection dropped. Try again in a moment.",
+    suggested: [
+      "What did Benjamin build at Doctor911?",
+      "Summarize the thesis results.",
+      "How does he run evals in production?",
+      "What multi-agent systems has he shipped?",
+    ],
+  },
   footer: {
     copyrightSuffix: "Built with Next.js · Deployed on Vercel",
     email: "Email",
@@ -218,6 +256,8 @@ const es: Strings = {
     projectsSubtitle: "trabajo de cliente seleccionado",
     practiceTitle: "Práctica de Ingeniería de IA",
     practiceSubtitle: "cómo trabajo con modelos",
+    agentTitle: "Pregúntale al Agente",
+    agentSubtitle: "la práctica de arriba, corriendo en vivo",
     educationTitle: "Educación",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Habilidades",
@@ -263,6 +303,26 @@ const es: Strings = {
     loadingAgentGraph: "cargando grafo de agentes...",
     loadingPipeline: "cargando pipeline...",
     loadingScatter: "cargando dispersión...",
+  },
+  agent: {
+    inputPlaceholder: "Pregunta sobre el trabajo de arriba…",
+    send: "Enviar",
+    you: "tú",
+    agentLabel: "agente",
+    traceTitle: "trace",
+    traceEmpty: "envía una pregunta para ver el harness trabajar",
+    live: "en vivo",
+    replay: "replay",
+    disclaimer:
+      "Un agente con herramientas de solo lectura sobre los datos de este CV. Con límite de uso; las conversaciones no se almacenan.",
+    limitReached: "Límite de la sesión alcanzado — usa la sección de contacto más abajo.",
+    errorLine: "Se cortó la conexión. Intenta de nuevo en un momento.",
+    suggested: [
+      "¿Qué construyó Benjamin en Doctor911?",
+      "Resume los resultados de la tesis.",
+      "¿Cómo corre evals en producción?",
+      "¿Qué sistemas multi-agente ha desplegado?",
+    ],
   },
   footer: {
     copyrightSuffix: "Construido con Next.js · Desplegado en Vercel",
