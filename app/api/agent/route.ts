@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { CV_TOOLS, runCvTool } from "@/lib/agent/tools";
+import { CV_TOOLS, runCvTool, SECTION_IDS } from "@/lib/agent/tools";
 import { SYSTEM_PROMPT, AGENT_MODEL } from "@/lib/agent/prompt";
 import { pickReplay, type ReplayStep } from "@/lib/agent/replay";
 import {
@@ -20,6 +20,7 @@ type Wire =
   | { type: "mode"; mode: "live" | "replay"; model?: string }
   | { type: "trace"; t: number; kind: string; label: string; detail?: string }
   | { type: "delta"; text: string }
+  | { type: "ui"; action: "scroll_to"; target: string }
   | { type: "done"; t: number };
 
 const enc = new TextEncoder();
@@ -181,8 +182,20 @@ async function runLive(
       } catch {
         // leave args empty; the tool reports what it can
       }
-      const out = runCvTool(call.name, args);
-      trace("result", call.name, `${call.arguments || "{}"} → ${out.length} bytes`);
+      let out: string;
+      if (call.name === "show_section") {
+        // UI tool: executes in the visitor's browser via a wire event.
+        const target = String(args.section ?? "");
+        const valid = (SECTION_IDS as readonly string[]).includes(target);
+        if (valid) send({ type: "ui", action: "scroll_to", target });
+        out = JSON.stringify(
+          valid ? { ok: true, now_in_view: target } : { error: "unknown section" },
+        );
+        trace("result", call.name, valid ? `→ scrolled to #${target}` : "unknown section");
+      } else {
+        out = runCvTool(call.name, args);
+        trace("result", call.name, `${call.arguments || "{}"} → ${out.length} bytes`);
+      }
       input.push({ type: "function_call_output", call_id: call.call_id, output: out });
     }
   }
@@ -204,6 +217,8 @@ async function runReplay(
     await sleep(step.delay);
     if (step.kind === "trace") {
       trace(step.ev, step.label, step.detail);
+    } else if (step.kind === "ui") {
+      send({ type: "ui", action: "scroll_to", target: step.target });
     } else {
       // Stream the recorded answer in small chunks so both modes read the same.
       const words = step.text.split(" ");

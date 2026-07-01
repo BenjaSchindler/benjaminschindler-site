@@ -9,7 +9,18 @@ import { getData } from "../cvData";
 const en = getData("en");
 const es = getData("es");
 
-// strict:false — the two lookup tools take an optional enum filter, which
+// Page sections show_section may scroll to ("agent" itself is excluded).
+export const SECTION_IDS = [
+  "experience",
+  "thesis",
+  "education",
+  "projects",
+  "practice",
+  "skills",
+  "contact",
+] as const;
+
+// strict:false — the lookup tools take an optional enum filter, which
 // strict mode would force into required+nullable for no practical gain here.
 export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
   {
@@ -66,11 +77,48 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
   },
   {
     type: "function",
+    name: "get_practice",
+    description:
+      "How Benjamin works with models — his AI engineering practice: harness engineering, prompt engineering, model-harness co-evolution, and evaluation benchmarks, each with a definition and concrete evidence. Call this for methodology / how-does-he-work questions.",
+    strict: false,
+    parameters: {
+      type: "object",
+      properties: {
+        area: {
+          type: "string",
+          enum: ["harness", "prompts", "coevolution", "evals"],
+          description: "Restrict to one practice area. Omit for all four.",
+        },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    type: "function",
     name: "get_education_and_skills",
     description:
       "Degrees with grades, the skills matrix, and spoken languages.",
     strict: false,
     parameters: { type: "object", properties: {}, additionalProperties: false },
+  },
+  {
+    type: "function",
+    name: "show_section",
+    description:
+      "Scroll the visitor's page to a section of this site so they can see it while you answer. Use at most once per reply, when the answer centers on that section's content.",
+    strict: false,
+    parameters: {
+      type: "object",
+      properties: {
+        section: {
+          type: "string",
+          enum: [...SECTION_IDS],
+          description: "The section to bring into view.",
+        },
+      },
+      required: ["section"],
+      additionalProperties: false,
+    },
   },
 ];
 
@@ -87,6 +135,7 @@ export function runCvTool(name: string, input: ToolInput): string {
         location: "Santiago, Chile",
         email: p.email,
         linkedin: p.linkedin,
+        resume_pdf: { en: "/cv.pdf", es: "/cv-es.pdf" },
         bio: p.bio,
         tags: p.tags,
       });
@@ -138,6 +187,13 @@ export function runCvTool(name: string, input: ToolInput): string {
           ours: r.isOurs,
         })),
       });
+    }
+    case "get_practice": {
+      const area = typeof input.area === "string" ? input.area : null;
+      const list = en.practice
+        .filter((p) => !area || p.id === area)
+        .map((p) => ({ area: p.id, title: p.title, definition: p.definition, evidence: p.evidence }));
+      return JSON.stringify(list.length ? list : { error: "unknown practice area" });
     }
     case "get_education_and_skills": {
       return JSON.stringify({

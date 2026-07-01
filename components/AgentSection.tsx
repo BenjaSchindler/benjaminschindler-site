@@ -25,6 +25,21 @@ const KIND_COLORS: Record<string, string> = {
   error: palette.red,
 };
 
+// The show_section tool lands here: scroll the visitor to the section the
+// agent is talking about and pulse it briefly. Only known ids are honored.
+function scrollToSection(target: string) {
+  if (!/^[a-z]+$/.test(target)) return;
+  const el = document.getElementById(target);
+  if (!el || el.tagName !== "SECTION") return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  el.classList.remove("agent-flash");
+  // restart the animation if the same section is targeted twice
+  void el.offsetWidth;
+  el.classList.add("agent-flash");
+  window.setTimeout(() => el.classList.remove("agent-flash"), 2000);
+}
+
 export function AgentSection() {
   const { detailed } = useViewMode();
   const t = useT();
@@ -106,6 +121,8 @@ export function AgentSection() {
             } else if (msg.type === "mode") {
               setMode(msg.mode as Mode);
               setModel(typeof msg.model === "string" ? msg.model : null);
+            } else if (msg.type === "ui" && msg.action === "scroll_to") {
+              scrollToSection(String(msg.target));
             }
           }
         }

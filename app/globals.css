@@ -98,6 +98,15 @@ section {
   animation: pulseDot 2s ease-in-out infinite;
 }
 
+/* Soft background pulse when the agent's show_section tool scrolls to a section */
+@keyframes agentFlash {
+  0% { background-color: color-mix(in srgb, var(--accent-warm) 9%, transparent); }
+  100% { background-color: transparent; }
+}
+.agent-flash {
+  animation: agentFlash 1.8s ease-out 1;
+}
+
 /* Blinking caret — used inside the NL→SQL pipeline chart's typing animation */
 @keyframes blink {
   0%, 50% { opacity: 1; }
