@@ -11,6 +11,7 @@ name: agent-evals
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -48,9 +49,16 @@ jobs:
 
       - name: Run eval suite
         id: evals
-        # continue-on-error: failed cases still get published — that's the point
+        # continue-on-error: failed cases still get published — that's the
+        # point. The exit code distinguishes behavioral failures (1) from a
+        # replay-mode abort (2), which publishes nothing.
         continue-on-error: true
-        run: npm run evals
+        run: |
+          set +e
+          npm run evals
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
         env:
           BASE_URL: http://localhost:3000
           EVAL_KEY: ci-eval-run
@@ -70,5 +78,10 @@ jobs:
       - name: Report failures
         if: steps.evals.outcome == 'failure'
         run: |
-          echo "Some eval cases failed — results were still published."
+          if [ "${{ steps.evals.outputs.code }}" = "2" ]; then
+            echo "Eval suite aborted: the endpoint answered in replay mode, so nothing was published."
+            echo "That usually means the OPENAI_API_KEY repository secret is missing or empty."
+          else
+            echo "Some eval cases failed — results were still published."
+          fi
           exit 1
