@@ -2,6 +2,8 @@
 // per-serverless-instance on Vercel — an accepted limitation for a demo:
 // each instance still enforces the caps, which bounds worst-case spend.
 
+import { JD_PREFIX } from "./match";
+
 const WINDOW_MS = 5 * 60_000;
 const MAX_PER_WINDOW = 10;
 const MAX_TRACKED_IPS = 2_000;
@@ -9,8 +11,9 @@ const DAILY_TOKEN_BUDGET = 2_000_000; // a few $/day/instance worst case at mini
 
 export const LIMITS = {
   maxUserMessageChars: 500,
+  maxJdChars: 16_000, // job-description turns (JD_PREFIX) get a larger cap
   maxUserTurns: 9,
-  maxBodyBytes: 16_384,
+  maxBodyBytes: 98_304, // 16k JD (multi-byte chars) + capped history + JSON overhead
 } as const;
 
 const hits = new Map<string, number[]>();
@@ -64,7 +67,12 @@ export function sanitizeMessages(raw: unknown): ChatTurn[] | null {
     const { role, content } = m as { role?: unknown; content?: unknown };
     if (role !== "user" && role !== "assistant") return null;
     if (typeof content !== "string" || content.trim().length === 0) return null;
-    const max = role === "user" ? LIMITS.maxUserMessageChars : 2_000;
+    const max =
+      role === "assistant"
+        ? 2_000
+        : content.startsWith(JD_PREFIX)
+          ? LIMITS.maxJdChars
+          : LIMITS.maxUserMessageChars;
     turns.push({ role, content: content.slice(0, max) });
   }
   if (turns[0].role !== "user" || turns[turns.length - 1].role !== "user") return null;

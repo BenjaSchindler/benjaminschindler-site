@@ -99,6 +99,29 @@ type Strings = {
     limitReached: string;
     errorLine: string;
     suggested: string[];
+    openChat: string;
+    closeChat: string;
+    expandChat: string;
+    shrinkChat: string;
+    chatTab: string;
+    traceTab: string;
+    teaserCta: string;
+    teaserDismiss: string;
+    teasers: Record<string, { text: string; question: string }>;
+    matchButton: string;
+    recruiterPitch: string;
+    matchPlaceholder: string;
+    matchRun: string;
+    matchCancel: string;
+    matchHint: string;
+    jdLabel: string;
+    jdExpand: string;
+    jdCollapse: string;
+    verdicts: { met: string; partial: string; missing: string };
+    evalsTab: string;
+    evalsIntro: string;
+    evalsEmpty: string;
+    evalsLastRun: string;
   };
   footer: {
     copyrightSuffix: string;
@@ -146,7 +169,7 @@ const en: Strings = {
     practiceTitle: "AI Engineering Practice",
     practiceSubtitle: "how I work with models",
     agentTitle: "Ask the Agent",
-    agentSubtitle: "the practice above, running live",
+    agentSubtitle: "the AI practice on this site, running live",
     educationTitle: "Education",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Skills",
@@ -217,11 +240,58 @@ const en: Strings = {
     limitReached: "Session limit reached — use the contact section below.",
     errorLine: "The connection dropped. Try again in a moment.",
     suggested: [
+      "Give me the 30-second tour of this site.",
       "What did Benjamin build at Doctor911?",
       "Summarize the thesis results.",
       "How does he run evals in production?",
-      "What multi-agent systems has he shipped?",
     ],
+    openChat: "Ask the agent",
+    closeChat: "Close chat",
+    expandChat: "Expand chat",
+    shrinkChat: "Shrink chat",
+    chatTab: "chat",
+    traceTab: "trace",
+    teaserCta: "ask the agent →",
+    teaserDismiss: "Dismiss suggestion",
+    teasers: {
+      experience: {
+        text: "Machine learning on millions of sensor rows at WiseConn.",
+        question: "Tell me about the machine learning work on millions of rows at WiseConn.",
+      },
+      thesis: {
+        text: "LLM augmentation beat SMOTE by +2.25 pp macro-F1.",
+        question: "How did the thesis beat SMOTE by +2.25 pp?",
+      },
+      projects: {
+        text: "Guardrails, prompt versioning and evals in real client work.",
+        question: "How does he handle guardrails and evals in client projects?",
+      },
+      practice: {
+        text: "This chat runs on the practice described here.",
+        question: "How does Benjamin work with models?",
+      },
+      skills: {
+        text: "Python, PyTorch, LangGraph, GCP & AWS.",
+        question: "What is his core stack?",
+      },
+    },
+    matchButton: "Match a job description",
+    recruiterPitch:
+      "Hiring? Paste a job description and I'll check it against this CV — honest gaps included.",
+    matchPlaceholder: "Paste the job description here…",
+    matchRun: "Match",
+    matchCancel: "Cancel",
+    matchHint:
+      "The agent checks each requirement against the CV data and reports honest gaps.",
+    jdLabel: "job description",
+    jdExpand: "show full text",
+    jdCollapse: "collapse",
+    verdicts: { met: "met", partial: "partial", missing: "gap" },
+    evalsTab: "evals",
+    evalsIntro:
+      "Automated behavior checks run against this live agent — grounding, scope, injection resistance, language, tool discipline. Published as-is, failures included.",
+    evalsEmpty: "No published eval results yet.",
+    evalsLastRun: "last run",
   },
   footer: {
     copyrightSuffix: "Built with Next.js · Deployed on Vercel",
@@ -269,7 +339,7 @@ const es: Strings = {
     practiceTitle: "Práctica de Ingeniería de IA",
     practiceSubtitle: "cómo trabajo con modelos",
     agentTitle: "Pregúntale al Agente",
-    agentSubtitle: "la práctica de arriba, corriendo en vivo",
+    agentSubtitle: "la práctica de IA de este sitio, corriendo en vivo",
     educationTitle: "Educación",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Habilidades",
@@ -340,11 +410,58 @@ const es: Strings = {
     limitReached: "Límite de la sesión alcanzado — usa la sección de contacto más abajo.",
     errorLine: "Se cortó la conexión. Intenta de nuevo en un momento.",
     suggested: [
+      "Dame el tour de 30 segundos por este sitio.",
       "¿Qué construyó Benjamin en Doctor911?",
       "Resume los resultados de la tesis.",
       "¿Cómo corre evals en producción?",
-      "¿Qué sistemas multi-agente ha desplegado?",
     ],
+    openChat: "Pregúntale al agente",
+    closeChat: "Cerrar chat",
+    expandChat: "Agrandar chat",
+    shrinkChat: "Reducir chat",
+    chatTab: "chat",
+    traceTab: "trace",
+    teaserCta: "preguntar →",
+    teaserDismiss: "Ocultar sugerencia",
+    teasers: {
+      experience: {
+        text: "Machine learning sobre millones de filas de sensores en WiseConn.",
+        question: "Cuéntame del trabajo de machine learning con millones de filas en WiseConn.",
+      },
+      thesis: {
+        text: "La augmentación con LLMs superó a SMOTE por +2.25 pp de macro-F1.",
+        question: "¿Cómo superó la tesis a SMOTE por +2.25 pp?",
+      },
+      projects: {
+        text: "Guardrails, versionado de prompts y evals en trabajo real con clientes.",
+        question: "¿Cómo maneja guardrails y evals en proyectos de clientes?",
+      },
+      practice: {
+        text: "Este chat corre sobre la práctica descrita aquí.",
+        question: "¿Cómo trabaja Benjamin con los modelos?",
+      },
+      skills: {
+        text: "Python, PyTorch, LangGraph, GCP y AWS.",
+        question: "¿Cuál es su stack principal?",
+      },
+    },
+    matchButton: "Evalúa una oferta laboral",
+    recruiterPitch:
+      "¿Contratando? Pega una descripción de cargo y la contrasto con este CV — brechas honestas incluidas.",
+    matchPlaceholder: "Pega aquí la descripción del cargo…",
+    matchRun: "Evaluar",
+    matchCancel: "Cancelar",
+    matchHint:
+      "El agente contrasta cada requisito con los datos del CV y reporta brechas con honestidad.",
+    jdLabel: "descripción del cargo",
+    jdExpand: "ver texto completo",
+    jdCollapse: "contraer",
+    verdicts: { met: "cumple", partial: "parcial", missing: "brecha" },
+    evalsTab: "evals",
+    evalsIntro:
+      "Checks automáticos de comportamiento contra este agente en vivo — grounding, alcance, resistencia a inyección, idioma, disciplina de herramientas. Publicados tal cual, fallas incluidas.",
+    evalsEmpty: "Aún no hay resultados de evals publicados.",
+    evalsLastRun: "última corrida",
   },
   footer: {
     copyrightSuffix: "Construido con Next.js · Desplegado en Vercel",

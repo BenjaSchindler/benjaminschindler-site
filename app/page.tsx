@@ -4,7 +4,7 @@ import { ExperienceTimeline } from "@/components/ExperienceTimeline";
 import { ThesisSection } from "@/components/ThesisSection";
 import { ProjectsSection } from "@/components/ProjectsSection";
 import { PracticeSection } from "@/components/PracticeSection";
-import { AgentSection } from "@/components/AgentSection";
+import { AgentWidget } from "@/components/AgentWidget";
 import { EducationSection } from "@/components/EducationSection";
 import { SkillsSection } from "@/components/SkillsSection";
 import { ContactSection } from "@/components/ContactSection";
@@ -21,11 +21,11 @@ export default function Home() {
         <EducationSection />
         <ProjectsSection />
         <PracticeSection />
-        <AgentSection />
         <SkillsSection />
         <ContactSection />
       </main>
       <Footer />
+      <AgentWidget />
     </>
   );
 }

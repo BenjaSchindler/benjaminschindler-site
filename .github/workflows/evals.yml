@@ -1,0 +1,74 @@
+# Evals in the open: on every push to main, run the behavioral eval suite
+# against the freshly built site with the live model, then commit the
+# results to public/evals.json — failures included. The site's chat widget
+# renders this file in its "evals" tab.
+#
+# Requires the OPENAI_API_KEY repository secret. The commit is tagged
+# [evals] so it doesn't retrigger this workflow.
+
+name: agent-evals
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-evals
+  cancel-in-progress: true
+
+jobs:
+  evals:
+    if: "!contains(github.event.head_commit.message, '[evals]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Start server
+        run: |
+          npm start &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3000 > /dev/null && break
+            sleep 2
+          done
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          EVAL_KEY: ci-eval-run
+
+      - name: Run eval suite
+        id: evals
+        # continue-on-error: failed cases still get published — that's the point
+        continue-on-error: true
+        run: npm run evals
+        env:
+          BASE_URL: http://localhost:3000
+          EVAL_KEY: ci-eval-run
+
+      - name: Publish results
+        run: |
+          if git diff --quiet public/evals.json; then
+            echo "results unchanged — nothing to publish"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/evals.json
+          git commit -m "chore: publish agent eval results [evals]"
+          git push
+
+      - name: Report failures
+        if: steps.evals.outcome == 'failure'
+        run: |
+          echo "Some eval cases failed — results were still published."
+          exit 1

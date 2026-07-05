@@ -105,7 +105,7 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "show_section",
     description:
-      "Scroll the visitor's page to a section of this site so they can see it while you answer. Use at most once per reply, when the answer centers on that section's content.",
+      "Scroll the visitor's page to a section of this site so they can see it while you answer. Use at most once per reply (site tours excepted), when the answer centers on that section's content.",
     strict: false,
     parameters: {
       type: "object",
@@ -117,6 +117,54 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
         },
       },
       required: ["section"],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: "function",
+    name: "report_match",
+    description:
+      "Render a requirement-by-requirement match table in the visitor's chat, comparing a job description against Benjamin's CV data. Call exactly once per job description, after fetching the data that grounds each row.",
+    strict: false,
+    parameters: {
+      type: "object",
+      properties: {
+        role: {
+          type: "string",
+          description: "The role title from the job description, e.g. 'Senior AI Engineer'.",
+        },
+        summary: {
+          type: "string",
+          description: "2-3 sentence honest overall assessment of the fit.",
+        },
+        rows: {
+          type: "array",
+          description: "One row per key requirement, 5-9 rows.",
+          items: {
+            type: "object",
+            properties: {
+              requirement: {
+                type: "string",
+                description: "The requirement, condensed from the job description.",
+              },
+              verdict: {
+                type: "string",
+                enum: ["met", "partial", "missing"],
+                description:
+                  "met = direct evidence in the CV data; partial = adjacent experience, name the gap; missing = nothing relevant in the data.",
+              },
+              evidence: {
+                type: "string",
+                description:
+                  "Where the evidence lives (company, project, or thesis) and what it is. For missing: 'not in the CV data'.",
+              },
+            },
+            required: ["requirement", "verdict", "evidence"],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ["role", "summary", "rows"],
       additionalProperties: false,
     },
   },

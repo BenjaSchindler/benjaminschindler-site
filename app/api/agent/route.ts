@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { CV_TOOLS, runCvTool, SECTION_IDS } from "@/lib/agent/tools";
 import { SYSTEM_PROMPT, AGENT_MODEL } from "@/lib/agent/prompt";
+import { JD_PREFIX, validateMatchReport, type MatchReport } from "@/lib/agent/match";
 import { pickReplay, type ReplayStep } from "@/lib/agent/replay";
 import {
   checkBudget,
@@ -11,16 +12,20 @@ import {
   type ChatTurn,
 } from "@/lib/agent/guards";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
-const MAX_LLM_ITERATIONS = 4;
+// Tours chain one show_section call per stop, so the loop needs headroom
+// beyond simple lookup-then-answer turns.
+const MAX_LLM_ITERATIONS = 7;
 const MAX_OUTPUT_TOKENS = 700;
+const MAX_OUTPUT_TOKENS_MATCH = 1300; // a report_match payload alone runs several hundred tokens
 
 type Wire =
   | { type: "mode"; mode: "live" | "replay"; model?: string }
   | { type: "trace"; t: number; kind: string; label: string; detail?: string }
   | { type: "delta"; text: string }
   | { type: "ui"; action: "scroll_to"; target: string }
+  | { type: "ui"; action: "match_report"; report: MatchReport }
   | { type: "done"; t: number };
 
 const enc = new TextEncoder();
@@ -44,8 +49,14 @@ export async function POST(request: Request) {
   }
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  // The eval runner authenticates with EVAL_KEY to skip per-IP rate limits —
+  // a full suite from one IP would otherwise trip its own guardrails.
+  const isEvalRun =
+    Boolean(process.env.EVAL_KEY) &&
+    request.headers.get("x-eval-key") === process.env.EVAL_KEY;
   const live =
-    Boolean(process.env.OPENAI_API_KEY) && checkBudget().ok && checkRate(ip).ok;
+    Boolean(process.env.OPENAI_API_KEY) &&
+    (isEvalRun || (checkBudget().ok && checkRate(ip).ok));
 
   const t0 = Date.now();
   const stream = new ReadableStream<Uint8Array>({
@@ -115,6 +126,8 @@ async function runLive(
     role: t.role,
     content: t.content,
   }));
+  const hasJd = turns.some((t) => t.role === "user" && t.content.startsWith(JD_PREFIX));
+  const maxOutputTokens = hasJd ? MAX_OUTPUT_TOKENS_MATCH : MAX_OUTPUT_TOKENS;
 
   for (let iter = 0; iter < MAX_LLM_ITERATIONS; iter++) {
     if (signal.aborted) return;
@@ -135,7 +148,7 @@ async function runLive(
         // temperature damps rare-token glitches (cross-script token bleed).
         temperature: 0.2,
         text: { verbosity: "low" },
-        max_output_tokens: MAX_OUTPUT_TOKENS,
+        max_output_tokens: maxOutputTokens,
         store: false, // stateless; the disclaimer promises no stored conversations
         stream: true,
       },
@@ -195,6 +208,24 @@ async function runLive(
           valid ? { ok: true, now_in_view: target } : { error: "unknown section" },
         );
         trace("result", call.name, valid ? `→ scrolled to #${target}` : "unknown section");
+      } else if (call.name === "report_match") {
+        // UI tool: the table renders in the visitor's chat, not as text.
+        const report = validateMatchReport(args);
+        if (report) {
+          send({ type: "ui", action: "match_report", report });
+          out = JSON.stringify({
+            ok: true,
+            rendered:
+              "match table shown to the visitor — close with 1-2 sentences, do not repeat it",
+          });
+          trace("result", call.name, `→ rendered ${report.rows.length} rows`);
+        } else {
+          out = JSON.stringify({
+            error:
+              "invalid report: expected {role, summary, rows:[{requirement, verdict: met|partial|missing, evidence}]}",
+          });
+          trace("result", call.name, "invalid payload rejected");
+        }
       } else {
         out = runCvTool(call.name, args);
         trace("result", call.name, `${call.arguments || "{}"} → ${out.length} bytes`);

@@ -102,6 +102,45 @@ const enScripts: ReplayScript[] = [
     ],
   },
   {
+    id: "tour",
+    match: ["tour", "overview", "walk me", "show me around", "guide me"],
+    steps: [
+      guard(),
+      llm(160),
+      ...scroll("experience"),
+      tx(
+        "Quick tour. This is the experience section: Doctor911, where Benjamin is CTO and built multi-agent chatbots on LangGraph; WiseConn, time-series forecasting on millions of sensor rows; and Unitti, an NL-to-SQL app.",
+        160,
+      ),
+      ...scroll("thesis"),
+      tx(
+        " His MSc thesis: LLM data augmentation filtered in embedding space, +2.25 pp macro-F1 over SMOTE across 3,675 configurations.",
+        220,
+      ),
+      ...scroll("practice"),
+      tx(
+        " The practice section describes how he works with models — harnesses, prompts, evals. This chat runs on exactly that practice.",
+        220,
+      ),
+      ...scroll("contact"),
+      tx(
+        " And contact, if you want to talk to the human behind the data. Ask me anything about what you saw.",
+        220,
+      ),
+    ],
+  },
+  {
+    id: "match",
+    match: ["[job description]"],
+    steps: [
+      guard(),
+      tr("info", "replay mode", "matching needs the live model — it is switched off", 200),
+      tx(
+        `Matching a job description runs against the live model, which is switched off right now, so I can't analyze your posting in replay mode. Reach Benjamin at ${profileStatic.email} or on LinkedIn and he'll gladly walk through fit directly.`,
+      ),
+    ],
+  },
+  {
     id: "fallback",
     match: [],
     steps: [
@@ -177,6 +216,45 @@ const esScripts: ReplayScript[] = [
       llm(200),
       tx(
         "Dos sistemas productivos en Doctor911 corren sobre LangGraph: un orquestador web con dos agentes y uno de WhatsApp con cuatro — welcome, commerce, support y pedidos asíncronos — con pagos, formularios de Meta Flows y RAG integrados como herramientas. Del lado de clientes, MiAutoCheck ejecuta un agente de inspección VLM más cinco agentes de research en paralelo consolidados por un supervisor en reportes PDF de tasación, usando prompt caching de Anthropic para contener latencia y costo.",
+      ),
+    ],
+  },
+  {
+    id: "tour",
+    match: ["tour", "recorrido", "muéstrame", "muestrame", "guíame", "guiame"],
+    steps: [
+      guard(),
+      llm(160),
+      ...scroll("experience"),
+      tx(
+        "Tour rápido. Esta es la sección de experiencia: Doctor911, donde Benjamin es CTO y construyó chatbots multi-agente sobre LangGraph; WiseConn, forecasting de series de tiempo sobre millones de filas de sensores; y Unitti, una app de lenguaje natural a SQL.",
+        160,
+      ),
+      ...scroll("thesis"),
+      tx(
+        " Su tesis de magíster: data augmentation con LLMs filtrada en el espacio de embeddings, +2,25 pp de macro-F1 sobre SMOTE en 3.675 configuraciones.",
+        220,
+      ),
+      ...scroll("practice"),
+      tx(
+        " La sección de práctica describe cómo trabaja con modelos — harnesses, prompts, evals. Este chat corre sobre exactamente esa práctica.",
+        220,
+      ),
+      ...scroll("contact"),
+      tx(
+        " Y contacto, si quieres hablar con el humano detrás de los datos. Pregúntame lo que quieras sobre lo que viste.",
+        220,
+      ),
+    ],
+  },
+  {
+    id: "match",
+    match: ["[job description]"],
+    steps: [
+      guard(),
+      tr("info", "replay mode", "matching needs the live model — it is switched off", 200),
+      tx(
+        `Evaluar una oferta laboral requiere el modelo en vivo, que está apagado ahora, así que no puedo analizar tu descripción en modo replay. Escríbele a Benjamin a ${profileStatic.email} o por LinkedIn y él revisará el fit contigo directamente.`,
       ),
     ],
   },
