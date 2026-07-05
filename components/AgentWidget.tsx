@@ -269,7 +269,13 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
         const res = await fetch("/api/agent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: history, lang }),
+          // view lets the server refuse scrolls to sections this variant
+          // doesn't render (concise has no practice section).
+          body: JSON.stringify({
+            messages: history,
+            lang,
+            view: detailed ? "technical" : "concise",
+          }),
           signal: ac.signal,
         });
         if (!res.ok || !res.body) throw new Error(`http ${res.status}`);
@@ -320,7 +326,7 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
         setStreaming(false);
       }
     },
-    [msgs, lang, streaming, capped, t.agent.errorLine],
+    [msgs, lang, detailed, streaming, capped, t.agent.errorLine],
   );
 
   const askTeaser = () => {
@@ -580,8 +586,10 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
                               aria-hidden
                               className="size-1.5 rounded-full shrink-0 translate-y-[-1px]"
                               style={{
-                                background:
-                                  tool.name === "show_section" ? palette.orange : palette.cyan,
+                                // UI tools (they act on the visitor's page) vs data lookups
+                                background: ["show_section", "report_match"].includes(tool.name)
+                                  ? palette.orange
+                                  : palette.cyan,
                               }}
                             />
                             <span className="min-w-0">

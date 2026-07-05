@@ -20,6 +20,10 @@ export const SECTION_IDS = [
   "contact",
 ] as const;
 
+// Sections rendered only in the technical view — the concise (recruiter)
+// view omits them, so show_section must refuse these targets there.
+export const TECHNICAL_ONLY_SECTIONS: readonly string[] = ["practice"];
+
 // strict:false — the lookup tools take an optional enum filter, which
 // strict mode would force into required+nullable for no practical gain here.
 export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
@@ -114,6 +118,11 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
           type: "string",
           enum: [...SECTION_IDS],
           description: "The section to bring into view.",
+        },
+        note: {
+          type: "string",
+          description:
+            "1-2 sentences shown to the visitor as your words while the page scrolls there. Required on every tour stop; omit it when your reply text already covers the section.",
         },
       },
       required: ["section"],

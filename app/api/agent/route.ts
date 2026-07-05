@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import { CV_TOOLS, runCvTool, SECTION_IDS } from "@/lib/agent/tools";
-import { SYSTEM_PROMPT, AGENT_MODEL } from "@/lib/agent/prompt";
+import { CV_TOOLS, runCvTool, SECTION_IDS, TECHNICAL_ONLY_SECTIONS } from "@/lib/agent/tools";
+import { SYSTEM_PROMPTS, AGENT_MODEL, type SiteView } from "@/lib/agent/prompt";
 import { JD_PREFIX, validateMatchReport, type MatchReport } from "@/lib/agent/match";
 import { pickReplay, type ReplayStep } from "@/lib/agent/replay";
 import {
@@ -14,9 +14,14 @@ import {
 
 export const maxDuration = 60;
 
-// Tours chain one show_section call per stop, so the loop needs headroom
-// beyond simple lookup-then-answer turns.
-const MAX_LLM_ITERATIONS = 7;
+// Tours run one model call per stop, often preceded by sequential data
+// fetches to ground the stop notes (parallel tool calls are off outside
+// match turns), so the loop needs generous headroom: worst observed tour is
+// 4 fetches + 5 stops + closing text = 10 calls.
+const MAX_LLM_ITERATIONS = 12;
+// Dwell before every scroll after a turn's first: tours would otherwise jump
+// stop to stop as fast as the model iterates, before the page even settles.
+const TOUR_STOP_DWELL_MS = 2400;
 const MAX_OUTPUT_TOKENS = 700;
 const MAX_OUTPUT_TOKENS_MATCH = 1300; // a report_match payload alone runs several hundred tokens
 
@@ -36,7 +41,7 @@ export async function POST(request: Request) {
   if (raw.length > LIMITS.maxBodyBytes) {
     return Response.json({ error: "payload too large" }, { status: 413 });
   }
-  let body: { messages?: unknown; lang?: unknown };
+  let body: { messages?: unknown; lang?: unknown; view?: unknown };
   try {
     body = JSON.parse(raw);
   } catch {
@@ -44,6 +49,7 @@ export async function POST(request: Request) {
   }
   const turns = sanitizeMessages(body.messages);
   const lang = body.lang === "es" ? "es" : "en";
+  const view: SiteView = body.view === "concise" ? "concise" : "technical";
   if (!turns) {
     return Response.json({ error: "invalid messages" }, { status: 400 });
   }
@@ -78,9 +84,9 @@ export async function POST(request: Request) {
 
       try {
         if (live) {
-          await runLive(turns, send, trace, request.signal);
+          await runLive(turns, view, send, trace, request.signal);
         } else {
-          await runReplay(lang, turns, send, trace, () => closed);
+          await runReplay(lang, view, turns, send, trace, () => closed);
         }
       } catch {
         trace("error", "stream error", "the turn could not be completed");
@@ -110,6 +116,7 @@ export async function POST(request: Request) {
 // ── Live mode: manual streaming tool loop (Responses API) ───────────────────
 async function runLive(
   turns: ChatTurn[],
+  view: SiteView,
   send: (m: Wire) => void,
   trace: (kind: string, label: string, detail?: string) => void,
   signal: AbortSignal,
@@ -128,6 +135,20 @@ async function runLive(
   }));
   const hasJd = turns.some((t) => t.role === "user" && t.content.startsWith(JD_PREFIX));
   const maxOutputTokens = hasJd ? MAX_OUTPUT_TOKENS_MATCH : MAX_OUTPUT_TOKENS;
+  let scrollsSent = 0;
+  let textSent = false;
+
+  // show_section notes are assistant prose carried as a tool argument (terse
+  // models won't interleave text with tool calls); stream them word by word
+  // so they read like the model's own typing.
+  const streamNote = async (note: string) => {
+    const words = note.split(/\s+/);
+    for (let i = 0; i < words.length; i += 3) {
+      send({ type: "delta", text: (textSent || i > 0 ? " " : "") + words.slice(i, i + 3).join(" ") });
+      textSent = true;
+      await sleep(24);
+    }
+  };
 
   for (let iter = 0; iter < MAX_LLM_ITERATIONS; iter++) {
     if (signal.aborted) return;
@@ -140,9 +161,13 @@ async function runLive(
     const stream = await client.responses.create(
       {
         model: AGENT_MODEL,
-        instructions: SYSTEM_PROMPT,
+        instructions: SYSTEM_PROMPTS[view],
         input,
         tools: CV_TOOLS,
+        // One tool call per response keeps tours honest — each stop's scroll
+        // arrives with its narration instead of one batched call chain. Match
+        // turns keep parallel calls: they fan out over several data tools.
+        parallel_tool_calls: hasJd,
         reasoning: { effort: "none" }, // non-reasoning mode
         // Sampling params are accepted only because reasoning is off; low
         // temperature damps rare-token glitches (cross-script token bleed).
@@ -156,9 +181,14 @@ async function runLive(
     );
 
     let completed: OpenAI.Responses.Response | null = null;
+    let responseHasText = false;
     for await (const event of stream) {
       if (event.type === "response.output_text.delta") {
-        send({ type: "delta", text: event.delta });
+        // Glue a space between a previously streamed note and fresh text.
+        const glue = !responseHasText && textSent && !/^\s/.test(event.delta) ? " " : "";
+        responseHasText = true;
+        textSent = true;
+        send({ type: "delta", text: glue + event.delta });
       } else if (
         event.type === "response.output_item.added" &&
         event.item.type === "function_call"
@@ -202,12 +232,38 @@ async function runLive(
       if (call.name === "show_section") {
         // UI tool: executes in the visitor's browser via a wire event.
         const target = String(args.section ?? "");
-        const valid = (SECTION_IDS as readonly string[]).includes(target);
-        if (valid) send({ type: "ui", action: "scroll_to", target });
-        out = JSON.stringify(
-          valid ? { ok: true, now_in_view: target } : { error: "unknown section" },
-        );
-        trace("result", call.name, valid ? `→ scrolled to #${target}` : "unknown section");
+        const note = typeof args.note === "string" ? args.note.trim().slice(0, 400) : "";
+        const hidden = view === "concise" && TECHNICAL_ONLY_SECTIONS.includes(target);
+        const valid = (SECTION_IDS as readonly string[]).includes(target) && !hidden;
+        if (valid) {
+          if (scrollsSent > 0) await sleep(TOUR_STOP_DWELL_MS);
+          send({ type: "ui", action: "scroll_to", target });
+          scrollsSent++;
+          if (note) await streamNote(note);
+          out = JSON.stringify({
+            ok: true,
+            now_in_view: target,
+            ...(note && {
+              note_delivered: "the visitor already read your note — never repeat it in reply text",
+            }),
+          });
+          trace(
+            "result",
+            call.name,
+            `→ scrolled to #${target}${note ? " · note streamed" : ""}`,
+          );
+        } else {
+          out = JSON.stringify({
+            error: hidden
+              ? `the ${target} section is not on the visitor's concise view — describe it in words instead`
+              : "unknown section",
+          });
+          trace(
+            "result",
+            call.name,
+            hidden ? `#${target} hidden in concise view` : "unknown section",
+          );
+        }
       } else if (call.name === "report_match") {
         // UI tool: the table renders in the visitor's chat, not as text.
         const report = validateMatchReport(args);
@@ -239,19 +295,22 @@ async function runLive(
 // ── Replay mode: recorded sessions, honestly labeled ────────────────────────
 async function runReplay(
   lang: "en" | "es",
+  view: SiteView,
   turns: ChatTurn[],
   send: (m: Wire) => void,
   trace: (kind: string, label: string, detail?: string) => void,
   isClosed: () => boolean,
 ) {
   send({ type: "mode", mode: "replay" });
-  const script = pickReplay(lang, turns[turns.length - 1].content);
+  const script = pickReplay(lang, turns[turns.length - 1].content, view);
   for (const step of script.steps as ReplayStep[]) {
     if (isClosed()) return;
     await sleep(step.delay);
     if (step.kind === "trace") {
       trace(step.ev, step.label, step.detail);
     } else if (step.kind === "ui") {
+      // Never scroll a concise-view visitor to a section their page lacks.
+      if (view === "concise" && TECHNICAL_ONLY_SECTIONS.includes(step.target)) continue;
       send({ type: "ui", action: "scroll_to", target: step.target });
     } else {
       // Stream the recorded answer in small chunks so both modes read the same.

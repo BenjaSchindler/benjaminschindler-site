@@ -1,5 +1,6 @@
 import { profileStatic } from "../cvData";
-import { AGENT_MODEL } from "./prompt";
+import { AGENT_MODEL, type SiteView } from "./prompt";
+import { TECHNICAL_ONLY_SECTIONS } from "./tools";
 
 // Recorded conversations for replay mode — served when the endpoint has no
 // API key, is rate-limited, or the daily budget is spent, so the demo never
@@ -26,8 +27,10 @@ const tr = (
 const tx = (text: string, delay = 120): ReplayStep => ({ kind: "text", text, delay });
 
 // show_section as it appears in a live trace: tool call → page scroll → result.
-const scroll = (target: string): ReplayStep[] => [
-  tr("tool", "show_section", `{"section":"${target}"}`, 240),
+// preDelay is the pause before the tool call fires — tours raise it so the
+// page dwells on the current stop before the next scroll.
+const scroll = (target: string, preDelay = 240): ReplayStep[] => [
+  tr("tool", "show_section", `{"section":"${target}"}`, preDelay),
   { kind: "ui", target, delay: 60 },
   tr("result", "show_section", `→ scrolled to #${target}`, 80),
 ];
@@ -98,34 +101,6 @@ const enScripts: ReplayScript[] = [
       llm(200),
       tx(
         "Two production systems at Doctor911 run on LangGraph: a web orchestrator with two agents, and a WhatsApp orchestrator with four — welcome, commerce, support, and async orders — with payments, Meta Flows forms, and RAG wired in as tools. On the client side, MiAutoCheck runs a VLM inspection agent plus five parallel research agents consolidated by a supervisor into PDF valuation reports, using Anthropic prompt caching to contain latency and cost.",
-      ),
-    ],
-  },
-  {
-    id: "tour",
-    match: ["tour", "overview", "walk me", "show me around", "guide me"],
-    steps: [
-      guard(),
-      llm(160),
-      ...scroll("experience"),
-      tx(
-        "Quick tour. This is the experience section: Doctor911, where Benjamin is CTO and built multi-agent chatbots on LangGraph; WiseConn, time-series forecasting on millions of sensor rows; and Unitti, an NL-to-SQL app.",
-        160,
-      ),
-      ...scroll("thesis"),
-      tx(
-        " His MSc thesis: LLM data augmentation filtered in embedding space, +2.25 pp macro-F1 over SMOTE across 3,675 configurations.",
-        220,
-      ),
-      ...scroll("practice"),
-      tx(
-        " The practice section describes how he works with models — harnesses, prompts, evals. This chat runs on exactly that practice.",
-        220,
-      ),
-      ...scroll("contact"),
-      tx(
-        " And contact, if you want to talk to the human behind the data. Ask me anything about what you saw.",
-        220,
       ),
     ],
   },
@@ -220,34 +195,6 @@ const esScripts: ReplayScript[] = [
     ],
   },
   {
-    id: "tour",
-    match: ["tour", "recorrido", "muéstrame", "muestrame", "guíame", "guiame"],
-    steps: [
-      guard(),
-      llm(160),
-      ...scroll("experience"),
-      tx(
-        "Tour rápido. Esta es la sección de experiencia: Doctor911, donde Benjamin es CTO y construyó chatbots multi-agente sobre LangGraph; WiseConn, forecasting de series de tiempo sobre millones de filas de sensores; y Unitti, una app de lenguaje natural a SQL.",
-        160,
-      ),
-      ...scroll("thesis"),
-      tx(
-        " Su tesis de magíster: data augmentation con LLMs filtrada en el espacio de embeddings, +2,25 pp de macro-F1 sobre SMOTE en 3.675 configuraciones.",
-        220,
-      ),
-      ...scroll("practice"),
-      tx(
-        " La sección de práctica describe cómo trabaja con modelos — harnesses, prompts, evals. Este chat corre sobre exactamente esa práctica.",
-        220,
-      ),
-      ...scroll("contact"),
-      tx(
-        " Y contacto, si quieres hablar con el humano detrás de los datos. Pregúntame lo que quieras sobre lo que viste.",
-        220,
-      ),
-    ],
-  },
-  {
     id: "match",
     match: ["[job description]"],
     steps: [
@@ -271,10 +218,86 @@ const esScripts: ReplayScript[] = [
   },
 ];
 
+// ── Tour ─────────────────────────────────────────────────────────────────────
+// Built per view: the concise view has no practice section, so that stop
+// drops out, and every stop after the first waits TOUR_DWELL_MS so the page
+// settles and the visitor can actually look before the next scroll.
+
+const TOUR_DWELL_MS = 2400;
+
+type TourStop = { section: string; text: string };
+
+const TOUR_STOPS: Record<"en" | "es", TourStop[]> = {
+  en: [
+    {
+      section: "experience",
+      text: "Quick tour. This is the experience section: Doctor911, where Benjamin is CTO and built multi-agent chatbots on LangGraph; WiseConn, time-series forecasting on millions of sensor rows; and Unitti, an NL-to-SQL app.",
+    },
+    {
+      section: "thesis",
+      text: " His MSc thesis: LLM data augmentation filtered in embedding space, +2.25 pp macro-F1 over SMOTE across 3,675 configurations.",
+    },
+    {
+      section: "practice",
+      text: " The practice section describes how he works with models — harnesses, prompts, evals. This chat runs on exactly that practice.",
+    },
+    {
+      section: "projects",
+      text: " Selected client work: MiAutoCheck, a VLM inspection agent plus parallel research agents, and EPE, where prompts ship versioned behind evals and guardrails.",
+    },
+    {
+      section: "contact",
+      text: " And contact, if you want to talk to the human behind the data. Ask me anything about what you saw.",
+    },
+  ],
+  es: [
+    {
+      section: "experience",
+      text: "Tour rápido. Esta es la sección de experiencia: Doctor911, donde Benjamin es CTO y construyó chatbots multi-agente sobre LangGraph; WiseConn, forecasting de series de tiempo sobre millones de filas de sensores; y Unitti, una app de lenguaje natural a SQL.",
+    },
+    {
+      section: "thesis",
+      text: " Su tesis de magíster: data augmentation con LLMs filtrada en el espacio de embeddings, +2,25 pp de macro-F1 sobre SMOTE en 3.675 configuraciones.",
+    },
+    {
+      section: "practice",
+      text: " La sección de práctica describe cómo trabaja con modelos — harnesses, prompts, evals. Este chat corre sobre exactamente esa práctica.",
+    },
+    {
+      section: "projects",
+      text: " Trabajo con clientes: MiAutoCheck, un agente de inspección VLM más agentes de research en paralelo, y EPE, donde los prompts se despliegan versionados detrás de evals y guardrails.",
+    },
+    {
+      section: "contact",
+      text: " Y contacto, si quieres hablar con el humano detrás de los datos. Pregúntame lo que quieras sobre lo que viste.",
+    },
+  ],
+};
+
+const TOUR_MATCH: Record<"en" | "es", string[]> = {
+  en: ["tour", "overview", "walk me", "show me around", "guide me"],
+  es: ["tour", "recorrido", "muéstrame", "muestrame", "guíame", "guiame"],
+};
+
+function tourScript(lang: "en" | "es", view: SiteView): ReplayScript {
+  const stops = TOUR_STOPS[lang].filter(
+    (s) => view === "technical" || !TECHNICAL_ONLY_SECTIONS.includes(s.section),
+  );
+  const steps: ReplayStep[] = [guard(), llm(160)];
+  stops.forEach((s, i) => {
+    steps.push(...scroll(s.section, i === 0 ? 240 : TOUR_DWELL_MS), tx(s.text, 160));
+  });
+  return { id: "tour", match: TOUR_MATCH[lang], steps };
+}
+
 const SCRIPTS: Record<"en" | "es", ReplayScript[]> = { en: enScripts, es: esScripts };
 
-export function pickReplay(lang: "en" | "es", lastUserMessage: string): ReplayScript {
-  const scripts = SCRIPTS[lang];
+export function pickReplay(
+  lang: "en" | "es",
+  lastUserMessage: string,
+  view: SiteView,
+): ReplayScript {
+  const scripts = [...SCRIPTS[lang], tourScript(lang, view)];
   const q = lastUserMessage.toLowerCase();
   let best: ReplayScript | null = null;
   let bestScore = 0;
@@ -285,5 +308,5 @@ export function pickReplay(lang: "en" | "es", lastUserMessage: string): ReplaySc
       bestScore = score;
     }
   }
-  return best ?? scripts[scripts.length - 1];
+  return best ?? SCRIPTS[lang][SCRIPTS[lang].length - 1];
 }

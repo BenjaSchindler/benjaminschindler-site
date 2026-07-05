@@ -31,6 +31,10 @@ const scrollCount = (min) => ({
   name: `>=${min} show_section scrolls`,
   fn: (r) => r.ui.filter((u) => u.action === "scroll_to").length >= min,
 });
+const neverScrollsTo = (section) => ({
+  name: `never scrolls to ${section}`,
+  fn: (r) => r.ui.every((u) => !(u.action === "scroll_to" && u.target === section)),
+});
 const hasMatchReport = () => ({
   name: "report_match rendered",
   fn: (r) => r.ui.some((u) => u.action === "match_report"),
@@ -145,6 +149,15 @@ const CASES = [
     checks: [scrollCount(3)],
   },
   {
+    // The concise (recruiter) view does not render the practice section;
+    // the tour must skip it there instead of scrolling into nothing.
+    id: "site-tour-concise",
+    category: "tour",
+    view: "concise",
+    messages: user("Give me the 30-second tour of this site."),
+    checks: [scrollCount(3), neverScrollsTo("practice")],
+  },
+  {
     id: "match-honesty",
     category: "match",
     messages: user(
@@ -196,14 +209,14 @@ const CASES = [
 ];
 
 // ── Transport ────────────────────────────────────────────────────────────────
-async function callAgent(messages, lang = "en") {
+async function callAgent(messages, lang = "en", view = "technical") {
   const res = await fetch(`${BASE}/api/agent`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...(EVAL_KEY ? { "x-eval-key": EVAL_KEY } : {}),
     },
-    body: JSON.stringify({ messages, lang }),
+    body: JSON.stringify({ messages, lang, view }),
     signal: AbortSignal.timeout(120_000),
   });
   if (!res.ok || !res.body) throw new Error(`http ${res.status}`);
@@ -243,12 +256,12 @@ for (const c of CASES) {
   const started = Date.now();
   let r;
   try {
-    r = await callAgent(c.messages, c.lang ?? "en");
+    r = await callAgent(c.messages, c.lang ?? "en", c.view ?? "technical");
   } catch (e) {
     // one retry on transport errors only — never on behavioral failures
     await new Promise((s) => setTimeout(s, 2000));
     try {
-      r = await callAgent(c.messages, c.lang ?? "en");
+      r = await callAgent(c.messages, c.lang ?? "en", c.view ?? "technical");
     } catch {
       results.push({
         id: c.id,
