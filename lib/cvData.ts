@@ -77,6 +77,14 @@ export type ThesisResult = {
 };
 
 export type Thesis = {
+  paper: {
+    title: string;
+    authors: string[];
+    date: string;
+    url: string;
+    pdfUrl: string;
+    summary: string;
+  };
   title: string;
   subtitle: string;
   advisor: string;
@@ -372,6 +380,14 @@ const dataEn: DataSet = {
     }
   ],
   "thesis": {
+    "paper": {
+      "title": "Geometric Filtering of LLM-Generated Samples for Few-Shot Text Classification",
+      "authors": ["Benjamín Schindler", "Gonzalo A. Ruz"],
+      "date": "2026-08-14",
+      "url": "https://arxiv.org/abs/2608.13866",
+      "pdfUrl": "https://arxiv.org/pdf/2608.13866",
+      "summary": "Extends the thesis evaluation to 13 datasets and over 6,700 configurations, with a +2.61 percentage-point gain in macro-F1 over SMOTE."
+    },
     "title": "Data Augmentation with LLMs",
     "subtitle": "Geometric Filtering for Few-shot Text Classification",
     "advisor": "Prof. Gonzalo Ruz",
@@ -743,6 +759,14 @@ const dataEs: DataSet = {
     }
   ],
   "thesis": {
+    "paper": {
+      "title": "Geometric Filtering of LLM-Generated Samples for Few-Shot Text Classification",
+      "authors": ["Benjamín Schindler", "Gonzalo A. Ruz"],
+      "date": "2026-08-14",
+      "url": "https://arxiv.org/abs/2608.13866",
+      "pdfUrl": "https://arxiv.org/pdf/2608.13866",
+      "summary": "Amplía la evaluación de la tesis a 13 datasets y más de 6.700 configuraciones, con una mejora de 2,61 puntos porcentuales de macro-F1 frente a SMOTE."
+    },
     "title": "Aumento de datos con LLMs",
     "subtitle": "Filtrado geométrico para clasificación con pocos ejemplos",
     "advisor": "Prof. Gonzalo Ruz",

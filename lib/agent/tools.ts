@@ -75,7 +75,7 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "get_thesis",
     description:
-      "MSc thesis: abstract, advisor, and the benchmark results (configurations, macro-F1 deltas, significance stats). Call this before quoting any thesis number.",
+      "MSc thesis and subsequent arXiv paper: publication links, authors, and separate benchmark results. The paper extends the evaluation; do not mix its figures with the thesis figures. Call this before quoting research results or paper links.",
     strict: false,
     parameters: { type: "object", properties: {}, additionalProperties: false },
   },
@@ -238,6 +238,7 @@ export function runCvTool(name: string, input: ToolInput): string {
         institution: t.institution,
         defended: `${t.date} · Maximum Distinction`,
         abstract: t.abstract,
+        subsequent_paper: t.paper,
         stats: t.stats,
         results_delta_pp_macro_f1_vs_smote: t.results.map((r) => ({
           method: r.method,

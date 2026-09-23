@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { ArrowUpRight, FileText } from "lucide-react";
 import { useData } from "@/lib/data";
 import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
@@ -38,9 +39,39 @@ export function ThesisSection() {
           accent="warm"
         />
 
+        <ThesisPaper />
         {detailed ? <ThesisDetailed /> : <ThesisConcise />}
       </div>
     </section>
+  );
+}
+
+function ThesisPaper() {
+  const { thesis: { paper } } = useData();
+  const { lang } = useLanguage();
+  const es = lang === "es";
+  const date = new Intl.DateTimeFormat(es ? "es-CL" : "en-US", {
+    month: "long", year: "numeric", timeZone: "UTC",
+  }).format(new Date(paper.date));
+
+  return (
+    <article aria-label={es ? "Artículo de investigación" : "Research paper"} className="mt-8 border-l-2 border-[var(--accent-warm)] bg-[var(--surface)] p-5 sm:p-6">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--foreground-muted)]">
+        <span className="font-medium text-[var(--foreground-dim)]">Paper · arXiv</span>
+        <time dateTime={paper.date}>{date}</time>
+      </div>
+      <h3 className="mt-3 max-w-3xl text-lg font-semibold leading-snug text-[var(--foreground)] sm:text-xl">{paper.title}</h3>
+      <p className="mt-2 text-xs text-[var(--foreground-dim)]">{paper.authors.join(" · ")}</p>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[var(--foreground-dim)]">{paper.summary}</p>
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+        <a href={paper.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-[var(--foreground)] underline underline-offset-4 hover:decoration-2">
+          {es ? "Ver en arXiv" : "Read on arXiv"}<ArrowUpRight aria-hidden className="size-4" />
+        </a>
+        <a href={paper.pdfUrl} target="_blank" rel="noopener noreferrer" aria-label={es ? "Leer el paper en PDF" : "Read the paper as PDF"} className="inline-flex min-h-10 items-center gap-2 text-sm text-[var(--foreground-dim)] underline underline-offset-4 hover:text-[var(--foreground)]">
+          <FileText aria-hidden className="size-4" />PDF
+        </a>
+      </div>
+    </article>
   );
 }
 
