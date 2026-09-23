@@ -5,6 +5,10 @@ export function mentionsDoctor911System(text) {
 }
 
 export const responseHealthChecks = [
-  { name: "non-empty answer", fn: (r) => r.text.trim().length > 0 },
+  {
+    name: "visible answer",
+    fn: (r) => r.text.trim().length > 0 || (r.ui ?? []).some(event =>
+      event.action === "match_report" && Array.isArray(event.report?.rows) && event.report.rows.length > 0),
+  },
   { name: "no agent errors", fn: (r) => !r.traces.some((tr) => tr.kind === "error") },
 ];

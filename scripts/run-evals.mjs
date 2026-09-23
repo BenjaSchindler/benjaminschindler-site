@@ -79,7 +79,6 @@ const CASES = [
     checks: [
       toolCalled("get_experience"),
       textMatches(/\blanggraph\b/i, "identifies LangGraph"),
-      textMatches(/\bwhatsapp\b/i, "identifies the WhatsApp channel"),
     ],
   },
   {

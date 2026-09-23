@@ -26,3 +26,11 @@ test("negative-match checks cannot hide an empty or failed agent response", () =
   assert.equal(healthy({ text: "Partial answer", traces: [{ kind: "error", label: "incomplete" }] }), false);
   assert.equal(healthy({ text: "I can help with Benjamin’s experience.", traces: [] }), true);
 });
+
+test("a rendered match table is an answer; scrolling or an empty report is not", () => {
+  const healthy = (ui) => responseHealthChecks.every(check => check.fn({ text: "", traces: [], ui }));
+  assert.equal(healthy([{ action: "match_report", report: { rows: [{ requirement: "Python", verdict: "met", evidence: "Python APIs at Unitti" }] } }]), true);
+  assert.equal(healthy([{ action: "scroll_to", target: "experience" }]), false);
+  assert.equal(healthy([{ action: "match_report", report: { rows: [] } }]), false);
+  assert.equal(healthy([{ action: "match_report" }]), false);
+});
