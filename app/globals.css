@@ -128,6 +128,7 @@ body {
 
 /* Reduced motion: kill animations */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *,
   *::before,
   *::after {
@@ -142,4 +143,86 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Interactive project exhibits: readable HTML over a restrained instrument surface. */
+.demo-surface {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--background);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+}
+.demo-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(var(--border-strong) 0.65px, transparent 0.65px);
+  background-size: 20px 20px;
+  opacity: .24;
+  mask-image: linear-gradient(black, transparent 90%);
+}
+.demo-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-height: 48px;
+  padding: 4px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.demo-icon-button {
+  display: inline-flex;
+  min-width: 36px;
+  min-height: 36px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  color: var(--foreground-dim);
+  transition: background-color 160ms, color 160ms;
+}
+.demo-icon-button:hover { background: var(--surface-raised); color: var(--foreground); }
+.demo-choice {
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--foreground-dim);
+  transition: background-color 180ms, border-color 180ms, color 180ms;
+}
+.demo-choice:hover { border-color: var(--foreground-muted); }
+.demo-choice[aria-pressed="true"] {
+  border-color: var(--accent-cyan);
+  background: color-mix(in srgb, var(--accent-cyan) 10%, var(--background));
+  color: var(--foreground);
+}
+.demo-paper {
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+.demo-rail { position: relative; height: 3px; background: var(--border); overflow: hidden; border-radius: 2px; }
+.demo-rail-fill { height: 100%; background: var(--accent-cyan); transform-origin: left; }
+.demo-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--foreground-dim);
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-paper { box-shadow: none; }
 }

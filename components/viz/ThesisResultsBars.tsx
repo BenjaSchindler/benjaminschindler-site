@@ -1,90 +1,35 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useData, type ThesisResultId } from "@/lib/data";
+import { useLanguage } from "@/lib/Language";
 import { palette } from "./primitives/colors";
 
-type Props = {
-  highlightId?: ThesisResultId | null;
-};
-
-const COLOR_FOR_ID: Record<ThesisResultId, string> = {
-  "soft-weighting": palette.orange,
-  "binary-filter": palette.amber,
-  smote: palette.textMuted,
-  eda: palette.textMuted,
-  "inverse-trans": palette.textMuted,
-};
-
-export function ThesisResultsBars({ highlightId }: Props) {
+export function ThesisResultsBars({ highlightId }: { highlightId?: ThesisResultId | null }) {
   const { thesis } = useData();
-  // Range used to scale bars: cover both negatives and positives symmetrically.
-  const maxAbs = Math.max(...thesis.results.map((r) => Math.abs(r.delta)));
-  const span = maxAbs * 1.2;
-
+  const { lang } = useLanguage();
+  const locale = lang === "es" ? "es-CL" : "en-US";
+  const span = Math.max(...thesis.results.map((r) => Math.abs(r.delta)), 1) * 1.2;
   return (
     <div className="rounded border border-[var(--border)] bg-[var(--surface)] p-3">
-      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] mb-2">
-        ΔF1 vs SMOTE · pp
-      </div>
-      <ul className="space-y-1.5">
+      <p className="text-xs font-medium text-[var(--foreground)]">{lang === "es" ? "Resultados de la tesis" : "Thesis results"}</p>
+      <p className="mt-1 mb-3 text-xs text-[var(--foreground-muted)]">Δ macro-F1 vs. SMOTE · pp</p>
+      <ul className="space-y-3">
         {thesis.results.map((r) => {
-          const isHighlighted = highlightId === r.id;
-          const isPositive = r.delta > 0;
-          const barWidthPct = (Math.abs(r.delta) / span) * 50; // % of half-range
-          const color = COLOR_FOR_ID[r.id] ?? palette.textDim;
-          return (
-            <li key={r.method} className="flex items-center gap-2">
-              <div
-                className="font-mono text-[10px] w-24 truncate"
-                style={{
-                  color: isHighlighted
-                    ? palette.text
-                    : r.isOurs
-                      ? palette.textDim
-                      : palette.textMuted,
-                  fontWeight: isHighlighted ? 600 : 400,
-                }}
-              >
-                {r.method}
-              </div>
-              {/* Bar canvas: 0 axis at center */}
-              <div className="relative flex-1 h-3.5 flex items-center">
-                <div className="absolute inset-y-0 left-1/2 w-px bg-[var(--border-strong)]" />
-                <motion.div
-                  className="absolute h-2 rounded-sm"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${barWidthPct}%` }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                  style={{
-                    left: isPositive ? "50%" : `calc(50% - ${barWidthPct}%)`,
-                    background: color,
-                    opacity: isHighlighted ? 1 : 0.65,
-                    boxShadow: isHighlighted ? `0 0 8px ${color}80` : undefined,
-                  }}
-                />
-              </div>
-              <div
-                className="font-mono text-[10px] w-12 text-right"
-                style={{
-                  color: isHighlighted
-                    ? color
-                    : r.delta > 0
-                      ? palette.textDim
-                      : palette.textMuted,
-                  fontWeight: isHighlighted ? 600 : 400,
-                }}
-              >
-                {r.delta > 0 ? "+" : ""}
-                {r.delta.toFixed(2)}
-              </div>
-            </li>
-          );
+          const width = Math.abs(r.delta) / span * 50;
+          const color = r.isOurs ? palette.orange : palette.textMuted;
+          return <li key={r.id} className={highlightId === r.id ? "rounded-md bg-[var(--accent-warm)]/10 p-2 -mx-2" : ""}>
+            <div className="flex justify-between gap-2 text-xs leading-snug text-[var(--foreground-dim)]" style={{ fontWeight: highlightId === r.id ? 600 : 400 }}>
+              <span>{r.method}</span>
+              <span className="font-mono tabular-nums shrink-0">{r.delta > 0 ? "+" : ""}{r.delta.toLocaleString(locale, { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="relative mt-1 h-3 bg-[var(--surface-raised)] rounded-sm" aria-hidden>
+              <span className="absolute left-1/2 inset-y-0 w-px bg-[var(--foreground-muted)]" />
+              <span className="absolute top-0.5 h-2 rounded-sm" style={{ width: `${width}%`, left: r.delta >= 0 ? "50%" : `${50-width}%`, background: color }} />
+            </div>
+          </li>;
         })}
       </ul>
-      <div className="mt-2 pt-2 border-t border-[var(--border)] font-mono text-[9px] text-[var(--foreground-muted)]">
-        n={thesis.stats.configs.toLocaleString()} · {thesis.stats.pValue} · cohen d {thesis.stats.cohenD.toFixed(2)}
-      </div>
+      <div aria-hidden className="flex justify-between mt-2 text-xs text-[var(--foreground-muted)]"><span>−</span><span>0</span><span>+</span></div>
     </div>
   );
 }

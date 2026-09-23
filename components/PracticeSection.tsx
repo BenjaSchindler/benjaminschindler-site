@@ -2,19 +2,18 @@
 import { useData, type PracticeArea } from "@/lib/data";
 import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
-import { motion } from "framer-motion";
 import { useViewMode } from "@/lib/ViewMode";
 import {
   HarnessDiagram,
   PromptDiffDiagram,
-  CoEvolutionDiagram,
+  RetrievalDiagram,
   EvalGateDiagram,
 } from "./viz/PracticeDiagrams";
 
 const DIAGRAMS: Record<PracticeArea["id"], React.ComponentType> = {
   harness: HarnessDiagram,
   prompts: PromptDiffDiagram,
-  coevolution: CoEvolutionDiagram,
+  retrieval: RetrievalDiagram,
   evals: EvalGateDiagram,
 };
 
@@ -35,18 +34,15 @@ export function PracticeSection() {
           subtitle={t.section.practiceSubtitle}
         />
 
-        <div className="mt-8 grid md:grid-cols-2 gap-4">
-          {practice.map((p, idx) => {
+        <div className="mt-8 grid md:grid-cols-2 gap-6">
+          {practice.map((p) => {
             const Diagram = DIAGRAMS[p.id];
             return (
-              <motion.article
+              <article
                 key={p.id}
-                initial={{ y: 12 }}
-                whileInView={{ y: 0 }}
-                viewport={{ once: true, margin: "-60px", amount: 0.05 }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
                 className="flex flex-col p-5 rounded border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/30 transition-colors"
               >
+                <p className="mb-2 text-xs font-medium tracking-wide text-[var(--accent-cyan)]">{p.project}</p>
                 <h3 className="text-lg font-semibold text-[var(--foreground)]">
                   {p.title}
                 </h3>
@@ -64,7 +60,7 @@ export function PracticeSection() {
                     </li>
                   ))}
                 </ul>
-              </motion.article>
+              </article>
             );
           })}
         </div>

@@ -39,7 +39,7 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "get_experience",
     description:
-      "Work experience with impact, per-role bullets, and stack. Call this before answering anything about his jobs or what he built at work.",
+      "Work experience with impact, per-role bullets, stack, and systems, including OneClinik video consultations at Doctor911. Call this before answering anything about his jobs or what he built at work.",
     strict: false,
     parameters: {
       type: "object",
@@ -83,14 +83,14 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "get_practice",
     description:
-      "How Benjamin works with models — his AI engineering practice: harness engineering, prompt engineering, model-harness co-evolution, and evaluation benchmarks, each with a definition and concrete evidence. Call this for methodology / how-does-he-work questions.",
+      "Practices in real projects: Doctor911 agent workflows and permission-aware RAG; EPE prompt experiments and response evaluations. Each includes the project and concrete evidence. Call this for methodology / how-does-he-work questions.",
     strict: false,
     parameters: {
       type: "object",
       properties: {
         area: {
           type: "string",
-          enum: ["harness", "prompts", "coevolution", "evals"],
+          enum: ["harness", "prompts", "retrieval", "evals"],
           description: "Restrict to one practice area. Omit for all four.",
         },
       },
@@ -122,7 +122,7 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
         note: {
           type: "string",
           description:
-            "1-2 sentences shown to the visitor as your words while the page scrolls there. Required on every tour stop; omit it when your reply text already covers the section.",
+            "One short fact, 8-14 words, prefixed by the section name. Do not narrate scrolling. Required on every tour stop; omit it when your reply text already covers the section.",
         },
       },
       required: ["section"],
@@ -144,11 +144,11 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
         },
         summary: {
           type: "string",
-          description: "2-3 sentence honest overall assessment of the fit.",
+          description: "One sentence, at most 25 words, assessing fit.",
         },
         rows: {
           type: "array",
-          description: "One row per key requirement, 5-9 rows.",
+          description: "One row per key requirement, at most 6 rows.",
           items: {
             type: "object",
             properties: {
@@ -165,7 +165,7 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
               evidence: {
                 type: "string",
                 description:
-                  "Where the evidence lives (company, project, or thesis) and what it is. For missing: 'not in the CV data'.",
+                  "At most 18 words: the company/project and direct evidence. For missing: 'not in the CV data'.",
               },
             },
             required: ["requirement", "verdict", "evidence"],
@@ -206,6 +206,7 @@ export function runCvTool(name: string, input: ToolInput): string {
           period: e.period,
           impact: e.impact,
           stack: e.stack,
+          systems: e.systems,
           roles: e.roles.map((r) => ({
             title: r.title,
             period: r.period,
@@ -249,7 +250,7 @@ export function runCvTool(name: string, input: ToolInput): string {
       const area = typeof input.area === "string" ? input.area : null;
       const list = en.practice
         .filter((p) => !area || p.id === area)
-        .map((p) => ({ area: p.id, title: p.title, definition: p.definition, evidence: p.evidence }));
+        .map((p) => ({ area: p.id, title: p.title, project: p.project, definition: p.definition, evidence: p.evidence }));
       return JSON.stringify(list.length ? list : { error: "unknown practice area" });
     }
     case "get_education_and_skills": {

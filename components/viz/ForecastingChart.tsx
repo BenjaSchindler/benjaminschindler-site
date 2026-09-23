@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useId, useMemo } from "react";
 import {
   Area,
   CartesianGrid,
@@ -12,100 +12,31 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { motion } from "framer-motion";
-import { buildForecastSeries, type ModelKind } from "@/lib/synthetic";
-import { palette, modelColors } from "./primitives/colors";
-import { useInView } from "./primitives/useInView";
-
-const MODELS: Array<{ id: ModelKind; label: string; rmse: number }> = [
-  { id: "transformer", label: "transformer", rmse: 1.42 },
-  { id: "lstm", label: "lstm", rmse: 1.78 },
-  { id: "cnn", label: "cnn", rmse: 2.23 },
-];
-
+import { buildForecastSeries } from "@/lib/synthetic";
+import { palette } from "./primitives/colors";
+import { useLanguage } from "@/lib/Language";
 const HISTORY_DAYS = 60;
 const FORECAST_DAYS = 14;
 
 export function ForecastingChart() {
-  const [model, setModel] = useState<ModelKind>("transformer");
-  const [containerRef, inView] = useInView<HTMLDivElement>({ threshold: 0.3 });
-  const [progress, setProgress] = useState(0); // 0 → HISTORY_DAYS+FORECAST_DAYS
-  const rafRef = useRef<number | null>(null);
-
-  // Animate the chart drawing once when in view; restart on model change.
-  useEffect(() => {
-    if (!inView) return;
-    cancelAnimationFrame(rafRef.current ?? 0);
-    setProgress(0);
-    let start: number | null = null;
-    const total = HISTORY_DAYS + FORECAST_DAYS;
-    const duration = 2200; // ms
-    function tick(t: number) {
-      if (start == null) start = t;
-      const k = Math.min(1, (t - start) / duration);
-      // Slight ease-out
-      const eased = 1 - Math.pow(1 - k, 2.4);
-      setProgress(Math.floor(eased * total));
-      if (k < 1) rafRef.current = requestAnimationFrame(tick);
-    }
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [inView, model]);
-
-  const fullSeries = useMemo(
-    () => buildForecastSeries({ days: HISTORY_DAYS, forecastDays: FORECAST_DAYS, model }),
-    [model],
-  );
-
-  // Reveal points up to `progress`; null out the rest so Recharts skips them.
-  const data = useMemo(
-    () =>
-      fullSeries.map((p, i) => {
-        if (i <= progress) return p;
-        return { day: p.day, actual: null, forecast: null, ciRange: null };
-      }),
-    [fullSeries, progress],
-  );
-
-  const accent = modelColors[model];
+  const { lang } = useLanguage();
+  const es = lang === "es";
+  const gradientId = useId();
+  const data = useMemo(() => buildForecastSeries({ days: HISTORY_DAYS, forecastDays: FORECAST_DAYS, model: "cnn" }), []);
+  const accent = "var(--accent)";
+  const number = new Intl.NumberFormat(es ? "es-CL" : "en-US", { maximumFractionDigits: 1 });
 
   return (
-    <div ref={containerRef} className="space-y-3">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-        <div className="min-w-0">
-          <div className="font-mono text-[11px] uppercase tracking-wider text-[var(--foreground-muted)]">
-            soil moisture · t+{FORECAST_DAYS} forecast
-          </div>
-          <div className="font-mono text-[11px] text-[var(--foreground-dim)]">
-            <span style={{ color: accent }}>● {model}</span>
-            <span className="mx-2 text-[var(--foreground-muted)]">·</span>
-            rmse {MODELS.find((m) => m.id === model)?.rmse.toFixed(2)}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {MODELS.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setModel(m.id)}
-              className={`font-mono text-[10px] px-2 py-1 rounded border transition-colors ${
-                model === m.id
-                  ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10"
-                  : "border-[var(--border-strong)] text-[var(--foreground-muted)] hover:text-[var(--foreground-dim)]"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <figure className="space-y-4">
+      <figcaption>
+        <p className="text-base font-medium">{es ? "Predicción de humedad del suelo" : "Soil moisture forecast"}</p>
+        <p className="mt-1 text-xs leading-relaxed text-[var(--foreground-dim)]">{es ? "60 días de historial · 14 días de predicción" : "60 days of history · 14-day forecast"}</p>
+      </figcaption>
       <div className="aspect-[5/3] w-full bg-[var(--surface)] border border-[var(--border)] rounded p-1">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
             <defs>
-              <linearGradient id="ciGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={accent} stopOpacity={0.35} />
                 <stop offset="100%" stopColor={accent} stopOpacity={0.02} />
               </linearGradient>
@@ -113,18 +44,22 @@ export function ForecastingChart() {
             <CartesianGrid stroke={palette.border} strokeDasharray="2 4" />
             <XAxis
               dataKey="day"
+              type="number"
+              domain={[0, HISTORY_DAYS + FORECAST_DAYS - 1]}
+              ticks={[0, 29, 59, 73]}
+              tickFormatter={(value: number) => value === 59 ? (es ? "Hoy" : "Today") : `${value > 59 ? "+" : ""}${value - 59}`}
               stroke={palette.textMuted}
-              tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
+              tick={{ fontSize: 12, fontFamily: "var(--font-mono)" }}
               tickLine={false}
               axisLine={{ stroke: palette.border }}
             />
             <YAxis
               stroke={palette.textMuted}
-              tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
+              tick={{ fontSize: 12, fontFamily: "var(--font-mono)" }}
               tickLine={false}
               axisLine={{ stroke: palette.border }}
               width={42}
-              domain={["dataMin - 2", "dataMax + 2"]}
+              domain={[20, 60]}
               tickFormatter={(v: number) => `${Math.round(v)}%`}
             />
             <Tooltip
@@ -143,32 +78,25 @@ export function ForecastingChart() {
                 if (value == null) return ["–", label];
                 if (Array.isArray(value)) {
                   const [lo, hi] = value as [number, number];
-                  return [`${lo.toFixed(1)}–${hi.toFixed(1)}%`, label];
+                  return [`${number.format(lo)}–${number.format(hi)}%`, label];
                 }
-                return [`${(value as number).toFixed(1)}%`, label];
+                return [`${number.format(value as number)}%`, label];
               }}
-              labelFormatter={(label) => `day ${label}`}
+              labelFormatter={(label) => `${es ? "Día" : "Day"} ${Number(label) - 59}`}
             />
             <ReferenceLine
               x={HISTORY_DAYS - 1}
               stroke={palette.textMuted}
               strokeDasharray="3 3"
-              label={{
-                value: "now",
-                position: "top",
-                fill: palette.textMuted,
-                fontSize: 10,
-                fontFamily: "var(--font-mono)",
-              }}
             />
             <Area
               type="monotone"
               dataKey="ciRange"
               stroke="none"
-              fill="url(#ciGradient)"
+              fill={`url(#${gradientId})`}
               isAnimationActive={false}
               connectNulls={false}
-              name="95% ci"
+              name={es ? "Banda ilustrativa" : "Illustrative band"}
             />
             <Line
               type="monotone"
@@ -178,7 +106,7 @@ export function ForecastingChart() {
               dot={false}
               isAnimationActive={false}
               connectNulls={false}
-              name="actual"
+              name={es ? "Histórico" : "Historical"}
             />
             <Line
               type="monotone"
@@ -189,21 +117,15 @@ export function ForecastingChart() {
               dot={false}
               isAnimationActive={false}
               connectNulls={false}
-              name="forecast"
+              name={es ? "Predicción" : "Forecast"}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      <motion.div
-        key={model}
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] text-[var(--foreground-muted)]"
-      >
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--foreground-dim)]">
         <span className="inline-flex items-center gap-1.5">
-          <span className="block w-3 h-px bg-[var(--foreground)]" /> historical
+          <span className="block w-3 h-px bg-[var(--foreground)]" /> {es ? "Histórico" : "Historical"}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
@@ -213,17 +135,17 @@ export function ForecastingChart() {
               height: 2,
             }}
           />
-          forecast
+          {es ? "Predicción" : "Forecast"}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
             className="block w-3 h-2 rounded-sm"
-            style={{ background: `linear-gradient(180deg, ${accent}55, ${accent}05)` }}
+            style={{ background: `color-mix(in srgb, ${accent} 30%, transparent)` }}
           />
-          95 % CI
+          {es ? "Banda ilustrativa" : "Illustrative band"}
         </span>
-        <span className="ml-auto">irrigation sensor · n={HISTORY_DAYS}</span>
-      </motion.div>
-    </div>
+      </div>
+      <p className="text-xs leading-relaxed text-[var(--foreground-dim)]">{es ? "Eje horizontal: días respecto de hoy. Datos y banda simulados; no representan resultados de WiseConn." : "Horizontal axis: days relative to today. Simulated data and band; not WiseConn measurements."}</p>
+    </figure>
   );
 }

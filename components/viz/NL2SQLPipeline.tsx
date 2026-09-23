@@ -1,298 +1,54 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { palette } from "./primitives/colors";
-import { useInView, usePrefersReducedMotion } from "./primitives/useInView";
-
-type Stage = 0 | 1 | 2 | 3;
-
-const QUERY = "top 5 customers last quarter";
-
-const SQL_LINES = [
-  "SELECT  name, SUM(amount) AS total",
-  "FROM    orders",
-  "WHERE   created_at >= now() - '1 quarter'",
-  "GROUP BY name",
-  "ORDER BY total DESC LIMIT 5;",
-];
-
-const RESULTS: Array<{ name: string; v: number }> = [
-  { name: "Acme", v: 1.0 },
-  { name: "Norix", v: 0.78 },
-  { name: "Vega", v: 0.61 },
-  { name: "Lume", v: 0.49 },
-  { name: "Atra", v: 0.33 },
-];
-
-const STAGE_DURATIONS = [1500, 1700, 1900, 1900]; // ms per stage
-const PAUSE_AT_END = 1100; // ms before restart
+import { DemoControls, useDemoPlayback } from "./primitives/DemoPlayback";
+import { useLanguage } from "@/lib/Language";
 
 export function NL2SQLPipeline() {
-  const [ref, inView] = useInView<HTMLDivElement>({ threshold: 0.3 });
-  const reduced = usePrefersReducedMotion();
-  const [stage, setStage] = useState<Stage>(0);
-  const [paused, setPaused] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (!inView || reduced || paused) return;
-
-    function advance(s: Stage) {
-      timeoutRef.current = setTimeout(
-        () => {
-          if (s < 3) {
-            setStage((s + 1) as Stage);
-          } else {
-            // Pause at end, then restart
-            timeoutRef.current = setTimeout(() => setStage(0), PAUSE_AT_END);
-          }
-        },
-        STAGE_DURATIONS[s],
-      );
-    }
-    advance(stage);
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [inView, reduced, paused, stage]);
-
-  // Reduced motion: jump to final state
-  useEffect(() => {
-    if (reduced) setStage(3);
-  }, [reduced]);
-
-  return (
-    <div
-      ref={ref}
-      className="space-y-3"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        <div className="font-mono text-[11px] uppercase tracking-wider text-[var(--foreground-muted)]">
-          natural language → sql
-        </div>
-        <div className="font-mono text-[10px] text-[var(--foreground-muted)]">
-          hover to pause
-        </div>
+  const { lang } = useLanguage();
+  const es = lang === "es";
+  const [ref, demo] = useDemoPlayback(4, 1100);
+  return <div ref={ref} className="grid gap-6 md:grid-cols-[0.7fr_1fr] md:gap-8">
+    <figure aria-label={es ? "Cierre mensual: antes 8 días, después 3 días" : "Monthly close: 8 days before, 3 days after"}>
+      <figcaption className="text-base font-medium">{es ? "Cierre mensual" : "Monthly close"}</figcaption>
+      <div className="mt-4 space-y-3">
+        {[{ label: es ? "Antes" : "Before", days: 8 }, { label: es ? "Después" : "After", days: 3 }].map(({ label, days }) => <div key={days}>
+          <div className="mb-1.5 flex justify-between text-sm"><span className="text-[var(--foreground-dim)]">{label}</span><span className="tabular-nums font-medium">{days} {es ? "días" : "days"}</span></div>
+          <div aria-hidden className="h-2 rounded-full bg-[var(--border)]"><motion.div initial={false} animate={{ scaleX: demo.step >= (days === 8 ? 1 : 2) ? 1 : 0 }} transition={{ duration: demo.reduced ? 0 : .7, ease: [0.22, 1, 0.36, 1] }} className={`h-full origin-left rounded-full ${days === 3 ? "bg-[var(--accent)]" : "bg-[var(--foreground-muted)]"}`} style={{ width: `${days / 8 * 100}%` }} /></div>
+        </div>)}
       </div>
+      <p className="mt-3 text-xs leading-relaxed text-[var(--foreground-dim)]">{es ? "Resultado reportado en el CV · automatización de facturas" : "Result reported in the CV · invoice automation"}</p>
+    </figure>
 
-      <div className="w-full bg-[var(--surface)] border border-[var(--border)] rounded p-3 flex flex-col overflow-hidden sm:aspect-[5/3]">
-        {/* Stage flow: vertical on mobile, horizontal on sm+ */}
-        <div className="flex flex-col sm:grid sm:grid-cols-[1fr_8px_1fr_8px_1fr_8px_1fr] items-stretch gap-1.5 sm:gap-0 flex-1 min-h-0">
-          <StageBox
-            label="prompt"
-            color={palette.amber}
-            active={stage >= 0}
-            done={stage > 0}
-          >
-            <PromptStage active={stage === 0} />
-          </StageBox>
-          <Arrow active={stage >= 1} color={palette.amber} />
-          <StageBox label="llm" color={palette.cyan} active={stage >= 1} done={stage > 1}>
-            <LLMStage active={stage === 1} />
-          </StageBox>
-          <Arrow active={stage >= 2} color={palette.cyan} />
-          <StageBox label="sql" color={palette.magenta} active={stage >= 2} done={stage > 2}>
-            <SQLStage active={stage === 2} />
-          </StageBox>
-          <Arrow active={stage >= 3} color={palette.magenta} />
-          <StageBox label="result" color={palette.lime} active={stage >= 3} done={false}>
-            <ResultStage active={stage === 3} />
-          </StageBox>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10px] text-[var(--foreground-muted)]">
-          <span className="text-[var(--accent)]">$</span>
-          <span className="truncate">flask · postgres · llm@gpt-4o-mini · azure</span>
-          <span className="ml-auto whitespace-nowrap">stage {stage + 1} / 4</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StageBox({
-  label,
-  color,
-  active,
-  done,
-  children,
-}: {
-  label: string;
-  color: string;
-  active: boolean;
-  done: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="rounded border bg-[var(--surface-raised)] flex flex-col overflow-hidden min-w-0 min-h-[56px] sm:min-h-0"
-      style={{
-        borderColor: active ? color : palette.border,
-        boxShadow: active && !done ? `inset 0 0 0 1px ${color}40, 0 0 6px ${color}30` : "none",
-        transition: "border-color 250ms, box-shadow 250ms",
-      }}
-    >
-      <div
-        className="px-2 py-1 font-mono text-[9px] uppercase tracking-wider"
-        style={{ color: active ? color : palette.textMuted, borderBottom: `1px solid ${palette.border}` }}
-      >
-        {label}
-      </div>
-      <div className="flex-1 px-2 py-2 min-h-0">{children}</div>
-    </div>
-  );
-}
-
-function Arrow({ active, color }: { active: boolean; color: string }) {
-  return (
-    <div className="flex items-center justify-center self-center w-full sm:w-auto">
-      <svg
-        width="8"
-        height="14"
-        viewBox="0 0 8 14"
-        className="rotate-90 sm:rotate-0"
-      >
-        <path
-          d="M0 7 L7 7"
-          stroke={active ? color : palette.border}
-          strokeWidth="1.2"
-          fill="none"
-          style={{ transition: "stroke 250ms" }}
-        />
-        <path
-          d="M5 4 L7 7 L5 10"
-          stroke={active ? color : palette.border}
-          strokeWidth="1.2"
-          fill="none"
-          style={{ transition: "stroke 250ms" }}
-        />
-      </svg>
-    </div>
-  );
-}
-
-// ── Stage contents ───────────────────────────────────────────────────────────
-
-function PromptStage({ active }: { active: boolean }) {
-  // Type the query when active.
-  const [shown, setShown] = useState("");
-  useEffect(() => {
-    if (!active) {
-      setShown(QUERY);
-      return;
-    }
-    setShown("");
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      setShown(QUERY.slice(0, i));
-      if (i >= QUERY.length) clearInterval(id);
-    }, 35);
-    return () => clearInterval(id);
-  }, [active]);
-  return (
-    <div className="font-mono text-[10px] leading-snug text-[var(--foreground)]">
-      <span className="text-[var(--accent-warm)]">&gt; </span>
-      {shown}
-      {active && <span className="caret align-baseline">&nbsp;</span>}
-    </div>
-  );
-}
-
-function LLMStage({ active }: { active: boolean }) {
-  return (
-    <div className="h-full flex flex-col justify-center items-center gap-1.5">
-      <div className="flex gap-1">
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="size-1.5 rounded-full"
-            style={{ background: palette.cyan }}
-            animate={
-              active
-                ? { opacity: [0.3, 1, 0.3], y: [0, -2, 0] }
-                : { opacity: 0.4 }
-            }
-            transition={{
-              duration: 0.9,
-              repeat: active ? Infinity : 0,
-              delay: i * 0.18,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
-      <div className="font-mono text-[8px] text-[var(--foreground-muted)] tracking-wider">
-        {active ? "thinking" : "idle"}
-      </div>
-    </div>
-  );
-}
-
-function SQLStage({ active }: { active: boolean }) {
-  return (
-    <div className="font-mono text-[8px] leading-tight text-[var(--foreground-dim)] space-y-0.5">
-      {SQL_LINES.map((line, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, x: -4 }}
-          animate={{ opacity: active ? 1 : 0.55, x: 0 }}
-          transition={{ duration: 0.25, delay: active ? i * 0.18 : 0 }}
-        >
-          <SqlLine text={line} />
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-function SqlLine({ text }: { text: string }) {
-  // Lightweight syntax highlight: keywords vs the rest.
-  const keywords = /\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|LIMIT|AS|now)\b/g;
-  const parts: Array<{ kw: boolean; text: string }> = [];
-  let last = 0;
-  for (const m of text.matchAll(keywords)) {
-    if (m.index! > last) parts.push({ kw: false, text: text.slice(last, m.index) });
-    parts.push({ kw: true, text: m[0] });
-    last = m.index! + m[0].length;
-  }
-  if (last < text.length) parts.push({ kw: false, text: text.slice(last) });
-  return (
-    <span>
-      {parts.map((p, i) => (
-        <span
-          key={i}
-          style={{ color: p.kw ? palette.magenta : "inherit", fontWeight: p.kw ? 600 : 400 }}
-        >
-          {p.text}
-        </span>
-      ))}
-    </span>
-  );
-}
-
-function ResultStage({ active }: { active: boolean }) {
-  return (
-    <div className="h-full flex flex-col justify-end gap-1">
-      {RESULTS.map((r, i) => (
-        <div key={r.name} className="flex items-center gap-1.5">
-          <span className="font-mono text-[8px] text-[var(--foreground-muted)] w-6 truncate">
-            {r.name}
-          </span>
-          <div className="flex-1 h-1 bg-[var(--border)] rounded-sm overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: active ? `${r.v * 100}%` : "0%" }}
-              transition={{ duration: 0.4, delay: 0.1 + i * 0.07 }}
-              className="h-full"
-              style={{ background: palette.lime }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+    <figure className="border-t border-[var(--border-strong)] pt-5 md:border-t-0 md:border-l md:pt-0 md:pl-8">
+      <figcaption className="text-base font-medium">{es ? "De una pregunta a una consulta" : "From a question to a query"}</figcaption>
+      <p className="mt-1 text-xs text-[var(--foreground-dim)]">{es ? "Ejemplo ilustrativo con datos ficticios" : "Illustrative example with fictional data"}</p>
+      <ol className="mt-4 space-y-4">
+        <li className="border-l-2 border-[var(--accent)] pl-4">
+          <p className="text-xs font-medium text-[var(--accent-cyan)]">01 · {es ? "Pregunta" : "Question"}</p>
+          <p className="mt-1 text-sm leading-relaxed">{es ? "¿Cuáles son los tres clientes con más compras en los últimos tres meses?" : "Which three customers spent the most in the last three months?"}</p>
+        </li>
+        <li className="border-l-2 border-[var(--border-strong)] pl-4">
+          <details className="group">
+            <summary className="min-h-10 cursor-pointer text-sm font-medium text-[var(--foreground-dim)] hover:text-[var(--foreground)]">02 · {es ? "Ver consulta SQL generada" : "View generated SQL query"}</summary>
+            <pre className="mt-2 whitespace-pre-wrap break-words rounded-md border border-[var(--border)] bg-[var(--surface)] p-3 font-mono text-xs leading-relaxed text-[var(--foreground-dim)]"><code>{`SELECT customer_id, SUM(amount) AS total
+FROM orders
+WHERE created_at >= now() - INTERVAL '3 months'
+GROUP BY customer_id
+ORDER BY total DESC
+LIMIT 3;`}</code></pre>
+          </details>
+        </li>
+        <li className="border-l-2 border-[var(--border-strong)] pl-4">
+          <p className="text-xs font-medium text-[var(--accent-cyan)]">03 · {es ? "Resultado" : "Result"}</p>
+          <table className="mt-2 w-full text-left text-sm tabular-nums">
+            <caption className="sr-only">{es ? "Resultado ficticio de la consulta" : "Fictional query result"}</caption>
+            <thead><tr className="text-xs text-[var(--foreground-dim)]"><th scope="col" className="pb-2 font-normal">{es ? "Cliente" : "Customer"}</th><th scope="col" className="pb-2 text-right font-normal">{es ? "Total (u. monetarias)" : "Total (currency units)"}</th></tr></thead>
+            <tbody>{[["C-101", 1200], ["C-204", 950], ["C-309", 720]].map(([id, value]) => <motion.tr key={id} initial={false} animate={{ opacity: demo.step >= 3 ? 1 : .65, y: demo.step >= 3 || demo.reduced ? 0 : 4 }} transition={{ duration: demo.reduced ? 0 : .3 }} className="border-t border-[var(--border)]"><th scope="row" className="py-2 font-normal">{id}</th><td className="py-2 text-right">{Number(value).toLocaleString(es ? "es-CL" : "en-US")}</td></motion.tr>)}</tbody>
+          </table>
+        </li>
+      </ol>
+    </figure>
+    <div className="md:col-span-2"><DemoControls playback={demo} label={es ? "Impacto reportado · consulta ilustrativa" : "Reported impact · illustrative query"} /></div>
+  </div>;
 }

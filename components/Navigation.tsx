@@ -30,13 +30,13 @@ export function Navigation() {
 
   return (
     <nav
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
+      className={`fixed top-0 inset-x-0 z-40 transition-[background-color,border-color] duration-300 ${
         scrolled
           ? "backdrop-blur bg-[var(--background)]/75 border-b border-[var(--border)]"
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-5xl mx-auto px-6 sm:px-8 h-14 flex items-center justify-between gap-4">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between gap-2 sm:gap-4">
         <a
           href="#top"
           className={`text-sm font-medium tracking-tight text-[var(--foreground)] transition-colors ${
@@ -78,7 +78,7 @@ export function Navigation() {
           <LanguageToggle />
         </div>
 
-        <div className="md:hidden flex items-center gap-2">
+        <div className="md:hidden flex shrink-0 items-center gap-1">
           <ViewModeToggle compact />
           <LanguageToggle compact />
           <button

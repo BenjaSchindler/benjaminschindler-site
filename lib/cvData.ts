@@ -12,9 +12,11 @@ export type Role = {
 };
 
 export type Experience = {
+  systems?: Project[];
   company: string;
   period: string;
   impact: string;
+  highlights?: string[];
   roles: Role[];
   viz?: "forecasting" | "agent-graph" | "nl2sql";
   stack: string[];
@@ -53,8 +55,9 @@ export type Project = {
 };
 
 export type PracticeArea = {
-  id: "harness" | "prompts" | "coevolution" | "evals";
+  id: "harness" | "prompts" | "retrieval" | "evals";
   title: string;
+  project: string;
   definition: string;
   evidence: string[];
 };
@@ -104,454 +107,746 @@ export type DataSet = {
   languages: LanguagesList;
 };
 
-// ── English ──────────────────────────────────────────────────────────────────
+// English
 const dataEn: DataSet = {
-  profile: {
-    name: "Benjamin Schindler",
-    title: "AI Engineer",
-    subtitle: "Master of Science in Data Science",
-    location: "Chile",
-    email: "benjamin.schindlerv@gmail.com",
-    phone: "+(56 9) 56279434",
-    linkedin: "https://www.linkedin.com/in/benjamin-schindler-92881a2b2/",
-    github: "https://github.com/",
-    bio: "AI engineer. I build agentic systems and RAG and take them to production: design, rollout, and the iteration that follows. Currently CTO at Doctor911.",
-    tags: ["Agentic systems", "RAG", "Production AI", "Multi-agent", "LangGraph", "ML", "Data Science"],
+  "profile": {
+    "name": "Benjamin Schindler",
+    "title": "AI Engineer",
+    "subtitle": "Master of Science in Data Science",
+    "location": "Santiago, Chile",
+    "email": "benjamin.schindlerv@gmail.com",
+    "phone": "+56 9 5627 9434",
+    "linkedin": "https://www.linkedin.com/in/benjamin-schindler-92881a2b2/",
+    "github": "https://github.com/BenjaSchindler",
+    "bio": "I'm an AI engineer and CTO at Doctor911, where I lead a three-person product team. I build AI assistants, RAG search systems, and tools that automate business tasks.",
+    "tags": [
+      "Agentic systems",
+      "RAG",
+      "Production AI",
+      "Multi-agent",
+      "LangGraph",
+      "ML",
+      "Data Science"
+    ]
   },
-  experience: [
+  "experience": [
     {
-      company: "Doctor911",
-      period: "Mar 2025 – Present",
-      impact:
-        "Site traffic grew 10×, the chat and AI tools reached sustained adoption, and the company became profitable.",
-      viz: "agent-graph",
-      stack: ["LangGraph", "RAG", "Vertex AI", "Cloud Run", "WhatsApp Business", "TypeScript"],
-      roles: [
+      "company": "Doctor911",
+      "period": "Mar 2025 – Present",
+      "impact": "Built the AI products that contributed to 10× web traffic growth and company profitability.",
+      "highlights": [
+        "OneClinik: recorded-video consultations, PrexX-assisted medical review, and video replies in the patient portal.",
+        "Internal RAG assistant with permission-aware search across company knowledge.",
+        "Internal agent for team coordination and recurring operational tasks; MCP tools for Asana ticket management."
+      ],
+      "systems": [
         {
-          company: "Doctor911",
-          title: "Chief Technology Officer (CTO)",
-          period: "Jan 2026 – Present",
-          bullets: [
-            "Define the technical strategy and roadmap; lead the engineering team.",
-            "Establish engineering standards and the CI/CD pipeline.",
-            "Design and build the AI products (agents, RAG) and operate them in production.",
-            "Integrate the clinical and business flows across WhatsApp and web into a single system.",
-            "Reduce purchase friction and improve the product's exam recommendations.",
-          ],
+          "name": "OneClinik",
+          "context": "Doctor911",
+          "tagline": "Asynchronous video consultations on the web",
+          "description": "Patients record their questions. A doctor reviews the case with PrexX support and replies with a video and notes in the patient portal.",
+          "stack": ["Next.js", "React", "Supabase", "PrexX"],
+          "highlights": [
+            "Video recording, case review, and replies in one workflow.",
+            "PrexX prepares a summary for the doctor to review.",
+            "WhatsApp and email notifications connect each stage."
+          ]
         },
         {
-          company: "Doctor911",
-          title: "AI Engineer",
-          period: "Mar 2025 – Jan 2026",
-          bullets: [
-            "Built multi-agent chatbots (LangGraph) with RAG and context management on WhatsApp Business and web.",
-            "Integrated native WhatsApp payments and catalogs: users receive an exam recommendation and complete payment without leaving the chat.",
-            "Built data pipelines and production services, and refined them against real user feedback.",
-            "Deployed cloud infrastructure on Cloud Run and Vertex AI, with production monitoring.",
+          "name": "PrexX Web",
+          "context": "Doctor911",
+          "tagline": "From a question to an action on the site",
+          "description": "Two agents handle catalog search and support. A separate service turns health profiles into explained test recommendations.",
+          "stack": [
+            "LangGraph",
+            "FastAPI",
+            "Gemini",
+            "Supabase",
+            "BM25",
+            "Vertex AI Evaluation"
           ],
-        },
+          "highlights": [
+            "Hybrid catalog search combines embeddings and BM25 with reciprocal rank fusion (RRF).",
+            "A form-based service recommends packs using the health profile and catalog, with structured LLM output.",
+            "Authenticated support retrieves the user’s order status, payments, medical order PDFs, and exam reviews.",
+            "An evaluation harness records tool use and checks service scope, safety, and response style."
+          ]
+        }
       ],
-    },
-    {
-      company: "WiseConn Latam",
-      period: "Sep 2024 – Mar 2025",
-      impact:
-        "Consolidated the company's data system and deployed forecasting models to production, where they anticipate risk and reduce operating costs.",
-      viz: "forecasting",
-      stack: ["Transformers", "LSTM", "CNN", "AWS SageMaker", "S3", "PyTorch"],
-      roles: [
+      "viz": "agent-graph",
+      "stack": [
+        "LangGraph",
+        "FastAPI",
+        "Vertex AI",
+        "Cloud Run",
+        "Gemini Live",
+        "MCP"
+      ],
+      "roles": [
         {
-          company: "WiseConn Latam",
-          title: "Data Science Intern",
-          period: "Sep 2024 – Mar 2025",
-          bullets: [
-            "Time series forecasting with deep models (Transformers / CNN / LSTM): cleaning, training, evaluation.",
-            "Reproducible training pipelines to compare model approaches and track results.",
-            "Deployed the models on AWS (SageMaker, S3).",
-          ],
+          "company": "Doctor911",
+          "title": "Chief Technology Officer (CTO)",
+          "period": "Jan 2026 – Present",
+          "bullets": [
+            "Lead a three-person product team: two engineers and one UX/UI designer.",
+            "Built voice triage with Gemini Live and lab-report processing with Cloud Vision OCR.",
+            "Built an internal RAG assistant with Vertex AI Search across Drive, Gmail, and Jira, respecting each user's access permissions.",
+            "Added Vector Search over curated manuals, code, and policies, with a shared retrieval endpoint for agents.",
+            "Built an internal agent for team coordination and recurring operational tasks.",
+            "Developed an MCP server connecting agents to RAG and internal tools, including Asana ticket management.",
+            "Lead AI strategy at Doctor911, selected for ChileMass Emprende 2026."
+          ]
         },
-      ],
-    },
-    {
-      company: "Unitti",
-      period: "Jul 2022 – Jul 2024",
-      impact:
-        "Accelerated internal development by 20 % and enabled non-technical staff to query the database in natural language.",
-      viz: "nl2sql",
-      stack: ["Python", "Flask", "PostgreSQL", "LLMs", "Azure", "GCP"],
-      roles: [
         {
-          company: "Unitti",
-          title: "Jr AI Engineer",
-          period: "Jul 2022 – Jul 2024",
-          bullets: [
-            "Built Python APIs over PostgreSQL with automated tests, improving backend stability and response times.",
-            'Built a "Natural Language → SQL" application (Flask, LLMs, Azure / GCP) enabling the team to query data in natural language.',
-            "Refined it with real users until results were consistently accurate.",
-          ],
-        },
-      ],
+          "company": "Doctor911",
+          "title": "AI Engineer",
+          "period": "Mar 2025 – Jan 2026",
+          "bullets": [
+            "Built four WhatsApp agents and two web agents with LangGraph and FastAPI.",
+            "Built RAG and XGBoost exam recommenders as shared tools for the agents.",
+            "Integrated Meta Flows, catalogs, and Transbank payments.",
+            "Combined AI agents with business rules and medical review for clinical approvals.",
+            "Deployed the platform on GCP Cloud Run with production monitoring."
+          ]
+        }
+      ]
     },
+    {
+      "company": "WiseConn Latam",
+      "period": "Sep 2024 – Mar 2025",
+      "impact": "Deployed irrigation forecasting models on AWS and consolidated data across departments.",
+      "viz": "forecasting",
+      "stack": [
+        "Transformers",
+        "LSTM",
+        "CNN",
+        "AWS SageMaker",
+        "S3",
+        "PyTorch"
+      ],
+      "roles": [
+        {
+          "company": "WiseConn Latam",
+          "title": "Data Science Intern",
+          "period": "Sep 2024 – Mar 2025",
+          "bullets": [
+            "Built CNN forecasting models for irrigation and classifiers for solar installations.",
+            "Deployed models on SageMaker and S3 with validation and metric tracking.",
+            "Led a cross-department data governance initiative."
+          ]
+        }
+      ]
+    },
+    {
+      "company": "Unitti",
+      "period": "Jul 2022 – Jul 2024",
+      "impact": "Automated invoice processing: 85% without manual intervention; monthly close shortened from eight days to three.",
+      "viz": "nl2sql",
+      "stack": [
+        "Python",
+        "Flask",
+        "PostgreSQL",
+        "LLMs",
+        "Azure",
+        "GCP"
+      ],
+      "roles": [
+        {
+          "company": "Unitti",
+          "title": "Jr AI Engineer",
+          "period": "Jul 2022 – Jul 2024",
+          "bullets": [
+            "Automated extraction and reconciliation of about 800 PDF invoices per month.",
+            "Reduced processing time from ten minutes to under one minute per document.",
+            "Built an NL-to-SQL app and improved queries using feedback from users.",
+            "Developed Python APIs over PostgreSQL with automated tests."
+          ]
+        }
+      ]
+    }
   ],
-  projects: [
+  "projects": [
     {
-      name: "MiAutoCheck",
-      context: "Client work",
-      tagline: "Multimodal, multi-agent used-vehicle valuation API",
-      description:
-        "A VLM inspection agent plus five parallel research agents (pricing, reliability, recalls, ownership cost, competitors) consolidated by a supervisor into PDF valuation reports.",
-      stack: ["LangGraph", "FastAPI", "GPT-5-mini", "Anthropic", "Tavily", "Railway"],
-      highlights: [
-        "VLM inspection from photos: identification, condition, damages, odometer, dashboard.",
-        "Five specialized research agents run in parallel; a supervisor cross-validates and consolidates.",
-        "Anthropic prompt caching + Tavily deep research; MercadoPago payments and S3 report storage.",
+      "name": "MiAutoCheck",
+      "context": "Client work",
+      "tagline": "Multimodal, multi-agent used-vehicle valuation API",
+      "description": "An API that combines vehicle photos and market research into a PDF valuation report.",
+      "stack": [
+        "LangGraph",
+        "FastAPI",
+        "GPT-5-mini",
+        "Anthropic",
+        "Tavily",
+        "Railway"
       ],
+      "highlights": [
+        "A vision agent inspects the vehicle from photos.",
+        "Five research agents compare prices, reliability, recalls, costs, and competitors.",
+        "A supervisor consolidates the findings into a report."
+      ]
     },
     {
-      name: "EPE",
-      context: "Client work",
-      tagline: "Workplace emotional well-being platform",
-      description:
-        "An LLM pipeline that classifies emotions, analyzes thoughts, and generates personalized exercises, in a domain where safety and privacy come first.",
-      stack: ["FastAPI", "React Native", "React", "OpenAI", "Langfuse", "PostgreSQL"],
-      highlights: [
-        "Crisis detection and PII redaction as safety guardrails.",
-        "Versioned prompts with deterministic per-user A/B allocation; LLM-as-judge evals + drift monitoring.",
-        "Langfuse observability and privacy-first k-anonymous analytics for HR dashboards.",
+      "name": "EPE",
+      "context": "Client work",
+      "tagline": "Workplace emotional well-being platform",
+      "description": "AI features for workplace well-being: emotion analysis and personalized exercises, with crisis detection and personal-data redaction.",
+      "stack": [
+        "FastAPI",
+        "React Native",
+        "React",
+        "OpenAI",
+        "Langfuse",
+        "PostgreSQL"
       ],
-    },
+      "highlights": [
+        "Crisis detection and personal-data redaction.",
+        "Versioned prompts with per-user A/B assignment.",
+        "LLM-as-judge evaluations and drift monitoring in Langfuse."
+      ]
+    }
   ],
-  practice: [
+  "practice": [
     {
-      id: "harness",
-      title: "Harness Engineering",
-      definition:
-        "The scaffolding that turns a model into a product: orchestration, tool interfaces, guardrails, and state.",
-      evidence: [
-        "LangGraph orchestrators in production at Doctor911 — two agents on web, four on WhatsApp — with the clinical and business flows exposed as tools.",
-        "Guardrails as components, not prompt clauses: crisis detection and PII redaction run in front of the model (EPE).",
-        "Payments (Transbank, MercadoPago), Meta Flows forms, and PDF generation integrated as tools inside the agent graph.",
-      ],
+      "id": "harness",
+      "title": "Agents and business rules",
+      "project": "Doctor911",
+      "definition": "Four WhatsApp agents share tools for sales, support, and orders.",
+      "evidence": [
+        "Payments and booking follow explicit business rules.",
+        "Clinical approvals require medical review."
+      ]
     },
     {
-      id: "prompts",
-      title: "Prompt Engineering",
-      definition:
-        "Prompts as versioned, measured artifacts — reviewed, tested, and rolled out like code.",
-      evidence: [
-        "Versioned prompts with deterministic per-user A/B allocation in production (EPE).",
-        "Anthropic prompt caching across MiAutoCheck's five parallel research agents to contain latency and cost.",
-        "NL→SQL prompts refined against real user queries until results were consistently accurate (Unitti).",
-      ],
+      "id": "prompts",
+      "title": "Prompt experiments",
+      "project": "EPE",
+      "definition": "Each user is assigned to a versioned prompt for A/B comparison.",
+      "evidence": [
+        "Versioning identifies the prompt behind each response.",
+        "Langfuse records responses for evaluation."
+      ]
     },
     {
-      id: "coevolution",
-      title: "Model–Harness Co-Evolution",
-      definition:
-        "Models and scaffolding evolve together: each model upgrade is an opportunity to remove harness code, and each workaround marks what the next model should absorb.",
-      evidence: [
-        "Migrated Doctor911's production agents from Gemini to OpenAI behind stable tool interfaces.",
-        "Exam recommendation implemented as a tool call rather than a fifth agent — capability sits at the simplest layer that holds it reliably.",
-        "Each model generation triggers a harness review: scaffolding the new model absorbs is deleted, not maintained.",
-      ],
+      "id": "retrieval",
+      "title": "Search with access controls",
+      "project": "Doctor911",
+      "definition": "Two retrieval paths serve the same RAG endpoint.",
+      "evidence": [
+        "Vertex AI Search respects each user’s access permissions.",
+        "Vector Search retrieves from a curated document corpus."
+      ]
     },
     {
-      id: "evals",
-      title: "Evaluation Benchmarks",
-      definition:
-        "Behavior changes are measured before they ship: prompts, harness, and model swaps land against defined baselines.",
-      evidence: [
-        "LLM-as-judge evaluation with drift monitoring in production, on Langfuse (EPE).",
-        "Deterministic A/B assignment ties each metric shift to the prompt version that caused it (EPE).",
-        "Thesis: a 3,675-configuration benchmark with significance testing — p < 0.0001, Cohen's d = 0.74, win-rate 83.8 %.",
-      ],
-    },
+      "id": "evals",
+      "title": "Response evaluation",
+      "project": "EPE",
+      "definition": "LLM-as-judge evaluations track response quality in Langfuse.",
+      "evidence": [
+        "Compare results across prompt versions.",
+        "Monitor changes in quality over time."
+      ]
+    }
   ],
-  education: [
+  "education": [
     {
-      institution: "Universidad Adolfo Ibáñez",
-      degree: "Master of Science in Data Science",
-      period: "2024 – 2026",
-      progress: 1,
-      grade: "GPA 3.6 / 4.0",
-      note: "Thesis defended with Maximum Distinction · Thesis: geometric filtering for LLM-based data augmentation",
+      "institution": "Universidad Adolfo Ibáñez",
+      "degree": "Master of Science in Data Science",
+      "period": "2024 – 2026",
+      "progress": 1,
+      "grade": "GPA 3.6 / 4.0",
+      "note": "Thesis defended with Maximum Distinction: LLM-based data augmentation."
     },
     {
-      institution: "Universidad Adolfo Ibáñez",
-      degree: "Computer Engineering",
-      period: "2020 – Jul 2025",
-      progress: 1,
-      grade: "GPA 3.5 / 4.0",
+      "institution": "Universidad Adolfo Ibáñez",
+      "degree": "Software Engineering",
+      "period": "2020 – Jul 2025",
+      "progress": 1,
+      "grade": "GPA 3.5 / 4.0"
     },
     {
-      institution: "Universidad Adolfo Ibáñez",
-      degree: "Industrial Engineering",
-      period: "2020 – Jul 2025",
-      progress: 1,
-      grade: "GPA 3.4 / 4.0",
-    },
+      "institution": "Universidad Adolfo Ibáñez",
+      "degree": "Industrial Engineering",
+      "period": "2020 – Jul 2025",
+      "progress": 1,
+      "grade": "GPA 3.4 / 4.0"
+    }
   ],
-  thesis: {
-    title: "Data Augmentation with LLMs",
-    subtitle: "Geometric Filtering for Few-shot Text Classification",
-    advisor: "Prof. Gonzalo Ruz",
-    institution: "Master of Science in Data Science · UAI",
-    date: "April 2026",
-    abstract:
-      "LLMs can generate thousands of synthetic training samples, but not all of them improve the classifier. This thesis scores each candidate by its position in embedding space and retains only those close to the real data distribution. Result: +2.25 pp macro-F1 over SMOTE across 3,675 configurations (p < 0.0001, d = 0.74, win-rate 83.8 %).",
-    results: [
-      { id: "soft-weighting", method: "Soft weighting", delta: 2.25, isOurs: true },
-      { id: "binary-filter", method: "Binary filter", delta: 2.11, isOurs: true },
-      { id: "smote", method: "SMOTE (ref.)", delta: 0, isOurs: false },
-      { id: "eda", method: "EDA", delta: -0.22, isOurs: false },
-      { id: "inverse-trans", method: "Inverse trans.", delta: -0.19, isOurs: false },
+  "thesis": {
+    "title": "Data Augmentation with LLMs",
+    "subtitle": "Geometric Filtering for Few-shot Text Classification",
+    "advisor": "Prof. Gonzalo Ruz",
+    "institution": "Master of Science in Data Science · UAI",
+    "date": "April 2026",
+    "abstract": "I evaluated synthetic training examples by their position in embedding space. Soft weighting improved macro-F1 by 2.25 percentage points over SMOTE across 3,675 configurations.",
+    "results": [
+      {
+        "id": "soft-weighting",
+        "method": "Soft weighting",
+        "delta": 2.25,
+        "isOurs": true
+      },
+      {
+        "id": "binary-filter",
+        "method": "Binary filter",
+        "delta": 2.11,
+        "isOurs": true
+      },
+      {
+        "id": "smote",
+        "method": "SMOTE (ref.)",
+        "delta": 0,
+        "isOurs": false
+      },
+      {
+        "id": "eda",
+        "method": "EDA",
+        "delta": -0.22,
+        "isOurs": false
+      },
+      {
+        "id": "inverse-trans",
+        "method": "Inverse trans.",
+        "delta": -0.19,
+        "isOurs": false
+      }
     ],
-    stats: {
-      configs: 3675,
-      pValue: "< 0.0001",
-      cohenD: 0.74,
-      winRate: "83.8 %",
-      macroF1: { ours: 73.49, smote: 71.24 },
+    "stats": {
+      "configs": 3675,
+      "pValue": "< 0.0001",
+      "cohenD": 0.74,
+      "winRate": "83.8 %",
+      "macroF1": {
+        "ours": 73.49,
+        "smote": 71.24
+      }
+    }
+  },
+  "skills": {
+    "Programming": [
+      "Python",
+      "TypeScript",
+      "SQL"
+    ],
+    "ML & AI": [
+      "PyTorch",
+      "XGBoost",
+      "LangGraph",
+      "LangChain",
+      "RAG"
+    ],
+    "Cloud": [
+      "GCP (Vertex AI, Cloud Run)",
+      "AWS (SageMaker, S3)",
+      "Azure"
+    ],
+    "Web": [
+      "FastAPI",
+      "React",
+      "Next.js",
+      "Flask"
+    ],
+    "Data": [
+      "PostgreSQL",
+      "NoSQL",
+      "Vector DBs"
+    ],
+    "DevOps": [
+      "Linux",
+      "CI/CD",
+      "Monitoring",
+      "Docker"
+    ],
+    "Evaluation": [
+      "Langfuse",
+      "LLM-as-judge",
+      "A/B testing"
+    ]
+  },
+  "languages": [
+    {
+      "name": "Spanish",
+      "level": "Native"
     },
-  },
-  skills: {
-    Languages: ["Python", "TypeScript", "SQL"],
-    "ML & AI": ["TensorFlow", "PyTorch", "LangChain", "LangGraph", "RAG", "Pandas"],
-    Cloud: ["GCP (Vertex AI, Cloud Run)", "AWS (SageMaker, S3)", "Azure"],
-    Web: ["React", "Next.js", "Node.js", "Flask"],
-    Data: ["PostgreSQL", "NoSQL", "Vector DBs"],
-    DevOps: ["Linux", "CI/CD", "Monitoring", "Docker"],
-  },
-  languages: [
-    { name: "Spanish", level: "Native" },
-    { name: "English", level: "Advanced" },
-    { name: "German", level: "Basic" },
-  ],
+    {
+      "name": "English",
+      "level": "Advanced"
+    },
+    {
+      "name": "German",
+      "level": "Basic"
+    }
+  ]
 };
 
-// ── Spanish ──────────────────────────────────────────────────────────────────
+// Español
 const dataEs: DataSet = {
-  profile: {
-    name: "Benjamin Schindler",
-    title: "Ingeniero IA",
-    subtitle: "Magíster en Ciencia de Datos",
-    location: "Chile",
-    email: "benjamin.schindlerv@gmail.com",
-    phone: "+(56 9) 56279434",
-    linkedin: "https://www.linkedin.com/in/benjamin-schindler-92881a2b2/",
-    github: "https://github.com/",
-    bio: "Ingeniero de IA. Construyo sistemas agénticos y RAG, y los llevo a producción: diseño, despliegue y la iteración que viene después. Actualmente CTO en Doctor911.",
-    tags: ["Sistemas agénticos", "RAG", "IA en producción", "Multi-agente", "LangGraph", "ML", "Ciencia de datos"],
+  "profile": {
+    "name": "Benjamin Schindler",
+    "title": "Ingeniero de IA",
+    "subtitle": "Magíster en Ciencia de Datos",
+    "location": "Santiago, Chile",
+    "email": "benjamin.schindlerv@gmail.com",
+    "phone": "+56 9 5627 9434",
+    "linkedin": "https://www.linkedin.com/in/benjamin-schindler-92881a2b2/",
+    "github": "https://github.com/BenjaSchindler",
+    "bio": "Soy ingeniero de IA y CTO en Doctor911, donde lidero un equipo de producto de tres personas. Desarrollo asistentes de IA, sistemas de búsqueda con RAG y herramientas para automatizar tareas del negocio.",
+    "tags": [
+      "Sistemas agénticos",
+      "RAG",
+      "IA en producción",
+      "Multi-agente",
+      "LangGraph",
+      "ML",
+      "Ciencia de datos"
+    ]
   },
-  experience: [
+  "experience": [
     {
-      company: "Doctor911",
-      period: "Mar 2025 – Presente",
-      impact:
-        "El tráfico del sitio creció 10×, el chat y las herramientas de IA lograron adopción sostenida, y la empresa alcanzó la rentabilidad.",
-      viz: "agent-graph",
-      stack: ["LangGraph", "RAG", "Vertex AI", "Cloud Run", "WhatsApp Business", "TypeScript"],
-      roles: [
+      "company": "Doctor911",
+      "period": "Mar 2025 – Presente",
+      "impact": "Desarrollé los productos de IA que contribuyeron al crecimiento de 10× del tráfico web y a la rentabilidad de la empresa.",
+      "highlights": [
+        "OneClinik: consultas por video grabado, revisión médica con PrexX y respuesta en el portal del paciente.",
+        "Asistente RAG interno para consultar información de la empresa respetando los permisos de cada usuario.",
+        "Agente interno para coordinar al equipo y automatizar tareas operativas; herramientas MCP para gestionar tickets en Asana."
+      ],
+      "systems": [
         {
-          company: "Doctor911",
-          title: "Chief Technology Officer (CTO)",
-          period: "Ene 2026 – Presente",
-          bullets: [
-            "Defino la estrategia técnica y el roadmap, y lidero al equipo de ingeniería.",
-            "Establezco los estándares de ingeniería y el pipeline de CI/CD.",
-            "Diseño y construyo los productos de IA (agentes, RAG) y los opero en producción.",
-            "Integro los flujos clínicos y de negocio de WhatsApp y la web en un solo sistema.",
-            "Reduzco la fricción de compra y mejoro las recomendaciones de exámenes del producto.",
-          ],
+          "name": "OneClinik",
+          "context": "Doctor911",
+          "tagline": "Videoconsultas asíncronas en la web",
+          "description": "El paciente graba su consulta. Un médico revisa el caso con apoyo de PrexX y responde con un video y notas en el portal del paciente.",
+          "stack": ["Next.js", "React", "Supabase", "PrexX"],
+          "highlights": [
+            "Grabación, revisión del caso y respuesta en un mismo flujo.",
+            "PrexX prepara un resumen para la revisión del médico.",
+            "Avisos por WhatsApp y correo conectan las etapas."
+          ]
         },
         {
-          company: "Doctor911",
-          title: "Ingeniero IA",
-          period: "Mar 2025 – Ene 2026",
-          bullets: [
-            "Construí chatbots multi-agente (LangGraph) con RAG y manejo de contexto en WhatsApp Business y web.",
-            "Integré pagos y catálogos nativos en WhatsApp: el usuario recibe la recomendación de examen y completa el pago sin salir del chat.",
-            "Construí los pipelines de datos y los servicios productivos, y los refiné con feedback real de usuarios.",
-            "Desplegué la infraestructura en Cloud Run y Vertex AI, con monitoreo de producción.",
+          "name": "PrexX Web",
+          "context": "Doctor911",
+          "tagline": "De una pregunta a una acción en el sitio",
+          "description": "Dos agentes resuelven búsquedas y soporte. Un servicio aparte convierte el perfil de salud en recomendaciones de exámenes con una explicación.",
+          "stack": [
+            "LangGraph",
+            "FastAPI",
+            "Gemini",
+            "Supabase",
+            "BM25",
+            "Vertex AI Evaluation"
           ],
-        },
+          "highlights": [
+            "Búsqueda híbrida de catálogo: embeddings y BM25, combinados con reciprocal rank fusion (RRF).",
+            "Un servicio recibe el formulario y recomienda packs según el perfil y el catálogo, con salida estructurada del LLM.",
+            "Soporte autenticado consulta pedidos, pagos, órdenes PDF y revisiones de exámenes del propio usuario.",
+            "Un harness registra herramientas utilizadas y evalúa alcance del servicio, seguridad y estilo de respuesta."
+          ]
+        }
       ],
-    },
-    {
-      company: "WiseConn Latam",
-      period: "Sep 2024 – Mar 2025",
-      impact:
-        "Consolidé el sistema de datos de la empresa y desplegué modelos de forecasting a producción, donde anticipan riesgo y reducen costos operativos.",
-      viz: "forecasting",
-      stack: ["Transformers", "LSTM", "CNN", "AWS SageMaker", "S3", "PyTorch"],
-      roles: [
+      "viz": "agent-graph",
+      "stack": [
+        "LangGraph",
+        "FastAPI",
+        "Vertex AI",
+        "Cloud Run",
+        "Gemini Live",
+        "MCP"
+      ],
+      "roles": [
         {
-          company: "WiseConn Latam",
-          title: "Practicante de Ciencia de Datos",
-          period: "Sep 2024 – Mar 2025",
-          bullets: [
-            "Forecasting de series de tiempo con modelos profundos (Transformers / CNN / LSTM): limpieza, entrenamiento, evaluación.",
-            "Pipelines de entrenamiento reproducibles para comparar enfoques y registrar resultados.",
-            "Desplegué los modelos en AWS (SageMaker, S3).",
-          ],
+          "company": "Doctor911",
+          "title": "Chief Technology Officer (CTO)",
+          "period": "Ene 2026 – Presente",
+          "bullets": [
+            "Lidero un equipo de producto de tres personas: dos ingenieros y un diseñador UX/UI.",
+            "Desarrollé triaje por voz con Gemini Live y lectura de exámenes con Cloud Vision OCR.",
+            "Desarrollé un asistente RAG interno con Vertex AI Search sobre Drive, Gmail y Jira, respetando los permisos de cada usuario.",
+            "Incorporé Vector Search para consultar manuales, código y políticas seleccionadas, con un endpoint de búsqueda compartido entre agentes.",
+            "Construí un agente interno para coordinar al equipo y automatizar tareas operativas recurrentes.",
+            "Desarrollé un servidor MCP que conecta agentes con RAG y herramientas internas, incluida la gestión de tickets en Asana.",
+            "Lidero la estrategia de IA de Doctor911, seleccionada para ChileMass Emprende 2026."
+          ]
         },
-      ],
-    },
-    {
-      company: "Unitti",
-      period: "Jul 2022 – Jul 2024",
-      impact:
-        "Aceleré el desarrollo interno en un 20 % y permití que usuarios no técnicos consultaran la base de datos en lenguaje natural.",
-      viz: "nl2sql",
-      stack: ["Python", "Flask", "PostgreSQL", "LLMs", "Azure", "GCP"],
-      roles: [
         {
-          company: "Unitti",
-          title: "Ingeniero IA Jr.",
-          period: "Jul 2022 – Jul 2024",
-          bullets: [
-            "Construí APIs en Python sobre PostgreSQL con tests automatizados, mejorando la estabilidad y los tiempos de respuesta del backend.",
-            'Construí una aplicación de "Lenguaje Natural → SQL" (Flask, LLMs, Azure / GCP) para que el equipo consultara los datos en lenguaje natural.',
-            "La refiné con usuarios reales hasta obtener resultados consistentemente precisos.",
-          ],
-        },
-      ],
+          "company": "Doctor911",
+          "title": "Ingeniero de IA",
+          "period": "Mar 2025 – Ene 2026",
+          "bullets": [
+            "Construí cuatro agentes de WhatsApp y dos agentes web con LangGraph y FastAPI.",
+            "Construí recomendadores de exámenes con RAG y XGBoost como herramientas compartidas entre agentes.",
+            "Integré Meta Flows, catálogos y pagos con Transbank.",
+            "Combiné agentes con reglas de negocio y revisión médica para las aprobaciones clínicas.",
+            "Desplegué la plataforma en GCP Cloud Run con monitoreo de producción."
+          ]
+        }
+      ]
     },
+    {
+      "company": "WiseConn Latam",
+      "period": "Sep 2024 – Mar 2025",
+      "impact": "Desplegué modelos de predicción de riego en AWS y consolidé datos entre departamentos.",
+      "viz": "forecasting",
+      "stack": [
+        "Transformers",
+        "LSTM",
+        "CNN",
+        "AWS SageMaker",
+        "S3",
+        "PyTorch"
+      ],
+      "roles": [
+        {
+          "company": "WiseConn Latam",
+          "title": "Practicante de Ciencia de Datos",
+          "period": "Sep 2024 – Mar 2025",
+          "bullets": [
+            "Desarrollé predicciones de riego con CNN y clasificadores para instalaciones solares.",
+            "Desplegué modelos en SageMaker y S3 con validación y seguimiento de métricas.",
+            "Lideré una iniciativa de gobierno de datos entre departamentos."
+          ]
+        }
+      ]
+    },
+    {
+      "company": "Unitti",
+      "period": "Jul 2022 – Jul 2024",
+      "impact": "Automaticé el procesamiento de facturas: 85% sin intervención manual y cierre mensual de ocho a tres días.",
+      "viz": "nl2sql",
+      "stack": [
+        "Python",
+        "Flask",
+        "PostgreSQL",
+        "LLMs",
+        "Azure",
+        "GCP"
+      ],
+      "roles": [
+        {
+          "company": "Unitti",
+          "title": "Ingeniero de IA Jr.",
+          "period": "Jul 2022 – Jul 2024",
+          "bullets": [
+            "Automaticé la extracción y conciliación de unas 800 facturas PDF al mes.",
+            "Reduje el procesamiento de diez minutos a menos de uno por documento.",
+            "Desarrollé una aplicación de lenguaje natural a SQL y ajusté las consultas con comentarios de usuarios.",
+            "Desarrollé APIs en Python sobre PostgreSQL con pruebas automatizadas."
+          ]
+        }
+      ]
+    }
   ],
-  projects: [
+  "projects": [
     {
-      name: "MiAutoCheck",
-      context: "Trabajo de cliente",
-      tagline: "API multimodal y multiagente de tasación de autos usados",
-      description:
-        "Un agente de inspección VLM más cinco agentes de research en paralelo (precio, fiabilidad, recalls, costo de propiedad, competencia) consolidados por un supervisor en reportes PDF de tasación.",
-      stack: ["LangGraph", "FastAPI", "GPT-5-mini", "Anthropic", "Tavily", "Railway"],
-      highlights: [
-        "Inspección VLM desde fotos: identificación, estado, daños, odómetro, tablero.",
-        "Cinco agentes de research especializados en paralelo; un supervisor cruza y consolida.",
-        "Prompt caching de Anthropic + deep research con Tavily; pagos MercadoPago y almacenamiento S3.",
+      "name": "MiAutoCheck",
+      "context": "Proyecto para cliente",
+      "tagline": "API multimodal y multiagente de tasación de autos usados",
+      "description": "Una API que combina fotografías del vehículo e información de mercado en un informe PDF de tasación.",
+      "stack": [
+        "LangGraph",
+        "FastAPI",
+        "GPT-5-mini",
+        "Anthropic",
+        "Tavily",
+        "Railway"
       ],
+      "highlights": [
+        "Un agente visual inspecciona el vehículo a partir de fotos.",
+        "Cinco agentes investigan precios, fiabilidad, alertas, costos y competencia.",
+        "Un supervisor reúne los resultados en el informe."
+      ]
     },
     {
-      name: "EPE",
-      context: "Trabajo de cliente",
-      tagline: "Plataforma de bienestar emocional laboral",
-      description:
-        "Un pipeline LLM que clasifica emociones, analiza pensamientos y genera ejercicios personalizados, en un dominio donde la seguridad y la privacidad van primero.",
-      stack: ["FastAPI", "React Native", "React", "OpenAI", "Langfuse", "PostgreSQL"],
-      highlights: [
-        "Detección de crisis y redacción de PII como guardrails de seguridad.",
-        "Prompts versionados con A/B determinístico por usuario; evals con LLM-as-judge + detección de drift.",
-        "Observabilidad con Langfuse y analítica k-anónima para los dashboards de RRHH.",
+      "name": "EPE",
+      "context": "Proyecto para cliente",
+      "tagline": "Plataforma de bienestar emocional laboral",
+      "description": "Funciones de IA para bienestar laboral: análisis de emociones y ejercicios personalizados, con detección de crisis y ocultamiento de datos personales.",
+      "stack": [
+        "FastAPI",
+        "React Native",
+        "React",
+        "OpenAI",
+        "Langfuse",
+        "PostgreSQL"
       ],
-    },
+      "highlights": [
+        "Detección de crisis y ocultamiento de datos personales.",
+        "Prompts versionados con asignación A/B por usuario.",
+        "Evaluaciones con LLM-as-judge y monitoreo de cambios en Langfuse."
+      ]
+    }
   ],
-  practice: [
+  "practice": [
     {
-      id: "harness",
-      title: "Ingeniería de harness",
-      definition:
-        "El andamiaje que convierte un modelo en producto: orquestación, interfaces de herramientas, guardrails y estado.",
-      evidence: [
-        "Orquestadores LangGraph en producción en Doctor911 — dos agentes en web, cuatro en WhatsApp — con los flujos clínicos y de negocio expuestos como herramientas.",
-        "Guardrails como componentes, no como cláusulas del prompt: detección de crisis y redacción de PII corren antes del modelo (EPE).",
-        "Pagos (Transbank, MercadoPago), formularios de Meta Flows y generación de PDF integrados como herramientas dentro del grafo de agentes.",
-      ],
+      "id": "harness",
+      "title": "Agentes y reglas de negocio",
+      "project": "Doctor911",
+      "definition": "Cuatro agentes de WhatsApp comparten herramientas para ventas, soporte y pedidos.",
+      "evidence": [
+        "Los pagos y las reservas siguen reglas de negocio.",
+        "Las aprobaciones clínicas requieren revisión médica."
+      ]
     },
     {
-      id: "prompts",
-      title: "Ingeniería de prompts",
-      definition:
-        "Prompts como artefactos versionados y medidos: se revisan, se prueban y se despliegan como código.",
-      evidence: [
-        "Prompts versionados con asignación A/B determinística por usuario en producción (EPE).",
-        "Prompt caching de Anthropic en los cinco agentes de research paralelos de MiAutoCheck para contener latencia y costo.",
-        "Prompts de NL→SQL refinados con consultas reales de usuarios hasta lograr resultados consistentemente precisos (Unitti).",
-      ],
+      "id": "prompts",
+      "title": "Experimentos con prompts",
+      "project": "EPE",
+      "definition": "Cada usuario recibe una versión del prompt para comparar resultados A/B.",
+      "evidence": [
+        "El versionado identifica el prompt de cada respuesta.",
+        "Langfuse registra las respuestas para evaluarlas."
+      ]
     },
     {
-      id: "coevolution",
-      title: "Coevolución modelo–harness",
-      definition:
-        "Modelo y andamiaje evolucionan juntos: cada mejora del modelo permite eliminar código del harness, y cada workaround señala lo que el próximo modelo debería absorber.",
-      evidence: [
-        "Migración de los agentes productivos de Doctor911 de Gemini a OpenAI detrás de interfaces de herramientas estables.",
-        "La recomendación de exámenes es un tool call y no un quinto agente: la capacidad vive en la capa más simple que la sostiene con fiabilidad.",
-        "Cada generación de modelos gatilla una revisión del harness: el andamiaje que el modelo absorbe se elimina, no se mantiene.",
-      ],
+      "id": "retrieval",
+      "title": "Búsqueda con permisos",
+      "project": "Doctor911",
+      "definition": "Dos rutas de búsqueda alimentan el mismo servicio RAG.",
+      "evidence": [
+        "Vertex AI Search respeta los permisos de cada usuario.",
+        "Vector Search consulta una colección de documentos seleccionados."
+      ]
     },
     {
-      id: "evals",
-      title: "Benchmarks de evaluación",
-      definition:
-        "Los cambios de comportamiento se miden antes de desplegarse: prompts, harness y cambios de modelo se contrastan con líneas base definidas.",
-      evidence: [
-        "Evaluación LLM-as-judge con monitoreo de drift en producción, sobre Langfuse (EPE).",
-        "La asignación A/B determinística liga cada movimiento de métrica a la versión de prompt que lo causó (EPE).",
-        "Tesis: benchmark de 3.675 configuraciones con pruebas de significancia — p < 0,0001, d de Cohen = 0,74, tasa de éxito 83,8 %.",
-      ],
-    },
+      "id": "evals",
+      "title": "Evaluación de respuestas",
+      "project": "EPE",
+      "definition": "Evaluaciones con LLM-as-judge registran la calidad de las respuestas en Langfuse.",
+      "evidence": [
+        "Comparación de resultados entre versiones de prompts.",
+        "Monitoreo de cambios en la calidad a lo largo del tiempo."
+      ]
+    }
   ],
-  education: [
+  "education": [
     {
-      institution: "Universidad Adolfo Ibáñez",
-      degree: "Magíster en Ciencia de Datos",
-      period: "2024 – 2026",
-      progress: 1,
-      grade: "6,23 / 7,0",
-      note: "Tesis defendida con Distinción Máxima · Tesis: filtrado geométrico para data augmentation con LLMs",
+      "institution": "Universidad Adolfo Ibáñez",
+      "degree": "Magíster en Ciencia de Datos",
+      "period": "2024 – 2026",
+      "progress": 1,
+      "grade": "6,23 / 7,0",
+      "note": "Tesis defendida con Distinción Máxima: aumento de datos con LLMs."
     },
     {
-      institution: "Universidad Adolfo Ibáñez",
-      degree: "Ingeniería Civil Informática",
-      period: "2020 – Jul 2025",
-      progress: 1,
-      grade: "6,20 / 7,0",
+      "institution": "Universidad Adolfo Ibáñez",
+      "degree": "Ingeniería Civil Informática",
+      "period": "2020 – Jul 2025",
+      "progress": 1,
+      "grade": "6,20 / 7,0"
     },
     {
-      institution: "Universidad Adolfo Ibáñez",
-      degree: "Ingeniería Civil Industrial",
-      period: "2020 – Jul 2025",
-      progress: 1,
-      grade: "6,01 / 7,0",
-    },
+      "institution": "Universidad Adolfo Ibáñez",
+      "degree": "Ingeniería Civil Industrial",
+      "period": "2020 – Jul 2025",
+      "progress": 1,
+      "grade": "6,01 / 7,0"
+    }
   ],
-  thesis: {
-    title: "Data Augmentation con LLMs",
-    subtitle: "Filtrado Geométrico para Clasificación de Texto Few-shot",
-    advisor: "Prof. Gonzalo Ruz",
-    institution: "Magíster en Ciencia de Datos · UAI",
-    date: "Abril 2026",
-    abstract:
-      "Los LLMs pueden generar miles de muestras sintéticas de entrenamiento, pero no todas mejoran el clasificador. Esta tesis evalúa cada candidata según su posición en el espacio de embeddings y conserva solo las cercanas a la distribución de los datos reales. Resultado: +2,25 pp macro-F1 sobre SMOTE en 3.675 configuraciones (p < 0,0001, d = 0,74, tasa de éxito 83,8 %).",
-    results: [
-      { id: "soft-weighting", method: "Ponderación suave", delta: 2.25, isOurs: true },
-      { id: "binary-filter", method: "Filtro binario", delta: 2.11, isOurs: true },
-      { id: "smote", method: "SMOTE (ref.)", delta: 0, isOurs: false },
-      { id: "eda", method: "EDA", delta: -0.22, isOurs: false },
-      { id: "inverse-trans", method: "Trans. inversa", delta: -0.19, isOurs: false },
+  "thesis": {
+    "title": "Aumento de datos con LLMs",
+    "subtitle": "Filtrado geométrico para clasificación con pocos ejemplos",
+    "advisor": "Prof. Gonzalo Ruz",
+    "institution": "Magíster en Ciencia de Datos · UAI",
+    "date": "Abril 2026",
+    "abstract": "Evalué ejemplos sintéticos según su posición en el espacio de embeddings. La ponderación suave mejoró el macro-F1 en 2,25 puntos porcentuales frente a SMOTE en 3.675 configuraciones.",
+    "results": [
+      {
+        "id": "soft-weighting",
+        "method": "Ponderación suave",
+        "delta": 2.25,
+        "isOurs": true
+      },
+      {
+        "id": "binary-filter",
+        "method": "Filtro binario",
+        "delta": 2.11,
+        "isOurs": true
+      },
+      {
+        "id": "smote",
+        "method": "SMOTE (ref.)",
+        "delta": 0,
+        "isOurs": false
+      },
+      {
+        "id": "eda",
+        "method": "EDA",
+        "delta": -0.22,
+        "isOurs": false
+      },
+      {
+        "id": "inverse-trans",
+        "method": "Trans. inversa",
+        "delta": -0.19,
+        "isOurs": false
+      }
     ],
-    stats: {
-      configs: 3675,
-      pValue: "< 0,0001",
-      cohenD: 0.74,
-      winRate: "83,8 %",
-      macroF1: { ours: 73.49, smote: 71.24 },
+    "stats": {
+      "configs": 3675,
+      "pValue": "< 0,0001",
+      "cohenD": 0.74,
+      "winRate": "83,8 %",
+      "macroF1": {
+        "ours": 73.49,
+        "smote": 71.24
+      }
+    }
+  },
+  "skills": {
+    "Lenguajes": [
+      "Python",
+      "TypeScript",
+      "SQL"
+    ],
+    "ML & IA": [
+      "PyTorch",
+      "XGBoost",
+      "LangGraph",
+      "LangChain",
+      "RAG"
+    ],
+    "Cloud": [
+      "GCP (Vertex AI, Cloud Run)",
+      "AWS (SageMaker, S3)",
+      "Azure"
+    ],
+    "Web": [
+      "FastAPI",
+      "React",
+      "Next.js",
+      "Flask"
+    ],
+    "Datos": [
+      "PostgreSQL",
+      "NoSQL",
+      "Vector DBs"
+    ],
+    "DevOps": [
+      "Linux",
+      "CI/CD",
+      "Monitoreo",
+      "Docker"
+    ],
+    "Evaluación": [
+      "Langfuse",
+      "LLM-as-judge",
+      "A/B testing"
+    ]
+  },
+  "languages": [
+    {
+      "name": "Español",
+      "level": "Nativo"
     },
-  },
-  skills: {
-    Lenguajes: ["Python", "TypeScript", "SQL"],
-    "ML & IA": ["TensorFlow", "PyTorch", "LangChain", "LangGraph", "RAG", "Pandas"],
-    Cloud: ["GCP (Vertex AI, Cloud Run)", "AWS (SageMaker, S3)", "Azure"],
-    Web: ["React", "Next.js", "Node.js", "Flask"],
-    Datos: ["PostgreSQL", "NoSQL", "Vector DBs"],
-    DevOps: ["Linux", "CI/CD", "Monitoreo", "Docker"],
-  },
-  languages: [
-    { name: "Español", level: "Nativo" },
-    { name: "Inglés", level: "Avanzado" },
-    { name: "Alemán", level: "Básico" },
-  ],
+    {
+      "name": "Inglés",
+      "level": "Avanzado"
+    },
+    {
+      "name": "Alemán",
+      "level": "Básico"
+    }
+  ]
 };
 
 const DATA: Record<Lang, DataSet> = { en: dataEn, es: dataEs };

@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { useData } from "@/lib/data";
 import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
-import { FileText, ExternalLink } from "lucide-react";
+import { useLanguage } from "@/lib/Language";
 import { useViewMode } from "@/lib/ViewMode";
 
 const ThesisScatter = dynamic(
@@ -75,11 +75,13 @@ function ThesisConcise() {
 }
 
 function ThesisDetailed() {
+  const { lang } = useLanguage();
+  const locale = lang === "es" ? "es-CL" : "en-US";
   const { thesis } = useData();
   const t = useT();
   return (
-    <div className="mt-8 grid lg:grid-cols-5 gap-6">
-      <div className="lg:col-span-2 space-y-4">
+    <div className="mt-8 space-y-8">
+      <div className="grid gap-5 md:grid-cols-2">
         <div>
           <h3 className="text-2xl font-semibold text-[var(--foreground)]">
             {thesis.title}
@@ -91,27 +93,21 @@ function ThesisDetailed() {
           {thesis.abstract}
         </p>
 
-        <dl className="grid grid-cols-2 gap-3">
-          <DetailedStat label={t.thesis.configs} value={thesis.stats.configs.toLocaleString()} />
+        <dl className="grid grid-cols-2 gap-3 md:col-span-2 sm:grid-cols-4">
+          <DetailedStat label={t.thesis.configs} value={thesis.stats.configs.toLocaleString(locale)} />
           <DetailedStat label={t.thesis.pValue} value={thesis.stats.pValue} />
-          <DetailedStat label={t.thesis.cohenD} value={thesis.stats.cohenD.toFixed(2)} />
+          <DetailedStat label={t.thesis.cohenD} value={thesis.stats.cohenD.toLocaleString(locale, { minimumFractionDigits: 2 })} />
           <DetailedStat label={t.thesis.winRate} value={thesis.stats.winRate} />
         </dl>
 
-        <div className="pt-2 flex flex-wrap items-center gap-3 gap-y-1.5 text-xs">
-          <a
-            href={t.resumeHref}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[var(--accent-warm)]/50 text-[var(--accent-warm)] hover:bg-[var(--accent-warm)]/10 font-medium transition-colors"
-          >
-            <FileText className="size-3.5" /> {t.thesis.defenseSlides}
-          </a>
+        <div className="md:col-span-2 flex flex-wrap items-center gap-3 text-xs">
           <span className="inline-flex items-center gap-1.5 text-[var(--foreground-muted)]">
-            <ExternalLink className="size-3.5" /> {t.thesis.advisedBy} {thesis.advisor}
+            {t.thesis.advisedBy} {thesis.advisor}
           </span>
         </div>
       </div>
 
-      <div className="lg:col-span-3">
+      <div className="min-w-0">
         <ThesisScatter />
       </div>
     </div>
@@ -121,7 +117,7 @@ function ThesisDetailed() {
 function DetailedStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="p-3 rounded border border-[var(--border)] bg-[var(--surface)]">
-      <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
+      <dt className="text-[10px] font-semibold uppercase tracking-wide sm:tracking-[0.14em] text-[var(--foreground-muted)]">
         {label}
       </dt>
       <dd className="mt-1 font-mono text-base text-[var(--accent-warm)]">{value}</dd>

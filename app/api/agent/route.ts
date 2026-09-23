@@ -22,7 +22,7 @@ const MAX_LLM_ITERATIONS = 12;
 // Dwell before every scroll after a turn's first: tours would otherwise jump
 // stop to stop as fast as the model iterates, before the page even settles.
 const TOUR_STOP_DWELL_MS = 2400;
-const MAX_OUTPUT_TOKENS = 700;
+const MAX_OUTPUT_TOKENS = 360;
 const MAX_OUTPUT_TOKENS_MATCH = 1300; // a report_match payload alone runs several hundred tokens
 
 type Wire =
@@ -137,14 +137,16 @@ async function runLive(
   const maxOutputTokens = hasJd ? MAX_OUTPUT_TOKENS_MATCH : MAX_OUTPUT_TOKENS;
   let scrollsSent = 0;
   let textSent = false;
+  let notesSent = 0;
 
   // show_section notes are assistant prose carried as a tool argument (terse
   // models won't interleave text with tool calls); stream them word by word
   // so they read like the model's own typing.
   const streamNote = async (note: string) => {
-    const words = note.split(/\s+/);
+    const words = note.replace(/^[•-]\s*/, "").split(/\s+/).slice(0, 20);
+    send({ type: "delta", text: (textSent ? "\n" : "") + "• " });
     for (let i = 0; i < words.length; i += 3) {
-      send({ type: "delta", text: (textSent || i > 0 ? " " : "") + words.slice(i, i + 3).join(" ") });
+      send({ type: "delta", text: (i > 0 ? " " : "") + words.slice(i, i + 3).join(" ") });
       textSent = true;
       await sleep(24);
     }
@@ -184,6 +186,8 @@ async function runLive(
     let responseHasText = false;
     for await (const event of stream) {
       if (event.type === "response.output_text.delta") {
+        // Section notes already answer the question; do not append a duplicate recap.
+        if (notesSent > 0) continue;
         // Glue a space between a previously streamed note and fresh text.
         const glue = !responseHasText && textSent && !/^\s/.test(event.delta) ? " " : "";
         responseHasText = true;
@@ -239,7 +243,10 @@ async function runLive(
           if (scrollsSent > 0) await sleep(TOUR_STOP_DWELL_MS);
           send({ type: "ui", action: "scroll_to", target });
           scrollsSent++;
-          if (note) await streamNote(note);
+          if (note) {
+            await streamNote(note);
+            notesSent++;
+          }
           out = JSON.stringify({
             ok: true,
             now_in_view: target,
@@ -287,6 +294,8 @@ async function runLive(
         trace("result", call.name, `${call.arguments || "{}"} → ${out.length} bytes`);
       }
       input.push({ type: "function_call_output", call_id: call.call_id, output: out });
+      // Tours finish at contact; avoid another model call just for a closing recap.
+      if (call.name === "show_section" && args.section === "contact" && scrollsSent >= 3) return;
     }
   }
   trace("info", "loop cap", `stopped after ${MAX_LLM_ITERATIONS} model calls`);

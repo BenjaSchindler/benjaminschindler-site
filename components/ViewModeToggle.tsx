@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n";
 export function ViewModeToggle({ compact = false }: { compact?: boolean }) {
   const { detailed, toggle } = useViewMode();
   const t = useT();
-  const labelClass = "uppercase tracking-[0.18em]";
+  const labelClass = compact ? "uppercase tracking-wide" : "uppercase tracking-[0.18em]";
   const offColor = detailed
     ? "text-[var(--foreground-muted)]"
     : "text-[var(--accent-gold)]";
@@ -22,11 +22,11 @@ export function ViewModeToggle({ compact = false }: { compact?: boolean }) {
         detailed ? t.viewMode.switchToConcise : t.viewMode.switchToTechnical
       }
       onClick={toggle}
-      className={`group inline-flex items-center gap-2 select-none ${
+      className={`group inline-flex min-h-9 shrink-0 items-center gap-2 select-none ${
         compact ? "text-[10px]" : "text-[10px] sm:text-[11px]"
       }`}
     >
-      <span className={`${labelClass} transition-colors ${offColor}`}>
+      <span className={`${labelClass} transition-colors ${offColor} ${compact && detailed ? "hidden" : ""}`}>
         {t.viewMode.concise}
       </span>
       <span
@@ -38,14 +38,14 @@ export function ViewModeToggle({ compact = false }: { compact?: boolean }) {
         }`}
       >
         <span
-          className={`absolute top-1/2 -translate-y-1/2 size-[12px] rounded-full transition-all duration-200 ease-out ${
+          className={`absolute top-1/2 -translate-y-1/2 size-[12px] rounded-full transition-[left,background-color] duration-200 ease-out ${
             detailed
               ? "left-[18px] bg-[var(--accent)]"
               : "left-[3px] bg-[var(--accent-gold)]"
           }`}
         />
       </span>
-      <span className={`${labelClass} transition-colors ${onColor}`}>
+      <span className={`${labelClass} transition-colors ${onColor} ${compact && !detailed ? "hidden" : ""}`}>
         {t.viewMode.technical}
       </span>
     </button>

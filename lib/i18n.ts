@@ -147,7 +147,7 @@ const en: Strings = {
   },
   hero: {
     available: "Available",
-    statusLocation: "Santiago, Chile · GMT−3 · v2026.06",
+    statusLocation: "Santiago, Chile",
     openToOpportunities: "Open to opportunities",
     exploreExperience: "Explore experience",
     readThesis: "Read thesis",
@@ -161,13 +161,13 @@ const en: Strings = {
   },
   section: {
     experienceTitle: "Experience",
-    experienceSubtitle: "hover the visualizations to explore",
+    experienceSubtitle: "systems and results",
     thesisTitle: "Master's thesis",
     thesisSubtitle: "defense",
     projectsTitle: "Projects",
-    projectsSubtitle: "selected client work",
-    practiceTitle: "AI Engineering Practice",
-    practiceSubtitle: "how I work with models",
+    projectsSubtitle: "selected projects",
+    practiceTitle: "Practices in projects",
+    practiceSubtitle: "workflows, experiments, and evaluations",
     agentTitle: "Ask the Agent",
     agentSubtitle: "the AI practice on this site, running live",
     educationTitle: "Education",
@@ -188,7 +188,7 @@ const en: Strings = {
   thesis: {
     defenseSlides: "Defense slides",
     advisedBy: "Advised by",
-    configs: "Configs",
+    configs: "Configurations",
     pValue: "P-value",
     cohenD: "Cohen d",
     winRate: "Win-rate",
@@ -256,7 +256,7 @@ const en: Strings = {
     teaserDismiss: "Dismiss suggestion",
     teasers: {
       experience: {
-        text: "Machine learning on millions of sensor rows at WiseConn.",
+        text: "Machine learning on irrigation sensor data at WiseConn.",
         question: "Tell me about the machine learning work on millions of rows at WiseConn.",
       },
       thesis: {
@@ -268,7 +268,7 @@ const en: Strings = {
         question: "How does he handle guardrails and evals in client projects?",
       },
       practice: {
-        text: "This chat runs on the practice described here.",
+        text: "Explore evaluations and workflows from real projects.",
         question: "How does Benjamin work with models?",
       },
       skills: {
@@ -278,7 +278,7 @@ const en: Strings = {
     },
     matchButton: "Match a job description",
     recruiterPitch:
-      "Hiring? Paste a job description and I'll check it against this CV — honest gaps included.",
+      "Hiring? Compare a job description with my experience.",
     matchPlaceholder: "Paste the job description here…",
     matchRun: "Match",
     matchCancel: "Cancel",
@@ -299,7 +299,7 @@ const en: Strings = {
     email: "Email",
     linkedin: "LinkedIn",
   },
-  contactPrompt: "I build AI systems that reach production and stay reliable.",
+  contactPrompt: "Have an AI project in mind?",
   contactPromptHighlight: "Get in touch.",
   resumeHref: "/cv.pdf",
 };
@@ -318,7 +318,7 @@ const es: Strings = {
   },
   hero: {
     available: "Disponible",
-    statusLocation: "Santiago, Chile · GMT−3 · v2026.06",
+    statusLocation: "Santiago, Chile",
     openToOpportunities: "Abierto a oportunidades",
     exploreExperience: "Ver experiencia",
     readThesis: "Leer tesis",
@@ -332,15 +332,15 @@ const es: Strings = {
   },
   section: {
     experienceTitle: "Experiencia",
-    experienceSubtitle: "pasa el cursor por las visualizaciones",
+    experienceSubtitle: "sistemas y resultados",
     thesisTitle: "Tesis de Magíster",
     thesisSubtitle: "defensa",
     projectsTitle: "Proyectos",
-    projectsSubtitle: "trabajo de cliente seleccionado",
-    practiceTitle: "Práctica de Ingeniería de IA",
-    practiceSubtitle: "cómo trabajo con modelos",
+    projectsSubtitle: "proyectos destacados",
+    practiceTitle: "Prácticas en proyectos",
+    practiceSubtitle: "flujos, experimentos y evaluaciones",
     agentTitle: "Pregúntale al Agente",
-    agentSubtitle: "la práctica de IA de este sitio, corriendo en vivo",
+    agentSubtitle: "respuestas basadas en este CV",
     educationTitle: "Educación",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Habilidades",
@@ -358,8 +358,8 @@ const es: Strings = {
   },
   thesis: {
     defenseSlides: "Diapositivas de defensa",
-    advisedBy: "Asesorado por",
-    configs: "Configs",
+    advisedBy: "Profesor guía:",
+    configs: "Configuraciones",
     pValue: "Valor-p",
     cohenD: "Cohen d",
     winRate: "Tasa de éxito",
@@ -398,7 +398,7 @@ const es: Strings = {
     toolsList: [
       { name: "get_profile", desc: "identidad, contacto, CV" },
       { name: "get_experience", desc: "roles, impacto, stack" },
-      { name: "get_projects", desc: "trabajo de cliente: MiAutoCheck, EPE" },
+      { name: "get_projects", desc: "proyectos para clientes: MiAutoCheck, EPE" },
       { name: "get_thesis", desc: "benchmark, estadísticas, resultados" },
       { name: "get_practice", desc: "cómo trabaja con modelos" },
       { name: "get_education_and_skills", desc: "títulos, habilidades, idiomas" },
@@ -427,11 +427,11 @@ const es: Strings = {
     teaserDismiss: "Ocultar sugerencia",
     teasers: {
       experience: {
-        text: "Machine learning sobre millones de filas de sensores en WiseConn.",
+        text: "Machine learning sobre datos de sensores de riego en WiseConn.",
         question: "Cuéntame del trabajo de machine learning con millones de filas en WiseConn.",
       },
       thesis: {
-        text: "La augmentación con LLMs superó a SMOTE por +2.25 pp de macro-F1.",
+        text: "El aumento de datos con LLMs superó a SMOTE por +2.25 pp de macro-F1.",
         question: "¿Cómo superó la tesis a SMOTE por +2.25 pp?",
       },
       projects: {
@@ -439,7 +439,7 @@ const es: Strings = {
         question: "¿Cómo maneja guardrails y evals en proyectos de clientes?",
       },
       practice: {
-        text: "Este chat corre sobre la práctica descrita aquí.",
+        text: "Conoce las evaluaciones y los flujos usados en proyectos.",
         question: "¿Cómo trabaja Benjamin con los modelos?",
       },
       skills: {
@@ -449,7 +449,7 @@ const es: Strings = {
     },
     matchButton: "Evalúa una oferta laboral",
     recruiterPitch:
-      "¿Contratando? Pega una descripción de cargo y la contrasto con este CV — brechas honestas incluidas.",
+      "¿Estás contratando? Compara una oferta laboral con mi experiencia.",
     matchPlaceholder: "Pega aquí la descripción del cargo…",
     matchRun: "Evaluar",
     matchCancel: "Cancelar",
@@ -470,7 +470,7 @@ const es: Strings = {
     email: "Correo",
     linkedin: "LinkedIn",
   },
-  contactPrompt: "Construyo sistemas de IA que llegan a producción y se mantienen confiables.",
+  contactPrompt: "¿Tienes un proyecto de IA en mente?",
   contactPromptHighlight: "Hablemos.",
   resumeHref: "/cv-es.pdf",
 };

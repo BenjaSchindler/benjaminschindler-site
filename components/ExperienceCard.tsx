@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import type { Experience } from "@/lib/data";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useViewMode } from "@/lib/ViewMode";
 import { useT } from "@/lib/i18n";
 
@@ -65,6 +65,16 @@ function ExperienceCardConcise({ exp }: { exp: Experience }) {
         <p className="mt-5 text-base sm:text-lg leading-relaxed text-[var(--foreground)] font-normal max-w-2xl border-l-[3px] border-[var(--accent-gold)] pl-4">
           {exp.impact}
         </p>
+        {exp.highlights && (
+          <ul className="mt-4 max-w-2xl space-y-2 text-sm sm:text-base leading-relaxed text-[var(--foreground-dim)]">
+            {exp.highlights.map((highlight) => (
+              <li key={highlight} className="flex gap-2.5">
+                <span aria-hidden className="mt-2.5 size-1 shrink-0 rounded-full bg-[var(--accent-gold)]" />
+                <span>{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         <ul className="mt-5 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-[var(--foreground-muted)]">
           {exp.stack.map((s, i) => (
             <li key={s} className="flex items-center gap-3">
@@ -82,6 +92,8 @@ function ExperienceCardConcise({ exp }: { exp: Experience }) {
 
 function ExperienceCardDetailed({ exp }: { exp: Experience }) {
   const t = useT();
+  const reduced = useReducedMotion();
+  const fullWidth = exp.viz === "agent-graph" || exp.viz === "nl2sql";
   const Viz =
     exp.viz === "forecasting"
       ? ForecastingChart
@@ -93,10 +105,10 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
 
   return (
     <motion.article
-      initial={{ y: 16 }}
+      initial={reduced ? false : { y: 16 }}
       whileInView={{ y: 0 }}
       viewport={{ once: true, margin: "-80px", amount: 0.05 }}
-      transition={{ duration: 0.45 }}
+      transition={{ duration: reduced ? 0 : 0.45 }}
       className="rounded border border-[var(--border)] bg-[var(--surface)] overflow-hidden"
     >
       <div className="p-4 sm:p-6 border-b border-[var(--border)]">
@@ -128,8 +140,8 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
         </ul>
       </div>
 
-      <div className="grid lg:grid-cols-5">
-        <div className="p-4 sm:p-6 lg:col-span-3 space-y-5 border-b lg:border-b-0 lg:border-r border-[var(--border)] min-w-0">
+      <div className={fullWidth ? "grid" : "grid lg:grid-cols-2"}>
+        <div className={`p-4 sm:p-6 border-[var(--border)] min-w-0 ${fullWidth ? `grid gap-6 border-b ${exp.roles.length > 1 ? "md:grid-cols-2" : ""}` : "space-y-5 border-b lg:border-b-0 lg:border-r"}`}>
           {exp.roles.map((r) => (
             <div key={r.title}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -152,7 +164,7 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
           ))}
         </div>
 
-        <div className="lg:col-span-2 p-3 sm:p-6 bg-[var(--surface-raised)] min-w-0">
+        <div className="p-4 sm:p-6 bg-[var(--surface-raised)] min-w-0">
           {Viz ? <Viz /> : null}
         </div>
       </div>

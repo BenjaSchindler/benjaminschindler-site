@@ -1,33 +1,10 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useData } from "@/lib/data";
 import { useT } from "@/lib/i18n";
 import { ChevronDown, Mail, Download, ArrowRight } from "lucide-react";
 import { LinkedinIcon } from "./icons/Brands";
 import { useViewMode } from "@/lib/ViewMode";
-import { BioAttention } from "./viz/BioAttention";
-import { useLanguage } from "@/lib/Language";
-
-const BIO_TOKENS_EN = [
-  "AI",
-  "agentic",
-  "RAG",
-  "production",
-  "design",
-  "rollout",
-  "iteration",
-  "CTO",
-];
-const BIO_TOKENS_ES = [
-  "IA",
-  "Ingeniero",
-  "agénticos",
-  "RAG",
-  "producción",
-  "diseño",
-  "despliegue",
-  "CTO",
-];
 
 export function Hero() {
   const { detailed } = useViewMode();
@@ -116,20 +93,20 @@ const fadeIn = (delay: number) => ({
 function HeroDetailed() {
   const { profile } = useData();
   const t = useT();
-  const { lang } = useLanguage();
-  const bioTokens = lang === "es" ? BIO_TOKENS_ES : BIO_TOKENS_EN;
+  const reduced = useReducedMotion();
+  const reveal = (delay: number) => reduced ? { initial: false as const } : fadeIn(delay);
   return (
     <section
       id="top"
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-[100dvh] flex items-center overflow-hidden"
     >
       <div className="relative w-full max-w-5xl mx-auto px-6 sm:px-8 pt-20 pb-28">
         <motion.div
-          {...fadeIn(0)}
+          {...reveal(0)}
           className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] uppercase tracking-[0.18em] text-[var(--foreground-muted)]"
         >
           <span className="inline-flex items-center gap-1.5 text-[var(--foreground-dim)]">
-            <span className="size-1.5 rounded-full bg-[var(--accent-warm)] pulse-dot" />
+            <span className="size-1.5 rounded-full bg-[var(--accent-warm)]" />
             <span>{t.hero.available}</span>
           </span>
           <span aria-hidden>·</span>
@@ -137,26 +114,22 @@ function HeroDetailed() {
         </motion.div>
 
         <motion.h1
-          {...fadeIn(STAGGER * 1)}
+          {...reveal(STAGGER * 1)}
           className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[var(--foreground)] leading-[1.05]"
         >
           {profile.name}
         </motion.h1>
 
         <motion.p
-          {...fadeIn(STAGGER * 2)}
+          {...reveal(STAGGER * 2)}
           className="mt-3 text-base sm:text-lg text-[var(--foreground-dim)] leading-relaxed"
         >
           {profile.title} · {profile.subtitle}
         </motion.p>
 
-        <div className="mt-7 grid md:grid-cols-3 gap-6">
-          <motion.div {...fadeIn(STAGGER * 3)} className="md:col-span-2">
-            <BioAttention
-              text={profile.bio}
-              tokens={bioTokens}
-              className="text-base sm:text-lg leading-relaxed text-[var(--foreground)]"
-            />
+        <div className="mt-7 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.div {...reveal(STAGGER * 3)} className="min-w-0 md:col-span-2">
+            <p className="text-base sm:text-lg leading-relaxed text-[var(--foreground)]">{profile.bio}</p>
             <div className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
               {profile.tags.map((tag) => (
                 <span
@@ -169,7 +142,7 @@ function HeroDetailed() {
             </div>
           </motion.div>
 
-          <motion.div {...fadeIn(STAGGER * 4)} className="space-y-2">
+          <motion.div {...reveal(STAGGER * 4)} className="min-w-0 space-y-2">
             <QuickLink
               icon={<Mail className="size-3.5" />}
               label={t.quickLinks.email}
@@ -186,7 +159,7 @@ function HeroDetailed() {
             <QuickLink
               icon={<Download className="size-3.5" />}
               label={t.quickLinks.resume}
-              value="cv.pdf"
+              value={t.resumeHref.slice(1)}
               href={t.resumeHref}
               download
             />
@@ -194,7 +167,7 @@ function HeroDetailed() {
         </div>
 
         <motion.div
-          {...fadeIn(STAGGER * 5)}
+          {...reveal(STAGGER * 5)}
           className="mt-8 flex flex-wrap gap-2 text-sm"
         >
           <a

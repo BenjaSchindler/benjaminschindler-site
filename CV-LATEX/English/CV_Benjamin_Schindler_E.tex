@@ -1,98 +1,71 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
-\usepackage{geometry}
-\usepackage{enumitem}
-\usepackage{titlesec}
-\usepackage{parskip}
+
+\usepackage[T1]{fontenc}
+\usepackage{geometry,enumitem,titlesec,parskip,microtype}
 \usepackage[hidelinks]{hyperref}
-
-% -------------------- Layout --------------------
-\geometry{left=0.5in, right=0.5in, top=0.35in, bottom=0.35in}
-
-\titlespacing*{\section}{0pt}{4pt plus 1pt minus 1pt}{3pt plus 1pt minus 0pt}
-\titleformat{\section}
-  {\normalfont\large\bfseries}{}{0pt}{}[\vspace{-3pt}\titlerule\vspace{-1pt}]
-
-\setlist[itemize]{left=0pt, topsep=1pt, partopsep=0pt, parsep=0pt, itemsep=0pt, after=\vspace{-2pt}}
-\setlist[itemize,2]{label=--, left=10pt, topsep=1pt, after=\vspace{1pt}}
-\setlength{\parskip}{1pt plus 1pt minus 1pt}
-
-\begin{document}
+\geometry{left=0.5in,right=0.5in,top=0.4in,bottom=0.4in}
+\titlespacing*{\section}{0pt}{7pt}{3pt}
+\titleformat{\section}{\normalfont\large\bfseries}{}{0pt}{}
+\setlist[itemize]{leftmargin=12pt,topsep=2pt,parsep=0pt,itemsep=1pt}
+\setlist[itemize,2]{label=--,leftmargin=10pt,topsep=1pt,itemsep=1pt}
+\setlength{\parskip}{2pt}
 \pagestyle{empty}
-
+\begin{document}
 \begin{center}
-    {\LARGE \textbf{Benjamin Schindler}} \\
-    \vspace{0.06cm}
-    \textbf{AI Engineering Lead \& AI Engineer} \\
-    \vspace{0.02cm}
-    \textbf{Agentic AI Systems | RAG | Product AI | M.Sc. Data Science} \\
-    \vspace{0.06cm}
-    +56 9 5627 9434 \hspace{0.35cm} \texttt{benjamin.schindlerv@gmail.com} \hspace{0.35cm} Santiago, Chile \\
-    \vspace{0.02cm}
-    \href{https://benjaminschindler.vercel.app/}{benjaminschindler.vercel.app}
-    \hspace{0.35cm}
-    \href{https://github.com/BenjaSchindler}{github.com/BenjaSchindler}
-    \hspace{0.35cm}
-    \href{https://www.linkedin.com/in/benjamin-schindler-92881a2b2/}{LinkedIn}
+{\LARGE\bfseries Benjamin Schindler}\\[3pt]
+\textbf{AI Engineering Lead} $\cdot$ M.Sc. Data Science\\[4pt]
++56 9 5627 9434 $\cdot$ \href{mailto:benjamin.schindlerv@gmail.com}{benjamin.schindlerv@gmail.com} $\cdot$ Santiago, Chile\\[2pt]
+\href{https://benjaminschindler.vercel.app}{benjaminschindler.vercel.app} $\cdot$ \href{https://github.com/BenjaSchindler}{github.com/BenjaSchindler} $\cdot$ \href{https://www.linkedin.com/in/benjamin-schindler-92881a2b2/}{LinkedIn}
 \end{center}
-
 \section*{Profile}
-AI Engineering Lead who builds and ships production LLM systems --- multi-agent workflows, RAG, and the deterministic-agentic hybrid patterns that keep them safe in regulated domains. Owns systems end-to-end, from problem framing and evals to deployment and monitoring. Currently CTO at Doctor911 (early-stage healthtech), leading a 3-person product team; the AI products I designed and shipped contributed to a 10$\times$ increase in web traffic and the company reaching profitability.
-
+I'm an AI engineer and CTO at Doctor911, where I lead a three-person product team. I build AI assistants, RAG search systems, and tools that automate business tasks.
 \section*{Experience}
-\begin{itemize}[left=0pt]
-
-    \item \textbf{Doctor911} --- \textit{early-stage healthtech} \hfill \textit{Mar. 2025 -- Present} \\
-    \textit{Chief Technology Officer \& AI Engineering Lead (promoted)} \hfill \textit{Jan. 2026 -- Present}
-    \begin{itemize}
-        \item Lead a 3-person product team (2 engineers, 1 UX/UI designer); own the IT/AI infrastructure, the data platform, and the AI roadmap and technical standards (evals, observability, HITL safety, CI/CD).
-        \item Shipped the AI products underpinning the company's 10$\times$ traffic increase and path to profitability; promoted IC $\rightarrow$ CTO in under a year.
-    \end{itemize}
-    \textit{AI Engineer} \hfill \textit{Mar. 2025 -- Jan. 2026}
-    \begin{itemize}
-        \item Built and shipped the company's conversational AI platform (LangGraph + FastAPI on GCP Cloud Run): a 4-agent WhatsApp system covering onboarding, sales, support, and order fulfillment (Meta Flows, WhatsApp catalogs, Transbank payments), and a 2-agent web system with a $\sim$100 ms semantic intent router.
-        % TODO: add a volume metric when available (conversations/month, % resolved without human escalation, cost per conversation)
-        \item Built a form-based RAG recommender and an XGBoost medical exam recommender, exposed as shared tools across all agents.
-        \item Architected a deterministic-agentic hybrid pattern for the regulated side of the product: LangGraph orchestration constrained by structured business rules for payments, booking, and doctor-in-the-loop clinical approvals, with PII guardrails.
-    \end{itemize}
-
-    \item \textbf{WiseConn Latam} \hfill \textit{Sep. 2024 -- Mar. 2025} \\
-    \textit{Data Science Intern (final-year M.Sc. internship)}
-    \begin{itemize}
-        \item Built CNN-based time-series forecasting for irrigation scheduling and classification models for solar installation analysis; deployed to production on AWS (SageMaker, S3) with validation and metric tracking, where they anticipate risk and reduce operating costs.
-        \item Led a cross-department data governance initiative consolidating the company's data.
-    \end{itemize}
-
-    \item \textbf{Unitti} \hfill \textit{Jul. 2022 -- Jul. 2024} \\
-    \textit{Jr. AI Engineer}
-    \begin{itemize}
-        \item Built a Natural Language $\rightarrow$ SQL application (Flask, LLMs, Azure, GCP), improving SQL generation quality through user-feedback loops.
-        \item Developed Python APIs on PostgreSQL with automated testing, improving backend stability and query performance.
-    \end{itemize}
-
+\textbf{Doctor911} \hfill Mar 2025 -- Present\\
+\textit{Chief Technology Officer (CTO)} \hfill \textit{Jan 2026 -- Present}
+\begin{itemize}
+\item Lead a three-person product team: two engineers and one UX/UI designer.
+\item The AI products I built contributed to 10$\times$ web traffic growth and company profitability.
+\item Built voice triage with Gemini Live and lab-report processing with Cloud Vision OCR.
+\item Designed RAG search on Vertex AI and an MCP server for internal tools.
+\item Lead AI strategy at Doctor911, selected for ChileMass Emprende 2026.
 \end{itemize}
-
-\section*{Selected Projects}
-\begin{itemize}[left=0pt,noitemsep,nolistsep]
-    \item \textbf{MiAutoCheck} (client) --- multimodal, multi-agent used-vehicle valuation API: a VLM inspection agent plus 5 parallel research agents (pricing, reliability, recalls, ownership cost, competitors) consolidated by a supervisor into PDF valuation reports. GPT-5-mini with Anthropic prompt caching to contain latency and cost; Tavily search.
-    \item \textbf{EPE} (client) --- workplace well-being platform with LLM safety guardrails (crisis / PII), per-user prompt A/B versioning, LLM-as-judge evals with drift monitoring, and Langfuse observability.
-    \item \textbf{Doctor911 Internal Ops Agent} --- built on the open-source OpenClaw framework to automate team coordination and recurring operational tasks.
+\textit{AI Engineer} \hfill \textit{Mar 2025 -- Jan 2026}
+\begin{itemize}
+\item Built four WhatsApp agents and two web agents with LangGraph and FastAPI.
+\item Integrated exam recommendations, Meta Flows, catalogs, and Transbank payments.
+\item Combined AI agents with business rules and medical review for clinical approvals.
+\item Deployed the platform on GCP Cloud Run with production monitoring.
 \end{itemize}
+\textbf{WiseConn Latam} \hfill Sep 2024 -- Mar 2025\\
+\textit{Data Science Intern}
+\begin{itemize}
+\item Built CNN forecasting models for irrigation and classifiers for solar installations.
+\item Deployed models on SageMaker and S3 with validation and metric tracking.
+\item Led a cross-department data governance initiative.
+\end{itemize}
+\textbf{Unitti} \hfill Jul 2022 -- Jul 2024\\
+\textit{Jr AI Engineer}
+\begin{itemize}
+\item Automated extraction and reconciliation of about 800 PDF invoices per month.
+\item 85\% of invoices processed without manual intervention; ten minutes to under one per document; monthly close from eight days to three.
+\item Built an NL-to-SQL app and improved queries using feedback from users.
+\item Developed Python APIs over PostgreSQL with automated tests.
+\end{itemize}
+\section*{Selected projects}
+\textbf{MiAutoCheck} (client): An API that combines vehicle photos and market research into a PDF valuation report. Photo inspection, five research agents, and a supervisor.
 
+\textbf{EPE} (client): AI features for workplace well-being: emotion analysis and personalized exercises, with crisis detection and personal-data redaction. A/B prompts, LLM-as-judge, and Langfuse.
+
+\textbf{Doctor911 internal operations}: agent for team coordination and recurring tasks.
 \section*{Education}
-\begin{itemize}[left=0pt,itemsep=0.1em]
-    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Master of Science in Data Science}, GPA 3.6 / 4.0 \hfill \textit{2024 -- 2026} \\
-    Thesis defended with Maximum Distinction. Thesis (\textit{SMOTE-LLM}): hybrid LLM + embedding-space oversampling for imbalanced text classification; +2.25 pp macro-F1 over SMOTE (3{,}675-configuration benchmark, $p < 0.0001$).
-    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Software Engineering} \hfill \textit{2020 -- 2025}
-    \item \textbf{Universidad Adolfo Ibáñez} --- \textit{Industrial Engineering} \hfill \textit{2020 -- 2025}
-\end{itemize}
-
-\section*{Technical Stack}
-\begin{itemize}[left=0pt,noitemsep,nolistsep]
-    \item \textbf{AI / ML:} LangGraph, LangChain, multi-agent orchestration, agent harness engineering (tool design, context management, guardrails), RAG, LLM evals (LLM-as-judge, regression suites), structured outputs, human-in-the-loop workflows. LLM providers: OpenAI, Anthropic, Gemini. Classical ML: XGBoost, PyTorch.
-    \item \textbf{Platform \& Cloud:} Python, TypeScript, SQL, FastAPI, Next.js, Docker, CI/CD; GCP (Cloud Run, Vertex AI, Cloud SQL), AWS (SageMaker, S3), Supabase, PostgreSQL; Langfuse observability.
-    \item \textbf{Spoken Languages:} Spanish (Native), English (Advanced), German (Basic).
-\end{itemize}
-
+\textbf{Master of Science in Data Science} $\cdot$ U. Adolfo Ibáñez \hfill 2024 -- 2026\\
+\textbf{Software Engineering} $\cdot$ U. Adolfo Ibáñez \hfill 2020 -- Jul 2025\\
+\textbf{Industrial Engineering} $\cdot$ U. Adolfo Ibáñez \hfill 2020 -- Jul 2025\\
+M.Sc. GPA: 3.6/4.0. Thesis with Maximum Distinction: +2.25 pp macro-F1 over SMOTE (3,675 configurations).
+\section*{Tools and languages}
+\textbf{AI:} LangGraph, LangChain, RAG, MCP, PyTorch, XGBoost, OpenAI, Anthropic, Gemini Live, Langfuse.\\
+\textbf{Development:} Python, TypeScript, SQL, FastAPI, Next.js, PostgreSQL, Docker, CI/CD.\\
+\textbf{Cloud:} GCP (Cloud Run, Vertex AI, Cloud Vision), AWS (SageMaker, S3), Azure.\\
+\textbf{Languages:} Spanish (native), English (advanced), German (basic).
 \end{document}

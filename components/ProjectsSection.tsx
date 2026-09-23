@@ -2,13 +2,15 @@
 import { useData } from "@/lib/data";
 import { useT } from "@/lib/i18n";
 import { SectionHeader } from "./SectionHeader";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { VehicleScene, WellbeingScene } from "./viz/ProjectScenes";
 import { useViewMode } from "@/lib/ViewMode";
 
 export function ProjectsSection() {
   const { detailed } = useViewMode();
   const { projects } = useData();
   const t = useT();
+  const reduced = useReducedMotion();
 
   return (
     <section id="projects" className="py-20 sm:py-28 px-6 sm:px-8">
@@ -24,13 +26,13 @@ export function ProjectsSection() {
             {projects.map((p, idx) => (
               <motion.article
                 key={p.name}
-                initial={{ y: 12 }}
+                initial={reduced ? false : { y: 12 }}
                 whileInView={{ y: 0 }}
                 viewport={{ once: true, margin: "-60px", amount: 0.05 }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
+                transition={{ duration: reduced ? 0 : 0.4, delay: reduced ? 0 : idx * 0.05 }}
                 className="flex flex-col p-5 rounded border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/30 transition-colors"
               >
-                <div className="flex items-baseline justify-between gap-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="text-lg font-semibold text-[var(--foreground)]">
                     {p.name}
                   </h3>
@@ -44,6 +46,7 @@ export function ProjectsSection() {
                 <p className="mt-3 text-[13px] leading-relaxed text-[var(--foreground-dim)]">
                   {p.description}
                 </p>
+                <div className="my-5">{p.name === "MiAutoCheck" ? <VehicleScene /> : p.name === "EPE" ? <WellbeingScene /> : null}</div>
                 <ul className="mt-3 space-y-1.5 text-[13px] text-[var(--foreground-dim)] leading-relaxed">
                   {p.highlights.map((h, i) => (
                     <li key={i} className="flex gap-2">

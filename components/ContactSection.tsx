@@ -22,7 +22,7 @@ export function ContactSection() {
         />
 
         {detailed ? (
-          <div className="mt-8 grid sm:grid-cols-2 gap-3">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <ContactCard
               icon={<Mail className="size-5" />}
               label={t.contact.email}
@@ -114,7 +114,7 @@ function ContactRow({
     <span className="text-[var(--foreground)]">{value}</span>
   );
   return (
-    <li className="flex items-baseline gap-3">
+    <li className="flex flex-wrap items-baseline gap-3">
       <span className="text-[var(--foreground-muted)] translate-y-[2px]">{icon}</span>
       <span className="w-20 text-[var(--foreground-muted)]">{label}</span>
       {valueEl}

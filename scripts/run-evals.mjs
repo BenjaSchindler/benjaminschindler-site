@@ -280,7 +280,12 @@ for (const c of CASES) {
     process.exit(2);
   }
   model = r.model ?? model;
-  const checks = [latinOnly, ...c.checks].map((k) => ({ name: k.name, pass: k.fn(r) }));
+  const concise = { name: "short answer (<=80 words)", fn: (r) => r.text.trim().split(/\s+/).filter(Boolean).length <= 80 };
+  const tourChecks = c.category === "tour" ? [
+    { name: "one brief bullet per stop", fn: (r) => r.text.split("\n").filter(Boolean).length === r.ui.filter(u => u.action === "scroll_to").length },
+    { name: "no navigation recap", fn: (r) => !/I.ve (scrolled|taken)|te llev[eé]|si quieres|if you want/i.test(r.text) },
+  ] : [];
+  const checks = [latinOnly, concise, ...tourChecks, ...c.checks].map((k) => ({ name: k.name, pass: k.fn(r) }));
   const pass = checks.every((k) => k.pass);
   results.push({ id: c.id, category: c.category, pass, ms: Date.now() - started, checks });
   const failed = checks.filter((k) => !k.pass).map((k) => k.name);

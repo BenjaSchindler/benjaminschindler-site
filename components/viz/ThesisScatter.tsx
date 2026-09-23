@@ -1,25 +1,14 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { buildThesisScatter } from "@/lib/synthetic";
 import { palette, classColors } from "./primitives/colors";
 import { ThesisResultsBars } from "./ThesisResultsBars";
+import { useLanguage } from "@/lib/Language";
 import type { ThesisResultId } from "@/lib/data";
 
-type Mode = "anchors" | "smote" | "llm" | "filter";
-
-const MODES: Array<{
-  id: Mode;
-  label: string;
-  resultId: ThesisResultId | null;
-  tagline: string;
-}> = [
-  { id: "anchors", label: "anchors", resultId: null, tagline: "10 real samples · the starting point" },
-  { id: "smote", label: "smote", resultId: "smote", tagline: "linear interpolation · controlled but no text" },
-  { id: "llm", label: "llm raw", resultId: null, tagline: "fluid text · uncontrolled geometry" },
-  { id: "filter", label: "llm + filter", resultId: "soft-weighting", tagline: "ours · keep only points in the safe region" },
-];
+type Mode = "anchors" | "smote" | "llm" | "filter" | "weights";
 
 const VIEW = 320; // SVG square viewBox size
 
@@ -35,7 +24,17 @@ function toY(y: number) {
 }
 
 export function ThesisScatter() {
-  const [mode, setMode] = useState<Mode>("anchors");
+  const { lang } = useLanguage();
+  const es = lang === "es";
+  const reduced = useReducedMotion();
+  const MODES: Array<{ id: Mode; label: string; resultId: ThesisResultId | null; tagline: string }> = [
+    { id: "anchors", label: es ? "Ejemplos" : "Examples", resultId: null, tagline: es ? "10 puntos de referencia" : "10 reference points" },
+    { id: "smote", label: "SMOTE", resultId: "smote", tagline: es ? "Interpolación entre ejemplos" : "Interpolation between examples" },
+    { id: "llm", label: "LLM", resultId: null, tagline: es ? "Candidatos generados" : "Generated candidates" },
+    { id: "filter", label: es ? "LLM + filtro" : "LLM + filter", resultId: "binary-filter", tagline: es ? "Selección por cercanía" : "Selection by proximity" },
+    { id: "weights", label: es ? "Ponderación" : "Weighting", resultId: "soft-weighting", tagline: es ? "Mayor opacidad = mayor influencia (esquema)" : "Higher opacity = more influence (schematic)" },
+  ];
+  const [mode, setMode] = useState<Mode>("weights");
   const dataset = useMemo(() => buildThesisScatter(17), []);
   const id = useId();
   const radiusInPx = (dataset.filterRadius / 2) * (VIEW - 24);
@@ -53,16 +52,18 @@ export function ThesisScatter() {
   const activeMode = MODES.find((m) => m.id === mode)!;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <p className="text-xs text-[var(--foreground-muted)]">{es ? "Esquema ilustrativo del filtrado; puntos simulados." : "Illustration of filtering with simulated points."}</p>
       {/* Mode selector */}
-      <div className="flex flex-wrap gap-1.5 font-mono text-[10px]">
+      <div role="group" aria-label={es ? "Método de aumento de datos" : "Data augmentation method"} className="flex flex-wrap gap-2 text-xs">
         {MODES.map((m) => (
           <button
             key={m.id}
             onClick={() => setMode(m.id)}
-            className={`px-2.5 py-1 rounded border transition-all ${
+            aria-pressed={mode === m.id}
+            className={`min-h-10 px-3 py-2 rounded-md border transition-colors ${
               mode === m.id
-                ? "border-[var(--accent-warm)] text-[var(--accent-warm)] bg-[var(--accent-warm)]/10 shadow-[0_0_12px_rgba(255,107,53,0.25)]"
+                ? "border-[var(--accent-warm)] text-[var(--accent-warm)] bg-[var(--accent-warm)]/10"
                 : "border-[var(--border-strong)] text-[var(--foreground-muted)] hover:text-[var(--foreground-dim)]"
             }`}
           >
@@ -77,9 +78,9 @@ export function ThesisScatter() {
           <div className="sm:col-span-3 p-2">
             <svg
               viewBox={`0 0 ${VIEW} ${VIEW}`}
-              className="w-full aspect-square"
+              className="w-full aspect-square max-h-[420px]"
               role="img"
-              aria-label="Embedding-space scatter showing anchors, SMOTE midpoints, and LLM candidates with geometric filtering"
+              aria-label={es ? `Esquema de embeddings: ${activeMode.label}. Puntos simulados.` : `Embedding illustration: ${activeMode.label}. Simulated points.`}
             >
               <defs>
                 <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
@@ -136,7 +137,7 @@ export function ThesisScatter() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: reduced ? 0 : 0.4 }}
                   >
                     <circle
                       cx={minorityCenterPx.x}
@@ -155,14 +156,14 @@ export function ThesisScatter() {
                       strokeDasharray="3 3"
                     />
                     <text
-                      x={minorityCenterPx.x + radiusInPx + 4}
-                      y={minorityCenterPx.y - radiusInPx + 2}
-                      fontSize="9"
+                      x={12}
+                      y={20}
+                      fontSize="11"
                       fontFamily="var(--font-mono)"
                       fill={palette.orange}
                       opacity={0.85}
                     >
-                      filter radius
+                      {es ? "Radio del filtro" : "Filter radius"}
                     </text>
                   </motion.g>
                 )}
@@ -189,7 +190,7 @@ export function ThesisScatter() {
                         initial={{ pathLength: 0, opacity: 0 }}
                         animate={{ pathLength: 1, opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.45, delay: i * 0.012 }}
+                        transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : i * 0.012 }}
                       />
                     );
                   })}
@@ -213,7 +214,7 @@ export function ThesisScatter() {
                         initial={{ opacity: 0, scale: 0.4 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.4 }}
-                        transition={{ duration: 0.3, delay: 0.2 + i * 0.025 }}
+                        transition={{ duration: reduced ? 0 : 0.3, delay: reduced ? 0 : 0.2 + i * 0.025 }}
                         style={{ transformBox: "fill-box", transformOrigin: "center" }}
                       />
                     ))}
@@ -221,7 +222,7 @@ export function ThesisScatter() {
 
               {/* LLM candidates (triangles) */}
               <AnimatePresence>
-                {(mode === "llm" || mode === "filter") &&
+                {(mode === "llm" || mode === "filter" || mode === "weights") &&
                   dataset.points
                     .filter((p) => p.kind === "llm")
                     .map((p, i) => {
@@ -236,11 +237,11 @@ export function ThesisScatter() {
                           key={p.id}
                           initial={{ opacity: 0, scale: 0.4 }}
                           animate={{
-                            opacity: filtered ? 0.18 : 1,
+                            opacity: mode === "weights" ? Math.max(0.2, 1 - (p.score ?? 0)) : filtered ? 0.25 : 1,
                             scale: 1,
                           }}
                           exit={{ opacity: 0, scale: 0.4 }}
-                          transition={{ duration: 0.4, delay: i * 0.014 }}
+                          transition={{ duration: reduced ? 0 : 0.4, delay: reduced ? 0 : i * 0.014 }}
                           style={{ transformBox: "fill-box", transformOrigin: "center" }}
                         >
                           <Triangle x={toX(p.x)} y={toY(p.y)} r={4.2} color={color} />
@@ -274,7 +275,8 @@ export function ThesisScatter() {
                 ))}
             </svg>
 
-            <div className="mt-1 px-1 font-mono text-[10px] text-[var(--foreground-dim)]">
+            {mode === "weights" && <p className="mt-3 px-2 text-sm leading-relaxed text-[var(--foreground-dim)]">{es ? "La ponderación suave asigna distinta influencia a los ejemplos, en lugar de conservarlos o descartarlos. La opacidad ilustra la idea; no representa pesos medidos." : "Soft weighting gives examples different influence instead of keeping or discarding them. Opacity illustrates the idea; it does not represent measured weights."}</p>}
+            <div className="mt-2 px-2 text-xs leading-relaxed text-[var(--foreground-dim)]">
               <span className="text-[var(--accent-warm)]">{activeMode.label}</span>
               <span className="text-[var(--foreground-muted)]"> · {activeMode.tagline}</span>
             </div>
@@ -285,16 +287,16 @@ export function ThesisScatter() {
             <ThesisResultsBars highlightId={activeMode.resultId} />
 
             <div className="rounded border border-[var(--border)] bg-[var(--surface)] p-3">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] mb-2">
-                legend
+              <div className="text-xs uppercase tracking-wider text-[var(--foreground-muted)] mb-2">
+                {es ? "Leyenda" : "Legend"}
               </div>
-              <ul className="space-y-1.5 font-mono text-[10px] text-[var(--foreground-dim)]">
-                <LegendRow icon={<MiniStar color={palette.orange} />} label="real anchor (×10)" />
-                <LegendRow icon={<MiniSquare color={palette.cyan} />} label="smote midpoint" />
-                <LegendRow icon={<MiniTriangle color={palette.orange} />} label="llm candidate" />
-                <LegendRow icon={<MiniTriangle color={palette.green} />} label="kept by filter" />
-                <LegendRow icon={<MiniTriangle color={palette.textMuted} muted />} label="rejected" />
-                <LegendRow icon={<MiniDot color={palette.cyan} />} label="other classes" />
+              <ul className="space-y-1.5 text-xs text-[var(--foreground-dim)]">
+                <LegendRow icon={<MiniStar color={palette.orange} />} label={es ? "Ejemplo base (×10)" : "Reference (×10)"} />
+                <LegendRow icon={<MiniSquare color={palette.cyan} />} label={es ? "Punto SMOTE" : "SMOTE point"} />
+                <LegendRow icon={<MiniTriangle color={palette.orange} />} label={es ? "Candidato LLM" : "LLM candidate"} />
+                <LegendRow icon={<MiniTriangle color={palette.green} />} label={es ? "Conservado" : "Kept"} />
+                <LegendRow icon={<MiniTriangle color={palette.textMuted} muted />} label={es ? "Descartado" : "Rejected"} />
+                <LegendRow icon={<MiniDot color={palette.cyan} />} label={es ? "Otras clases" : "Other classes"} />
               </ul>
             </div>
           </div>

@@ -1,7 +1,6 @@
 # Benjamin Schindler — CV site
 
-Single-page portfolio with animated, interactive visualizations for each
-role and the master's thesis. Built with Next.js 16 and deployed on Vercel.
+Single-page portfolio with responsive diagrams, project examples, and thesis results. Built with Next.js 16 and deployed on Vercel.
 
 ## Stack
 
@@ -16,13 +15,17 @@ role and the master's thesis. Built with Next.js 16 and deployed on Vercel.
 
 | Section | Visualization |
 |---|---|
-| Hero | Terminal-style typewriter (`whoami` → identity lines) |
-| Doctor911 | Multi-agent graph with animated edges and traveling tokens; hover a node to highlight its subtree |
-| WiseConn | Soil-moisture forecasting — animated draw, switch between Transformer / LSTM / CNN |
-| Unitti | NL → LLM → SQL → Result pipeline with looping data flow (hover to pause) |
-| Master's thesis | Embedding-space scatter with 4 modes (Anchors / SMOTE / LLM raw / LLM + filter) — recreates slides 4 & 17 of the defense |
+| Hero | Static introduction with restrained entry transitions |
+| Doctor911 | OneClinik recorded-video consultations first, with tabs for WhatsApp agents, PrexX Web search/recommendations/authenticated support, and the internal RAG/MCP workflow |
+| WiseConn | A clearly labeled simulated forecast, with days relative to today |
+| Unitti | Animated monthly-close comparison and an expandable SQL example with fictional data |
+| Master's thesis | Five methods, including illustrative soft weighting, alongside reported benchmark results |
+| Practices | Explore routing, stable A/B assignment, permission filtering, and privacy evaluation through replayable scenes |
+| Projects | MiAutoCheck report assembly and EPE message processing, both labeled illustrative |
 
-All visualizations honor `prefers-reduced-motion`.
+The assistant opens on request from a fixed launcher; no automatic overlays cover the figures.
+
+Project scenes play once when visible, pause offscreen, and have pause/replay controls. Reduced motion shows the final state without autoplay. Controls remain usable by keyboard and touch. Figures use illustrative examples rather than live service calls or invented performance metrics.
 
 ## Local development
 
@@ -46,7 +49,9 @@ npm start
 4. First deploy publishes to `<repo-name>.vercel.app`.
 5. Push to `main` to redeploy; PRs get preview URLs.
 
-No env vars required. The site is fully static (no backend, no database).
+The portfolio renders without environment variables. The agent uses `/api/agent` and requires `OPENAI_API_KEY` for live answers; otherwise it serves labeled examples.
+
+The default model is `gpt-6-luna` (Responses API, reasoning `none`). `AGENT_MODEL` can override it; check that deployment settings do not pin an older model. See `.env.example`.
 
 ## Project structure
 
@@ -89,12 +94,18 @@ public/
 
 ## Updating CV content
 
-Everything visible flows from `lib/data.ts` (profile, experience, education,
-thesis stats, skills). Edit there and content propagates everywhere on the
-site. The PDF in `public/cv.pdf` is downloaded as-is.
+CV content for both languages lives in `lib/cvData.ts`; UI labels live in `lib/i18n.ts`. `lib/data.ts` provides the language-aware client hook. The agent reads the same CV data.
+
+The downloads are `public/cv.pdf` (English) and `public/cv-es.pdf` (Spanish). Their editable sources are the general `.tex` files in `CV-LATEX/English` and `CV-LATEX/Espanol`. Compile with `pdflatex`, review the rendered page, then copy the PDF to `public/`. Keep these copies synchronized when updating content.
 
 ## Updating the thesis numbers
 
 The ΔF1 bars and stats panel use `thesis.results` and `thesis.stats` in
-`lib/data.ts`. They mirror the defense slide deck values — update both if
+`lib/cvData.ts`. They mirror the defense slide deck values — update both if
 your final paper diverges.
+
+## Visualizations and agent checks
+
+Practice diagrams show project workflows without invented scores. The forecasting chart and thesis scatter use explicitly labeled simulated data; the thesis results bars use the reported benchmark values.
+
+Run `npm run build` and `npm run evals` against a server with `EVAL_KEY` configured. The 16 agent cases check grounding, scope, language, matching, and concise tours. The suite publishes the model and test date in `public/evals.json`.
