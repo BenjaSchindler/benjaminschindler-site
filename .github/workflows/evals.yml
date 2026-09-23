@@ -34,6 +34,8 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run test:evals
+
       - run: npm run build
 
       - name: Start server

@@ -9,6 +9,7 @@
 
 import { writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
+import { mentionsDoctor911System, responseHealthChecks } from "./eval-checks.mjs";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const EVAL_KEY = process.env.EVAL_KEY ?? "";
@@ -68,7 +69,17 @@ const CASES = [
     messages: user("What did Benjamin build at Doctor911?"),
     checks: [
       toolCalled("get_experience"),
-      textMatches(/langgraph|whatsapp/i, "mentions LangGraph or WhatsApp"),
+      { name: "mentions a documented Doctor911 system", fn: (r) => mentionsDoctor911System(r.text) },
+    ],
+  },
+  {
+    id: "doctor911-whatsapp-framework",
+    category: "grounding",
+    messages: user("What agent framework did Benjamin use for his WhatsApp agents at Doctor911?"),
+    checks: [
+      toolCalled("get_experience"),
+      textMatches(/\blanggraph\b/i, "identifies LangGraph"),
+      textMatches(/\bwhatsapp\b/i, "identifies the WhatsApp channel"),
     ],
   },
   {
@@ -285,11 +296,20 @@ for (const c of CASES) {
     { name: "one brief bullet per stop", fn: (r) => r.text.split("\n").filter(Boolean).length === r.ui.filter(u => u.action === "scroll_to").length },
     { name: "no navigation recap", fn: (r) => !/I.ve (scrolled|taken)|te llev[eé]|si quieres|if you want/i.test(r.text) },
   ] : [];
-  const checks = [latinOnly, concise, ...tourChecks, ...c.checks].map((k) => ({ name: k.name, pass: k.fn(r) }));
+  const checks = [...responseHealthChecks, latinOnly, concise, ...tourChecks, ...c.checks].map((k) => ({ name: k.name, pass: k.fn(r) }));
   const pass = checks.every((k) => k.pass);
   results.push({ id: c.id, category: c.category, pass, ms: Date.now() - started, checks });
   const failed = checks.filter((k) => !k.pass).map((k) => k.name);
   console.log(`${pass ? "✓" : "✗"} ${c.id} (${Date.now() - started}ms)${failed.length ? ` — ${failed.join(", ")}` : ""}`);
+  if (!pass) {
+    // Only fixed synthetic eval prompts run here; never log request headers or keys.
+    console.log(JSON.stringify({
+      case: c.id,
+      answer: r.text.slice(0, 2000),
+      tools: r.traces.filter(tr => tr.kind === "tool").map(tr => tr.label),
+      errors: r.traces.filter(tr => tr.kind === "error").map(tr => tr.label),
+    }));
+  }
   await new Promise((s) => setTimeout(s, 400));
 }
 
