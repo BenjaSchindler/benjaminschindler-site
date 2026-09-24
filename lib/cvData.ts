@@ -83,6 +83,7 @@ export type Thesis = {
     date: string;
     url: string;
     pdfUrl: string;
+    venue: string;
     summary: string;
   };
   title: string;
@@ -386,6 +387,7 @@ const dataEn: DataSet = {
       "date": "2026-08-14",
       "url": "https://arxiv.org/abs/2608.13866",
       "pdfUrl": "https://arxiv.org/pdf/2608.13866",
+      "venue": "To appear at IEEE LACCI 2026",
       "summary": "Extends the thesis evaluation to 13 datasets and over 6,700 configurations, with a +2.61 percentage-point gain in macro-F1 over SMOTE."
     },
     "title": "Data Augmentation with LLMs",
@@ -421,7 +423,7 @@ const dataEn: DataSet = {
       },
       {
         "id": "inverse-trans",
-        "method": "Inverse trans.",
+        "method": "Back-translation",
         "delta": -0.19,
         "isOurs": false
       }
@@ -430,7 +432,7 @@ const dataEn: DataSet = {
       "configs": 3675,
       "pValue": "< 0.0001",
       "cohenD": 0.74,
-      "winRate": "83.8 %",
+      "winRate": "83.8%",
       "macroF1": {
         "ours": 73.49,
         "smote": 71.24
@@ -668,7 +670,7 @@ const dataEs: DataSet = {
       ],
       "highlights": [
         "Un agente visual inspecciona el vehículo a partir de fotos.",
-        "Cinco agentes investigan precios, fiabilidad, alertas, costos y competencia.",
+        "Cinco agentes investigan precios, fiabilidad, llamados a revisión, costos y competencia.",
         "Un supervisor reúne los resultados en el informe."
       ]
     },
@@ -765,13 +767,14 @@ const dataEs: DataSet = {
       "date": "2026-08-14",
       "url": "https://arxiv.org/abs/2608.13866",
       "pdfUrl": "https://arxiv.org/pdf/2608.13866",
+      "venue": "Por publicarse en IEEE LACCI 2026",
       "summary": "Amplía la evaluación de la tesis a 13 datasets y más de 6.700 configuraciones, con una mejora de 2,61 puntos porcentuales de macro-F1 frente a SMOTE."
     },
     "title": "Aumento de datos con LLMs",
     "subtitle": "Filtrado geométrico para clasificación con pocos ejemplos",
-    "advisor": "Prof. Gonzalo Ruz",
+    "advisor": "Gonzalo Ruz",
     "institution": "Magíster en Ciencia de Datos · UAI",
-    "date": "Abril 2026",
+    "date": "abril de 2026",
     "abstract": "Evalué ejemplos sintéticos según su posición en el espacio de embeddings. La ponderación suave mejoró el macro-F1 en 2,25 puntos porcentuales frente a SMOTE en 3.675 configuraciones.",
     "results": [
       {
@@ -800,7 +803,7 @@ const dataEs: DataSet = {
       },
       {
         "id": "inverse-trans",
-        "method": "Trans. inversa",
+        "method": "Traducción inversa",
         "delta": -0.19,
         "isOurs": false
       }

@@ -43,7 +43,7 @@ LIMIT 3;`}</code></pre>
           <p className="text-xs font-medium text-[var(--accent-cyan)]">03 · {es ? "Resultado" : "Result"}</p>
           <table className="mt-2 w-full text-left text-sm tabular-nums">
             <caption className="sr-only">{es ? "Resultado ficticio de la consulta" : "Fictional query result"}</caption>
-            <thead><tr className="text-xs text-[var(--foreground-dim)]"><th scope="col" className="pb-2 font-normal">{es ? "Cliente" : "Customer"}</th><th scope="col" className="pb-2 text-right font-normal">{es ? "Total (u. monetarias)" : "Total (currency units)"}</th></tr></thead>
+            <thead><tr className="text-xs text-[var(--foreground-dim)]"><th scope="col" className="pb-2 font-normal">{es ? "Cliente" : "Customer"}</th><th scope="col" className="pb-2 text-right font-normal">{es ? "Monto total" : "Total spend"}</th></tr></thead>
             <tbody>{[["C-101", 1200], ["C-204", 950], ["C-309", 720]].map(([id, value]) => <motion.tr key={id} initial={false} animate={{ opacity: demo.step >= 3 ? 1 : .65, y: demo.step >= 3 || demo.reduced ? 0 : 4 }} transition={{ duration: demo.reduced ? 0 : .3 }} className="border-t border-[var(--border)]"><th scope="row" className="py-2 font-normal">{id}</th><td className="py-2 text-right">{Number(value).toLocaleString(es ? "es-CL" : "en-US")}</td></motion.tr>)}</tbody>
           </table>
         </li>

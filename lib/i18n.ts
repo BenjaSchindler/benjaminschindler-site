@@ -169,7 +169,7 @@ const en: Strings = {
     practiceTitle: "Practices in projects",
     practiceSubtitle: "workflows, experiments, and evaluations",
     agentTitle: "Ask the Agent",
-    agentSubtitle: "the AI practice on this site, running live",
+    agentSubtitle: "answers grounded in this CV",
     educationTitle: "Education",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Skills",
@@ -190,8 +190,8 @@ const en: Strings = {
     advisedBy: "Advised by",
     configs: "Configurations",
     pValue: "P-value",
-    cohenD: "Cohen d",
-    winRate: "Win-rate",
+    cohenD: "Cohen's d",
+    winRate: "Win rate vs. SMOTE",
   },
   contact: {
     email: "Email",
@@ -257,7 +257,7 @@ const en: Strings = {
     teasers: {
       experience: {
         text: "Machine learning on irrigation sensor data at WiseConn.",
-        question: "Tell me about the machine learning work on millions of rows at WiseConn.",
+        question: "Tell me about the irrigation forecasting work at WiseConn.",
       },
       thesis: {
         text: "LLM augmentation beat SMOTE by +2.25 pp macro-F1.",
@@ -360,9 +360,9 @@ const es: Strings = {
     defenseSlides: "Diapositivas de defensa",
     advisedBy: "Profesor guía:",
     configs: "Configuraciones",
-    pValue: "Valor-p",
-    cohenD: "Cohen d",
-    winRate: "Tasa de éxito",
+    pValue: "Valor p",
+    cohenD: "d de Cohen",
+    winRate: "Tasa de victoria vs. SMOTE",
   },
   contact: {
     email: "Correo",
@@ -382,7 +382,7 @@ const es: Strings = {
     spanish: "Español",
   },
   viz: {
-    loadingForecast: "cargando forecast...",
+    loadingForecast: "cargando predicción...",
     loadingAgentGraph: "cargando grafo de agentes...",
     loadingPipeline: "cargando pipeline...",
     loadingScatter: "cargando dispersión...",
@@ -415,7 +415,7 @@ const es: Strings = {
       "Dame el tour de 30 segundos por este sitio.",
       "¿Qué construyó Benjamin en Doctor911?",
       "Resume los resultados de la tesis.",
-      "¿Cómo corre evals en producción?",
+      "¿Cómo evalúa las respuestas en producción?",
     ],
     openChat: "Pregúntale al agente",
     closeChat: "Cerrar chat",
@@ -428,11 +428,11 @@ const es: Strings = {
     teasers: {
       experience: {
         text: "Machine learning sobre datos de sensores de riego en WiseConn.",
-        question: "Cuéntame del trabajo de machine learning con millones de filas en WiseConn.",
+        question: "Cuéntame del trabajo de predicción de riego en WiseConn.",
       },
       thesis: {
-        text: "El aumento de datos con LLMs superó a SMOTE por +2.25 pp de macro-F1.",
-        question: "¿Cómo superó la tesis a SMOTE por +2.25 pp?",
+        text: "El aumento de datos con LLMs superó a SMOTE por +2,25 pp de macro-F1.",
+        question: "¿Cómo superó la tesis a SMOTE por +2,25 pp?",
       },
       projects: {
         text: "Guardrails, versionado de prompts y evals en trabajo real con clientes.",

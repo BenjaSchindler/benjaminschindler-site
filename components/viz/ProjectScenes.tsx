@@ -9,7 +9,7 @@ export function VehicleScene() {
   const { lang } = useLanguage();
   const es = lang === "es";
   const [ref, demo] = useDemoPlayback(5, 1100);
-  const research = es ? ["Precios", "Fiabilidad", "Alertas", "Costos", "Competencia"] : ["Pricing", "Reliability", "Alerts", "Costs", "Competition"];
+  const research = es ? ["Precios", "Fiabilidad", "Llamados a revisión", "Costos", "Competencia"] : ["Pricing", "Reliability", "Recalls", "Costs", "Competitors"];
   return <div ref={ref} className="demo-surface">
     <div className="p-4 sm:p-5">
       <div className="grid grid-cols-2 items-center gap-4">

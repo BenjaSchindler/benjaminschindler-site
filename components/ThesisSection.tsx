@@ -59,6 +59,7 @@ function ThesisPaper() {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--foreground-muted)]">
         <span className="font-medium text-[var(--foreground-dim)]">Paper · arXiv</span>
         <time dateTime={paper.date}>{date}</time>
+        <span className="text-[var(--accent-warm)]">{paper.venue}</span>
       </div>
       <h3 className="mt-3 max-w-3xl text-lg font-semibold leading-snug text-[var(--foreground)] sm:text-xl">{paper.title}</h3>
       <p className="mt-2 text-xs text-[var(--foreground-dim)]">{paper.authors.join(" · ")}</p>

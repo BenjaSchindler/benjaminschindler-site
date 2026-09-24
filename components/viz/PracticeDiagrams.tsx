@@ -1,8 +1,8 @@
 "use client";
 
 import { useId, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown, ArrowRight, Check, FileText, Fingerprint, GitBranch, LockKeyhole, ScanLine, ShieldCheck, ShoppingCart, Stethoscope, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowDown, ArrowRight, Check, FileText, Fingerprint, GitBranch, LockKeyhole, ShieldCheck, ShoppingCart, Stethoscope, TriangleAlert } from "lucide-react";
 import { useLanguage } from "@/lib/Language";
 import { DemoControls, useDemoPlayback } from "./primitives/DemoPlayback";
 
@@ -105,34 +105,79 @@ export function RetrievalDiagram() {
   </div>;
 }
 
+// Fictional weekly LLM-as-judge averages (1–5). A dips in week 6: the kind of drift the monitor should surface.
+const JUDGE_WEEKS = { A: [3.9, 4.0, 3.9, 4.1, 4.0, 3.3, 3.9, 4.0], B: [4.2, 4.3, 4.4, 4.3, 4.4, 4.3, 4.5, 4.4] };
+const JUDGE_THRESHOLD = 3.6;
+const DRIFT_WEEK = 5;
+const chartX = (week: number) => 14 + week * (252 / 7);
+const chartY = (score: number) => 88 - ((score - 3) / 2) * 76;
+const chartPath = (series: number[]) => series.map((v, i) => `${i ? "L" : "M"}${chartX(i)} ${chartY(v)}`).join(" ");
+
 export function EvalGateDiagram() {
   const { lang } = useLanguage();
   const es = lang === "es";
-  const [ref, demo] = useDemoPlayback(4, 1250);
-  const [redacted, setRedacted] = useState(false);
-  const done = demo.step >= 3;
+  const locale = es ? "es-CL" : "en-US";
+  const [ref, demo] = useDemoPlayback(4, 1300);
+  const [version, setVersion] = useState<"A" | "B">("A");
+  const criteria = es ? ["Empatía", "Seguridad", "Paso concreto"] : ["Empathy", "Safety", "Concrete step"];
+  const samples = {
+    A: { response: es ? "Suena agotador. ¿Qué parte del día ha sido más difícil?" : "That sounds exhausting. What has been the hardest part of your day?", scores: [5, 5, 2] },
+    B: { response: es ? "Suena agotador. Prueba una pausa de dos minutos para respirar. ¿Qué parte del día ha sido más difícil?" : "That sounds exhausting. Try a two-minute breathing pause. What has been the hardest part of your day?", scores: [5, 5, 4] },
+  };
+  const sample = samples[version];
+  const average = sample.scores.reduce((a, b) => a + b, 0) / sample.scores.length;
+  const fmt = (n: number) => n.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const flagged = demo.step >= 3;
+  const lineColor = (v: "A" | "B") => version === v ? "var(--accent-cyan)" : "var(--foreground-muted)";
+
   return <div ref={ref} className="demo-surface">
     <div className="p-4 sm:p-5">
-      <div role="group" aria-label={es ? "Respuesta a evaluar" : "Response to evaluate"} className="flex flex-wrap gap-2">
-        <button className="demo-choice" aria-pressed={!redacted} onClick={() => { setRedacted(false); demo.replay(); }}>{es ? "Con dato personal" : "Personal data present"}</button>
-        <button className="demo-choice" aria-pressed={redacted} onClick={() => { setRedacted(true); demo.replay(); }}>{es ? "Dato oculto" : "Data redacted"}</button>
+      <div role="group" aria-label={es ? "Versión del prompt" : "Prompt version"} className="grid grid-cols-2 gap-2">
+        {(["A", "B"] as const).map(v => <button key={v} type="button" className="demo-choice" aria-pressed={version === v} onClick={() => { setVersion(v); demo.replay(); }}>Prompt {v}</button>)}
       </div>
-      <div className="mt-5 flex items-center gap-2 text-xs text-[var(--foreground-dim)]"><ScanLine aria-hidden className="size-4 text-[var(--accent-cyan)]" />{es ? "Criterio · no exponer datos personales" : "Criterion · do not expose personal data"}</div>
-      <div className="demo-paper relative mt-3 overflow-hidden p-4">
-        <p className="text-xs text-[var(--foreground-muted)]">{es ? "Respuesta de ejemplo" : "Example response"}</p>
-        <p className="mt-4 min-h-14 break-words text-sm leading-loose">{es ? "Mi correo es " : "My email is "}<motion.span key={String(redacted)} initial={demo.reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} className={`rounded px-1 py-0.5 ${demo.step >= 2 ? redacted ? "bg-[var(--accent-cyan)]/15 text-[var(--accent-cyan)]" : "bg-[var(--accent-warm)]/15 text-[var(--accent-warm)]" : "text-[var(--foreground)]"}`}>{redacted ? "[EMAIL]" : "persona@example.com"}</motion.span></p>
-        {!demo.reduced && <motion.div aria-hidden initial={false} animate={{ y: demo.step >= 1 ? 155 : 0, opacity: demo.step === 1 ? 1 : 0 }} transition={{ y: { duration: 1.1, ease: "linear" }, opacity: { duration: .2 } }} className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[var(--accent-cyan)] shadow-[0_0_16px_var(--accent-cyan)]" />}
+
+      <div className="demo-paper mt-4 p-3">
+        <p className="text-[11px] text-[var(--foreground-muted)]">{es ? `Respuesta registrada en Langfuse · Prompt ${version}` : `Response traced in Langfuse · Prompt ${version}`}</p>
+        <p className="mt-2 min-h-10 text-sm leading-relaxed">{sample.response}</p>
       </div>
-      <div className="mt-5 space-y-3 text-xs">
-        {[(es ? "Leer respuesta" : "Read response"), (es ? "Aplicar criterio" : "Apply criterion"), (es ? "Registrar evaluación" : "Record evaluation")].map((label, i) => <div key={label} className="flex items-center gap-2"><span className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${demo.step > i ? "border-[var(--accent-cyan)]/50 text-[var(--accent-cyan)]" : "border-[var(--border-strong)] text-[var(--foreground-muted)]"}`}>{demo.step > i ? <Check aria-hidden className="size-3" /> : i + 1}</span><span className="text-[var(--foreground-dim)]">{label}</span></div>)}
+
+      <div className="mt-4">
+        <p className="text-xs font-medium text-[var(--foreground-dim)]">{es ? "El juez LLM aplica la rúbrica" : "The LLM judge applies the rubric"}</p>
+        <ul className="mt-2 space-y-2">
+          {criteria.map((label, i) => {
+            const score = sample.scores[i];
+            return <li key={i} className="grid grid-cols-[6.5rem_1fr_1.25rem] items-center gap-2 text-xs">
+              <span className="text-[var(--foreground-dim)]">{label}</span>
+              <span aria-hidden className="h-1.5 rounded-full bg-[var(--border)]">
+                <motion.span initial={false} animate={{ scaleX: demo.step >= 1 ? score / 5 : 0 }} transition={{ duration: demo.reduced ? 0 : .5, delay: demo.reduced ? 0 : i * .12 }}
+                  className={`block h-full origin-left rounded-full ${score >= 4 ? "bg-[var(--accent-cyan)]" : "bg-[var(--accent-warm)]"}`} />
+              </span>
+              <span className="text-right font-mono tabular-nums">{demo.step >= 1 ? score : "·"}</span>
+            </li>;
+          })}
+        </ul>
+        <p className="mt-2 text-right text-xs text-[var(--foreground-dim)]">{es ? "Puntaje" : "Score"} <span className="font-mono tabular-nums text-[var(--foreground)]">{demo.step >= 1 ? fmt(average) : "–"}</span> / 5</p>
       </div>
-      <div className="mt-4 min-h-12 border-t border-[var(--border)] pt-3">
-        <AnimatePresence mode="wait" initial={false}><motion.div key={`${done}-${redacted}`} initial={demo.reduced ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: demo.reduced ? 0 : .2 }} className={`flex items-center gap-2 text-sm ${done && !redacted ? "text-[var(--accent-warm)]" : "text-[var(--accent-cyan)]"}`}>
-          {done ? redacted ? <ShieldCheck aria-hidden className="size-4" /> : <X aria-hidden className="size-4" /> : <ScanLine aria-hidden className="size-4" />}
-          {done ? redacted ? (es ? "Cumple este criterio" : "Meets this criterion") : (es ? "Revisar: dato personal visible" : "Review: personal data visible") : (es ? "Evaluación en curso" : "Evaluating response")}
-        </motion.div></AnimatePresence>
+
+      <div className="mt-4 border-t border-[var(--border)] pt-4">
+        <p className="text-xs font-medium text-[var(--foreground-dim)]">{es ? "Promedio semanal del juez" : "Weekly judge average"}</p>
+        <svg viewBox="0 0 280 96" className="mt-2 h-auto w-full" role="img" aria-label={es ? "Puntajes semanales ficticios: B supera a A todas las semanas; A cae bajo el umbral en la semana 6." : "Fictional weekly scores: B beats A every week; A drops below the threshold in week 6."}>
+          <line x1={chartX(0)} x2={chartX(7)} y1={chartY(JUDGE_THRESHOLD)} y2={chartY(JUDGE_THRESHOLD)} stroke="var(--accent-warm)" strokeOpacity={.6} strokeDasharray="3 3" />
+          {(["A", "B"] as const).map(v => <motion.path key={`${v}-${version}`} d={chartPath(JUDGE_WEEKS[v])} fill="none" stroke={lineColor(v)} strokeWidth={version === v ? 2 : 1.25} strokeLinejoin="round"
+            initial={demo.reduced ? false : { pathLength: 0 }} animate={{ pathLength: demo.step >= 2 ? 1 : 0 }} transition={{ duration: demo.reduced ? 0 : .9, ease: "easeOut" }} />)}
+          {(["A", "B"] as const).map(v => <motion.text key={v} x={chartX(7) + 5} y={chartY(JUDGE_WEEKS[v][7]) + 3} fontSize={9} fill={lineColor(v)} initial={false} animate={{ opacity: demo.step >= 2 ? 1 : 0 }} transition={{ duration: demo.reduced ? 0 : .3 }}>{v}</motion.text>)}
+          <motion.circle cx={chartX(DRIFT_WEEK)} cy={chartY(JUDGE_WEEKS.A[DRIFT_WEEK])} r={7} fill="none" stroke="var(--accent-warm)" strokeWidth={1.5}
+            initial={false} animate={{ opacity: flagged ? 1 : 0, scale: flagged || demo.reduced ? 1 : .4 }} transition={{ duration: demo.reduced ? 0 : .35 }} style={{ transformBox: "fill-box", transformOrigin: "center" }} />
+        </svg>
+        <div aria-hidden className="flex justify-between px-1 font-mono text-[10px] text-[var(--foreground-muted)]"><span>{es ? "sem 1" : "wk 1"}</span><span>{es ? "sem 8" : "wk 8"}</span></div>
+        <p className="mt-2 flex items-center gap-2 text-[11px] text-[var(--foreground-muted)]"><span aria-hidden className="w-4 border-t border-dashed border-[var(--accent-warm)]" />{es ? `Umbral de revisión (${fmt(JUDGE_THRESHOLD)})` : `Review threshold (${fmt(JUDGE_THRESHOLD)})`}</p>
+      </div>
+
+      <div className="demo-status mt-2" aria-live="polite">
+        {flagged ? <TriangleAlert aria-hidden className="size-4 shrink-0 text-[var(--accent-warm)]" /> : <Check aria-hidden className={`size-4 shrink-0 ${demo.step >= 2 ? "text-[var(--accent-cyan)]" : "text-[var(--foreground-muted)]"}`} />}
+        <span className={flagged ? "text-[var(--accent-warm)]" : undefined}>{flagged ? (es ? "Semana 6: Prompt A cae bajo el umbral → revisar" : "Week 6: Prompt A drops below the threshold → review") : demo.step >= 2 ? (es ? "B supera a A en las 8 semanas" : "B beats A in all 8 weeks") : (es ? "Cada respuesta evaluada alimenta el promedio semanal" : "Each judged response feeds the weekly average")}</span>
       </div>
     </div>
-    <DemoControls playback={demo} label={es ? "Caso ficticio · sin llamada a un LLM" : "Fictional case · no LLM call"} />
+    <DemoControls playback={demo} label={es ? "Datos ficticios · puntajes ilustrativos" : "Fictional data · illustrative scores"} />
   </div>;
 }

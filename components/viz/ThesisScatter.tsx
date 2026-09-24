@@ -1,9 +1,10 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { buildThesisScatter } from "@/lib/synthetic";
 import { palette, classColors } from "./primitives/colors";
+import { DemoControls, useDemoPlayback } from "./primitives/DemoPlayback";
 import { ThesisResultsBars } from "./ThesisResultsBars";
 import { useLanguage } from "@/lib/Language";
 import type { ThesisResultId } from "@/lib/data";
@@ -26,40 +27,34 @@ function toY(y: number) {
 export function ThesisScatter() {
   const { lang } = useLanguage();
   const es = lang === "es";
-  const reduced = useReducedMotion();
-  const MODES: Array<{ id: Mode; label: string; resultId: ThesisResultId | null; tagline: string }> = [
-    { id: "anchors", label: es ? "Ejemplos" : "Examples", resultId: null, tagline: es ? "10 puntos de referencia" : "10 reference points" },
-    { id: "smote", label: "SMOTE", resultId: "smote", tagline: es ? "Interpolación entre ejemplos" : "Interpolation between examples" },
-    { id: "llm", label: "LLM", resultId: null, tagline: es ? "Candidatos generados" : "Generated candidates" },
-    { id: "filter", label: es ? "LLM + filtro" : "LLM + filter", resultId: "binary-filter", tagline: es ? "Selección por cercanía" : "Selection by proximity" },
-    { id: "weights", label: es ? "Ponderación" : "Weighting", resultId: "soft-weighting", tagline: es ? "Mayor opacidad = mayor influencia (esquema)" : "Higher opacity = more influence (schematic)" },
+  const MODES: Array<{ id: Mode; label: string; resultId: ThesisResultId | null; narration: string }> = [
+    { id: "anchors", label: es ? "Ejemplos" : "Examples", resultId: null, narration: es ? "10 ejemplos reales de la clase minoritaria: muy pocos para entrenar." : "10 real examples of the minority class: too few to train on." },
+    { id: "smote", label: "SMOTE", resultId: "smote", narration: es ? "SMOTE interpola entre pares de ejemplos reales: solo rellena el espacio entre ellos." : "SMOTE interpolates between pairs of real examples: it only fills the space between them." },
+    { id: "llm", label: "LLM", resultId: null, narration: es ? "Un LLM redacta candidatos nuevos. La mayoría cae cerca de la clase; algunos se desvían hacia otras." : "An LLM writes new candidates. Most land near the class; some drift toward other classes." },
+    { id: "filter", label: es ? "LLM + filtro" : "LLM + filter", resultId: "binary-filter", narration: es ? "Se mide la distancia de cada candidato a su ejemplo real más cercano y se conservan los más cercanos." : "Each candidate is measured against its nearest real example, and the closest ones are kept." },
+    { id: "weights", label: es ? "Ponderación" : "Weighting", resultId: "soft-weighting", narration: es ? "Ponderación suave: los conservados entrenan con más peso cuanto más cerca están." : "Soft weighting: kept candidates count more in training the closer they are." },
   ];
-  const [mode, setMode] = useState<Mode>("weights");
+  const [ref, demo] = useDemoPlayback(MODES.length, 2600);
+  const activeMode = MODES[demo.step];
+  const mode = activeMode.id;
+  const reduced = demo.reduced;
   const dataset = useMemo(() => buildThesisScatter(17), []);
-  const id = useId();
-  const radiusInPx = (dataset.filterRadius / 2) * (VIEW - 24);
-
-  const minorityCenterPx = {
-    x: toX(dataset.minorityCentroid.x),
-    y: toY(dataset.minorityCentroid.y),
-  };
-
   const anchorById = useMemo(
     () => new Map(dataset.points.filter((p) => p.kind === "anchor").map((p) => [p.id, p])),
     [dataset.points],
   );
-
-  const activeMode = MODES.find((m) => m.id === mode)!;
+  const candidates = dataset.points.filter((p) => p.kind === "llm");
+  const showCandidates = mode === "llm" || mode === "filter" || mode === "weights";
 
   return (
-    <div className="space-y-4">
-      <p className="text-xs text-[var(--foreground-muted)]">{es ? "Esquema ilustrativo del filtrado; puntos simulados." : "Illustration of filtering with simulated points."}</p>
-      {/* Mode selector */}
+    <div ref={ref} className="space-y-4">
+      {/* Mode selector — also the step list of the guided tour */}
       <div role="group" aria-label={es ? "Método de aumento de datos" : "Data augmentation method"} className="flex flex-wrap gap-2 text-xs">
-        {MODES.map((m) => (
+        {MODES.map((m, i) => (
           <button
             key={m.id}
-            onClick={() => setMode(m.id)}
+            type="button"
+            onClick={() => demo.seek(i)}
             aria-pressed={mode === m.id}
             className={`min-h-10 px-3 py-2 rounded-md border transition-colors ${
               mode === m.id
@@ -67,7 +62,7 @@ export function ThesisScatter() {
                 : "border-[var(--border-strong)] text-[var(--foreground-muted)] hover:text-[var(--foreground-dim)]"
             }`}
           >
-            {m.label}
+            <span className="mr-1.5 font-mono opacity-60">{i + 1}</span>{m.label}
           </button>
         ))}
       </div>
@@ -82,36 +77,13 @@ export function ThesisScatter() {
               role="img"
               aria-label={es ? `Esquema de embeddings: ${activeMode.label}. Puntos simulados.` : `Embedding illustration: ${activeMode.label}. Simulated points.`}
             >
-              <defs>
-                <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor={palette.orange} stopOpacity="0.18" />
-                  <stop offset="100%" stopColor={palette.orange} stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
               {/* Faint grid */}
               <g opacity={0.25}>
                 {[0.25, 0.5, 0.75].map((t) => (
-                  <line
-                    key={`vg${t}`}
-                    x1={t * VIEW}
-                    x2={t * VIEW}
-                    y1="0"
-                    y2={VIEW}
-                    stroke={palette.border}
-                    strokeWidth="1"
-                  />
-                ))}
-                {[0.25, 0.5, 0.75].map((t) => (
-                  <line
-                    key={`hg${t}`}
-                    x1="0"
-                    x2={VIEW}
-                    y1={t * VIEW}
-                    y2={t * VIEW}
-                    stroke={palette.border}
-                    strokeWidth="1"
-                  />
+                  <g key={t}>
+                    <line x1={t * VIEW} x2={t * VIEW} y1="0" y2={VIEW} stroke={palette.border} strokeWidth="1" />
+                    <line x1="0" x2={VIEW} y1={t * VIEW} y2={t * VIEW} stroke={palette.border} strokeWidth="1" />
+                  </g>
                 ))}
               </g>
 
@@ -119,54 +91,33 @@ export function ThesisScatter() {
               {dataset.points
                 .filter((p) => p.kind === "cluster")
                 .map((p) => (
-                  <circle
-                    key={p.id}
-                    cx={toX(p.x)}
-                    cy={toY(p.y)}
-                    r={2.6}
-                    fill={classColors[p.cls]}
-                    fillOpacity={0.35}
-                  />
+                  <circle key={p.id} cx={toX(p.x)} cy={toY(p.y)} r={2.6} fill={classColors[p.cls]} fillOpacity={0.35} />
                 ))}
 
-              {/* Filter radius — visible in 'filter' and 'llm' modes */}
+              {/* Distance from each candidate to its nearest real example — the filter's only criterion */}
               <AnimatePresence>
-                {(mode === "filter" || mode === "llm") && (
-                  <motion.g
-                    key="filter-ring"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: reduced ? 0 : 0.4 }}
-                  >
-                    <circle
-                      cx={minorityCenterPx.x}
-                      cy={minorityCenterPx.y}
-                      r={radiusInPx}
-                      fill={`url(#${id}-glow)`}
-                    />
-                    <circle
-                      cx={minorityCenterPx.x}
-                      cy={minorityCenterPx.y}
-                      r={radiusInPx}
-                      fill="none"
-                      stroke={palette.orange}
-                      strokeOpacity={0.5}
-                      strokeWidth={1}
-                      strokeDasharray="3 3"
-                    />
-                    <text
-                      x={12}
-                      y={20}
-                      fontSize="11"
-                      fontFamily="var(--font-mono)"
-                      fill={palette.orange}
-                      opacity={0.85}
-                    >
-                      {es ? "Radio del filtro" : "Filter radius"}
-                    </text>
-                  </motion.g>
-                )}
+                {mode === "filter" &&
+                  candidates.map((p, i) => {
+                    const a = p.nearest ? anchorById.get(p.nearest) : undefined;
+                    if (!a) return null;
+                    return (
+                      <motion.line
+                        key={`d-${p.id}`}
+                        x1={toX(p.x)}
+                        y1={toY(p.y)}
+                        x2={toX(a.x)}
+                        y2={toY(a.y)}
+                        stroke={p.kept ? palette.green : palette.textMuted}
+                        strokeOpacity={p.kept ? 0.7 : 0.5}
+                        strokeWidth={1}
+                        strokeDasharray={p.kept ? undefined : "2 3"}
+                        initial={reduced ? false : { pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : i * 0.015 }}
+                      />
+                    );
+                  })}
               </AnimatePresence>
 
               {/* SMOTE pair lines */}
@@ -187,7 +138,7 @@ export function ThesisScatter() {
                         strokeOpacity={0.28}
                         strokeWidth={1}
                         strokeDasharray="2 3"
-                        initial={{ pathLength: 0, opacity: 0 }}
+                        initial={reduced ? false : { pathLength: 0, opacity: 0 }}
                         animate={{ pathLength: 1, opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : i * 0.012 }}
@@ -211,7 +162,7 @@ export function ThesisScatter() {
                         fill="none"
                         stroke={palette.cyan}
                         strokeWidth={1.4}
-                        initial={{ opacity: 0, scale: 0.4 }}
+                        initial={reduced ? false : { opacity: 0, scale: 0.4 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.4 }}
                         transition={{ duration: reduced ? 0 : 0.3, delay: reduced ? 0 : 0.2 + i * 0.025 }}
@@ -220,32 +171,29 @@ export function ThesisScatter() {
                     ))}
               </AnimatePresence>
 
-              {/* LLM candidates (triangles) */}
+              {/* LLM candidates (triangles). Weighting only applies to the kept set. */}
               <AnimatePresence>
-                {(mode === "llm" || mode === "filter" || mode === "weights") &&
-                  dataset.points
-                    .filter((p) => p.kind === "llm")
+                {showCandidates &&
+                  candidates
+                    .filter((p) => mode !== "weights" || p.kept)
                     .map((p, i) => {
-                      const filtered = mode === "filter" && !p.kept;
-                      const color = filtered
-                        ? palette.textMuted
-                        : mode === "filter"
-                          ? palette.green
-                          : palette.orange;
+                      const rejected = mode === "filter" && !p.kept;
+                      const color = mode === "llm" ? palette.orange : rejected ? palette.textMuted : palette.green;
+                      const weight = p.weight ?? 1;
                       return (
                         <motion.g
                           key={p.id}
-                          initial={{ opacity: 0, scale: 0.4 }}
+                          initial={reduced ? false : { opacity: 0, scale: 0.4 }}
                           animate={{
-                            opacity: mode === "weights" ? Math.max(0.2, 1 - (p.score ?? 0)) : filtered ? 0.25 : 1,
-                            scale: 1,
+                            opacity: mode === "weights" ? 0.25 + 0.75 * weight : rejected ? 0.35 : 1,
+                            scale: mode === "weights" ? 0.7 + 0.6 * weight : 1,
                           }}
                           exit={{ opacity: 0, scale: 0.4 }}
                           transition={{ duration: reduced ? 0 : 0.4, delay: reduced ? 0 : i * 0.014 }}
                           style={{ transformBox: "fill-box", transformOrigin: "center" }}
                         >
                           <Triangle x={toX(p.x)} y={toY(p.y)} r={4.2} color={color} />
-                          {filtered && (
+                          {rejected && (
                             <line
                               x1={toX(p.x) - 3}
                               y1={toY(p.y) - 3}
@@ -265,20 +213,16 @@ export function ThesisScatter() {
               {dataset.points
                 .filter((p) => p.kind === "anchor")
                 .map((p) => (
-                  <Star
-                    key={p.id}
-                    x={toX(p.x)}
-                    y={toY(p.y)}
-                    r={6}
-                    color={palette.orange}
-                  />
+                  <Star key={p.id} x={toX(p.x)} y={toY(p.y)} r={6} color={palette.orange} />
                 ))}
             </svg>
 
-            {mode === "weights" && <p className="mt-3 px-2 text-sm leading-relaxed text-[var(--foreground-dim)]">{es ? "La ponderación suave asigna distinta influencia a los ejemplos, en lugar de conservarlos o descartarlos. La opacidad ilustra la idea; no representa pesos medidos." : "Soft weighting gives examples different influence instead of keeping or discarding them. Opacity illustrates the idea; it does not represent measured weights."}</p>}
-            <div className="mt-2 px-2 text-xs leading-relaxed text-[var(--foreground-dim)]">
-              <span className="text-[var(--accent-warm)]">{activeMode.label}</span>
-              <span className="text-[var(--foreground-muted)]"> · {activeMode.tagline}</span>
+            <div className="mt-2 min-h-16 px-2" aria-live="polite">
+              <p className="text-sm leading-relaxed text-[var(--foreground)]">
+                <span className="mr-2 font-mono text-xs text-[var(--accent-warm)]">{demo.step + 1}/{MODES.length}</span>
+                {activeMode.narration}
+              </p>
+              {mode === "weights" && <p className="mt-1 text-xs text-[var(--foreground-muted)]">{es ? "Tamaño y opacidad ilustran el peso; no son pesos medidos." : "Size and opacity illustrate the weight; they are not measured weights."}</p>}
             </div>
           </div>
 
@@ -291,16 +235,17 @@ export function ThesisScatter() {
                 {es ? "Leyenda" : "Legend"}
               </div>
               <ul className="space-y-1.5 text-xs text-[var(--foreground-dim)]">
-                <LegendRow icon={<MiniStar color={palette.orange} />} label={es ? "Ejemplo base (×10)" : "Reference (×10)"} />
+                <LegendRow icon={<MiniStar color={palette.orange} />} label={es ? "Ejemplo real (×10)" : "Real example (×10)"} />
                 <LegendRow icon={<MiniSquare color={palette.cyan} />} label={es ? "Punto SMOTE" : "SMOTE point"} />
                 <LegendRow icon={<MiniTriangle color={palette.orange} />} label={es ? "Candidato LLM" : "LLM candidate"} />
                 <LegendRow icon={<MiniTriangle color={palette.green} />} label={es ? "Conservado" : "Kept"} />
                 <LegendRow icon={<MiniTriangle color={palette.textMuted} muted />} label={es ? "Descartado" : "Rejected"} />
-                <LegendRow icon={<MiniDot color={palette.cyan} />} label={es ? "Otras clases" : "Other classes"} />
+                <LegendRow icon={<MiniClasses />} label={es ? "Otras clases" : "Other classes"} />
               </ul>
             </div>
           </div>
         </div>
+        <DemoControls playback={demo} label={es ? "Esquema ilustrativo · puntos simulados" : "Illustrative scheme · simulated points"} />
       </div>
     </div>
   );
@@ -369,10 +314,12 @@ function MiniTriangle({ color, muted }: { color: string; muted?: boolean }) {
     </svg>
   );
 }
-function MiniDot({ color }: { color: string }) {
+function MiniClasses() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12">
-      <circle cx="6" cy="6" r="3" fill={color} fillOpacity="0.5" />
+      <circle cx="3.5" cy="4" r="2" fill={classColors[0]} fillOpacity="0.6" />
+      <circle cx="8.5" cy="4" r="2" fill={classColors[1]} fillOpacity="0.6" />
+      <circle cx="6" cy="8.5" r="2" fill={classColors[4]} fillOpacity="0.6" />
     </svg>
   );
 }

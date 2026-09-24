@@ -5,13 +5,15 @@ import { useInView, useReducedMotion } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/lib/Language";
 
-/** Discrete explanatory steps. One pass on entry; pauses offscreen, never loops. */
+/** Discrete explanatory steps. One pass on entry; pauses offscreen, never loops.
+ *  Reduced motion shows the final step unless the viewer picks one with `seek`. */
 export function useDemoPlayback(count = 4, interval = 1300) {
   const ref = useRef<HTMLDivElement>(null);
   const visible = useInView(ref, { amount: 0.25 });
   const reduced = useReducedMotion();
   const [step, setStep] = useState(0);
   const [running, setRunning] = useState(true);
+  const [seeked, setSeeked] = useState(false);
   const playing = running && step < count - 1 && !reduced;
 
   useEffect(() => {
@@ -21,9 +23,10 @@ export function useDemoPlayback(count = 4, interval = 1300) {
   }, [visible, playing, step, count, interval]);
 
   return [ref, {
-    reduced: Boolean(reduced), step: reduced ? count - 1 : step, count, playing,
+    reduced: Boolean(reduced), step: reduced && !seeked ? count - 1 : step, count, playing,
     toggle: () => setRunning(v => !v),
-    replay: () => { setStep(0); setRunning(true); },
+    replay: () => { setStep(0); setRunning(true); setSeeked(false); },
+    seek: (i: number) => { setStep(i); setRunning(false); setSeeked(true); },
   }] as const;
 }
 export type Playback = ReturnType<typeof useDemoPlayback>[1];

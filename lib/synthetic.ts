@@ -118,6 +118,9 @@ function round1(x: number) {
 // 6 class clusters in 2D embedding space, one of which is a sparse minority
 // (10 anchors only). LLM candidates are sampled around the minority cluster
 // with ~25 % noise that lands inside neighbor classes (hard negatives).
+// Filtering follows the thesis' cascade level 1: Euclidean distance from each
+// candidate to its nearest real example; the closest half is kept, and soft
+// weighting min-max scales that distance into a weight.
 
 export type Point = {
   id: string;
@@ -125,10 +128,14 @@ export type Point = {
   y: number;
   cls: number; // class index
   kind: "anchor" | "cluster" | "smote" | "llm";
-  // For LLM candidates: distance score from the minority centroid (lower = more central / safer)
+  // For LLM candidates: distance to the nearest anchor (lower = more consistent)
   score?: number;
+  // For LLM candidates: id of that nearest anchor
+  nearest?: string;
   // For LLM candidates: kept by geometric filter?
   kept?: boolean;
+  // For kept LLM candidates: soft weight in [0.25, 1] (closer = heavier)
+  weight?: number;
 };
 
 export type ScatterDataset = {
@@ -137,7 +144,6 @@ export type ScatterDataset = {
   classCount: number;
   minorityClass: number;
   minorityCentroid: { x: number; y: number };
-  filterRadius: number;
 };
 
 export function buildThesisScatter(seed = 17): ScatterDataset {
@@ -211,7 +217,8 @@ export function buildThesisScatter(seed = 17): ScatterDataset {
   // LLM candidates: ~75 % near minority centroid (good), ~25 % drifted into neighbor space (noise)
   const llmTotal = 38;
   const llmSafe = Math.round(llmTotal * 0.74);
-  const filterRadius = 0.22;
+  const anchors = points.filter((p) => p.kind === "anchor");
+  const candidates: Point[] = [];
   for (let k = 0; k < llmTotal; k++) {
     let x: number, y: number;
     if (k < llmSafe) {
@@ -225,20 +232,29 @@ export function buildThesisScatter(seed = 17): ScatterDataset {
       x = minorityCenter.x * (1 - tt) + target.x * tt + gaussian(rng) * 0.08;
       y = minorityCenter.y * (1 - tt) + target.y * tt + gaussian(rng) * 0.08;
     }
-    const dx = x - minorityCenter.x;
-    const dy = y - minorityCenter.y;
-    const score = Math.sqrt(dx * dx + dy * dy);
-    const kept = score < filterRadius;
-    points.push({
-      id: `l${k}`,
-      x,
-      y,
-      cls: minorityClass,
-      kind: "llm",
-      score: round3(score),
-      kept,
-    });
+    let nearest = anchors[0];
+    let score = Infinity;
+    for (const a of anchors) {
+      const d = Math.hypot(x - a.x, y - a.y);
+      if (d < score) {
+        score = d;
+        nearest = a;
+      }
+    }
+    candidates.push({ id: `l${k}`, x, y, cls: minorityClass, kind: "llm", score: round3(score), nearest: nearest.id });
   }
+
+  // Binary filter keeps the closest half; soft weighting scales distance within the kept set.
+  const ranked = [...candidates].sort((a, b) => a.score! - b.score!);
+  const kept = ranked.slice(0, Math.floor(llmTotal / 2));
+  const lo = kept[0].score!;
+  const hi = kept[kept.length - 1].score!;
+  for (const c of kept) {
+    c.kept = true;
+    c.weight = round3(1 - 0.75 * ((c.score! - lo) / (hi - lo || 1)));
+  }
+  for (const c of candidates) c.kept ??= false;
+  points.push(...candidates);
 
   return {
     points,
@@ -246,7 +262,6 @@ export function buildThesisScatter(seed = 17): ScatterDataset {
     classCount,
     minorityClass,
     minorityCentroid: minorityCenter,
-    filterRadius,
   };
 }
 
