@@ -1,8 +1,16 @@
 import OpenAI from "openai";
-import { CV_TOOLS, runCvTool, SECTION_IDS, TECHNICAL_ONLY_SECTIONS } from "@/lib/agent/tools";
+import { CV_TOOLS, runCvTool } from "@/lib/agent/tools";
 import { SYSTEM_PROMPTS, AGENT_MODEL, type SiteView } from "@/lib/agent/prompt";
-import { JD_PREFIX, validateMatchReport, type MatchReport } from "@/lib/agent/match";
+import { isPageTarget, targetForView, type PageTarget } from "@/lib/agent/targets";
+import {
+  JD_PREFIX,
+  validateEmailDraft,
+  validateMatchReport,
+  type EmailDraft,
+  type MatchReport,
+} from "@/lib/agent/match";
 import { pickReplay, type ReplayStep } from "@/lib/agent/replay";
+import { profileStatic } from "@/lib/cvData";
 import {
   checkBudget,
   checkRate,
@@ -22,15 +30,19 @@ const MAX_LLM_ITERATIONS = 12;
 // Dwell before every scroll after a turn's first: tours would otherwise jump
 // stop to stop as fast as the model iterates, before the page even settles.
 const TOUR_STOP_DWELL_MS = 2400;
-const MAX_OUTPUT_TOKENS = 360;
+const MAX_OUTPUT_TOKENS = 360; // short answers, but a draft_email payload needs room
 const MAX_OUTPUT_TOKENS_MATCH = 1300; // a report_match payload alone runs several hundred tokens
+// Chips under an answer linking to the page locations the data tools drew on.
+const MAX_SOURCE_CHIPS = 3;
 
 type Wire =
   | { type: "mode"; mode: "live" | "replay"; model?: string }
   | { type: "trace"; t: number; kind: string; label: string; detail?: string }
   | { type: "delta"; text: string }
-  | { type: "ui"; action: "scroll_to"; target: string }
+  | { type: "ui"; action: "scroll_to"; target: PageTarget }
   | { type: "ui"; action: "match_report"; report: MatchReport }
+  | { type: "ui"; action: "email_draft"; draft: EmailDraft }
+  | { type: "sources"; targets: PageTarget[] }
   | { type: "done"; t: number };
 
 const enc = new TextEncoder();
@@ -138,6 +150,14 @@ async function runLive(
   let scrollsSent = 0;
   let textSent = false;
   let notesSent = 0;
+  // Page locations the data tools drew on, in first-use order, for the source chips.
+  const sources: PageTarget[] = [];
+  const addSources = (targets: PageTarget[]) => {
+    for (const t of targets) {
+      const visible = targetForView(t, view);
+      if (visible && !sources.includes(visible)) sources.push(visible);
+    }
+  };
 
   // show_section notes are assistant prose carried as a tool argument (terse
   // models won't interleave text with tool calls); stream them word by word
@@ -220,11 +240,18 @@ async function runLive(
     const calls = completed.output.filter(
       (o): o is OpenAI.Responses.ResponseFunctionToolCall => o.type === "function_call",
     );
-    if (calls.length === 0) return; // final answer — text already streamed
+    if (calls.length === 0) {
+      // Final answer — text already streamed. Tours carry their own notes; no chips there.
+      if (textSent && notesSent === 0 && sources.length) {
+        send({ type: "sources", targets: sources.slice(0, MAX_SOURCE_CHIPS) });
+      }
+      return;
+    }
 
     // store:false → stateless: echo the model's output items back, then
     // append one function_call_output per call.
     input.push(...(completed.output as OpenAI.Responses.ResponseInputItem[]));
+    let terminalRendered = false;
     for (const call of calls) {
       let args: Record<string, unknown> = {};
       try {
@@ -234,12 +261,13 @@ async function runLive(
       }
       let out: string;
       if (call.name === "show_section") {
-        // UI tool: executes in the visitor's browser via a wire event.
-        const target = String(args.section ?? "");
+        // UI tool: executes in the visitor's browser via a wire event. On the
+        // concise view, demo targets fall back to the company card they belong to.
+        const requested = args.section;
         const note = typeof args.note === "string" ? args.note.trim().slice(0, 400) : "";
-        const hidden = view === "concise" && TECHNICAL_ONLY_SECTIONS.includes(target);
-        const valid = (SECTION_IDS as readonly string[]).includes(target) && !hidden;
-        if (valid) {
+        const target = isPageTarget(requested) ? targetForView(requested, view) : null;
+        const hidden = isPageTarget(requested) && target === null;
+        if (target) {
           if (scrollsSent > 0) await sleep(TOUR_STOP_DWELL_MS);
           send({ type: "ui", action: "scroll_to", target });
           scrollsSent++;
@@ -250,25 +278,28 @@ async function runLive(
           out = JSON.stringify({
             ok: true,
             now_in_view: target,
-            ...(note && {
-              note_delivered: "the visitor already read your note — never repeat it in reply text",
-            }),
+            ...(note
+              ? { note_delivered: "the visitor already read your note — never repeat it in reply text" }
+              : {
+                  // Outside tours a bare scroll reads as a non-answer; ask for a caption.
+                  next: "Now give one sentence with the key fact about what is on screen (look it up first if you have not). Do not mention scrolling.",
+                }),
           });
           trace(
             "result",
             call.name,
-            `→ scrolled to #${target}${note ? " · note streamed" : ""}`,
+            `→ scrolled to #${target}${target !== requested ? ` (concise view fallback for ${String(requested)})` : ""}${note ? " · note streamed" : ""}`,
           );
         } else {
           out = JSON.stringify({
             error: hidden
-              ? `the ${target} section is not on the visitor's concise view — describe it in words instead`
-              : "unknown section",
+              ? `${String(requested)} is not on the visitor's concise view — describe it in words instead`
+              : "unknown target",
           });
           trace(
             "result",
             call.name,
-            hidden ? `#${target} hidden in concise view` : "unknown section",
+            hidden ? `#${String(requested)} hidden in concise view` : "unknown target",
           );
         }
       } else if (call.name === "report_match") {
@@ -276,12 +307,9 @@ async function runLive(
         const report = validateMatchReport(args);
         if (report) {
           send({ type: "ui", action: "match_report", report });
-          out = JSON.stringify({
-            ok: true,
-            rendered:
-              "match table shown to the visitor — close with 1-2 sentences, do not repeat it",
-          });
-          trace("result", call.name, `→ rendered ${report.rows.length} rows`);
+          terminalRendered = true;
+          out = JSON.stringify({ ok: true, rendered: "match table shown to the visitor" });
+          trace("result", call.name, `→ rendered ${report.rows.length} rows · fit ${report.fit}`);
         } else {
           out = JSON.stringify({
             error:
@@ -289,14 +317,31 @@ async function runLive(
           });
           trace("result", call.name, "invalid payload rejected");
         }
+      } else if (call.name === "draft_email") {
+        // UI tool: a mailto card. The recipient is fixed server-side, never model-chosen.
+        const draft = validateEmailDraft(args, profileStatic.email);
+        if (draft) {
+          send({ type: "ui", action: "email_draft", draft });
+          terminalRendered = true;
+          out = JSON.stringify({ ok: true, rendered: "email draft shown to the visitor" });
+          trace("result", call.name, `→ draft to ${draft.to} · ${draft.body.split(/\s+/).length} words`);
+        } else {
+          out = JSON.stringify({ error: "invalid draft: expected {subject, body}" });
+          trace("result", call.name, "invalid payload rejected");
+        }
       } else {
-        out = runCvTool(call.name, args);
-        trace("result", call.name, `${call.arguments || "{}"} → ${out.length} bytes`);
+        const result = runCvTool(call.name, args);
+        out = result.output;
+        addSources(result.sources);
+        trace("result", call.name, `${call.arguments || "{}"} → ${result.summary}`);
       }
       input.push({ type: "function_call_output", call_id: call.call_id, output: out });
       // Tours finish at contact; avoid another model call just for a closing recap.
       if (call.name === "show_section" && args.section === "contact" && scrollsSent >= 3) return;
     }
+    // report_match and draft_email render the answer as a card; end the turn
+    // without an extra model call just to add a closing sentence.
+    if (terminalRendered) return;
   }
   trace("info", "loop cap", `stopped after ${MAX_LLM_ITERATIONS} model calls`);
 }
@@ -318,9 +363,16 @@ async function runReplay(
     if (step.kind === "trace") {
       trace(step.ev, step.label, step.detail);
     } else if (step.kind === "ui") {
-      // Never scroll a concise-view visitor to a section their page lacks.
-      if (view === "concise" && TECHNICAL_ONLY_SECTIONS.includes(step.target)) continue;
-      send({ type: "ui", action: "scroll_to", target: step.target });
+      // Never scroll a concise-view visitor to something their page lacks.
+      const target = targetForView(step.target, view);
+      if (target) send({ type: "ui", action: "scroll_to", target });
+    } else if (step.kind === "email") {
+      send({ type: "ui", action: "email_draft", draft: { to: profileStatic.email, ...step.draft } });
+    } else if (step.kind === "sources") {
+      const targets = step.targets
+        .map((t) => targetForView(t, view))
+        .filter((t): t is PageTarget => t !== null);
+      if (targets.length) send({ type: "sources", targets: [...new Set(targets)] });
     } else {
       // Stream the recorded answer in small chunks so both modes read the same.
       const words = step.text.split(" ");

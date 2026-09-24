@@ -1,6 +1,6 @@
 import { profileStatic } from "../cvData";
-import { AGENT_MODEL, type SiteView } from "./prompt";
-import { TECHNICAL_ONLY_SECTIONS } from "./tools";
+import { AGENT_MODEL } from "./prompt";
+import { targetForView, type PageTarget, type SiteView } from "./targets";
 
 // Recorded conversations for replay mode — served when the endpoint has no
 // API key, is rate-limited, or the daily budget is spent, so the demo never
@@ -13,7 +13,9 @@ export type TraceKind = "guard" | "llm" | "tool" | "result" | "info" | "error";
 export type ReplayStep =
   | { kind: "trace"; ev: TraceKind; label: string; detail?: string; delay: number }
   | { kind: "text"; text: string; delay: number }
-  | { kind: "ui"; target: string; delay: number };
+  | { kind: "ui"; target: PageTarget; delay: number }
+  | { kind: "email"; draft: { subject: string; body: string }; delay: number }
+  | { kind: "sources"; targets: PageTarget[]; delay: number };
 
 export type ReplayScript = { id: string; match: string[]; steps: ReplayStep[] };
 
@@ -25,11 +27,12 @@ const tr = (
 ): ReplayStep => ({ kind: "trace", ev, label, detail, delay });
 
 const tx = (text: string, delay = 120): ReplayStep => ({ kind: "text", text, delay });
+const src = (...targets: PageTarget[]): ReplayStep => ({ kind: "sources", targets, delay: 80 });
 
 // show_section as it appears in a live trace: tool call → page scroll → result.
 // preDelay is the pause before the tool call fires — tours raise it so the
 // page dwells on the current stop before the next scroll.
-const scroll = (target: string, preDelay = 240): ReplayStep[] => [
+const scroll = (target: PageTarget, preDelay = 240): ReplayStep[] => [
   tr("tool", "show_section", `{"section":"${target}"}`, preDelay),
   { kind: "ui", target, delay: 60 },
   tr("result", "show_section", `→ scrolled to #${target}`, 80),
@@ -37,6 +40,10 @@ const scroll = (target: string, preDelay = 240): ReplayStep[] => [
 
 const guard = () => tr("guard", "input guard", "length ok · scope ok · turn accepted", 60);
 const llm = (d: number) => tr("llm", AGENT_MODEL, "recorded turn — no live telemetry", d);
+const call = (name: string, args: string, result: string): ReplayStep[] => [
+  tr("tool", name, "function_call requested", 380),
+  tr("result", name, `${args} → ${result}`, 200),
+];
 
 // ── English ──────────────────────────────────────────────────────────────────
 const enScripts: ReplayScript[] = [
@@ -46,24 +53,22 @@ const enScripts: ReplayScript[] = [
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_experience", '{"company":"Doctor911"}', 420),
-      tr("result", "get_experience", "1 company · 2 roles · impact + stack", 220),
-      ...scroll("experience"),
+      ...call("get_experience", '{"company":"Doctor911"}', "1 company"),
       llm(200),
-      tx(`CTO since January 2026, leading three people. Built WhatsApp and web agents with LangGraph, RAG recommendations, and payment tools. Added voice triage and lab-report OCR.`),
+      tx(`CTO since January 2026, leading a team of three. He built four WhatsApp and two web agents with LangGraph, plus voice triage and an internal RAG assistant.`),
+      src("experience-doctor911", "doctor911-whatsapp"),
     ],
   },
   {
     id: "thesis",
-    match: ["thesis", "tesis", "augmentation", "smote", "research", "master"],
+    match: ["thesis", "tesis", "augmentation", "smote", "research", "master", "paper"],
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_thesis", "{}", 420),
-      tr("result", "get_thesis", "abstract · stats · 5 method deltas", 220),
-      ...scroll("thesis"),
+      ...call("get_thesis", "{}", "stats · 5 method deltas · paper"),
       llm(200),
-      tx(`His thesis improved macro-F1 by 2.25 percentage points over SMOTE across 3,675 configurations (p < 0.0001). Defended in April 2026 with Maximum Distinction.`),
+      tx(`+2.25 percentage points of macro-F1 over SMOTE across 3,675 configurations (p < 0.0001), defended with Maximum Distinction. The follow-up paper is to appear at IEEE LACCI 2026.`),
+      src("thesis", "thesis-paper"),
     ],
   },
   {
@@ -72,28 +77,37 @@ const enScripts: ReplayScript[] = [
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_projects", '{"name":"EPE"}', 420),
-      tr("result", "get_projects", "1 project · highlights + stack", 200),
-      tr("tool", "get_thesis", "{}", 260),
-      tr("result", "get_thesis", "stats · significance tests", 200),
-      ...scroll("practice"),
+      ...call("search_cv", '{"query":"llm evaluation monitoring"}', "6 facts"),
       llm(200),
-      tx(`At EPE: versioned prompts, per-user A/B assignment, LLM-as-judge evaluations, and drift monitoring in Langfuse. Crisis detection and personal-data redaction protect the inputs.`),
+      tx(`With LLM-as-judge scores in Langfuse: at EPE he compares prompt versions assigned per user and monitors quality drift over time.`),
+      src("project-epe", "practice"),
     ],
   },
   {
     id: "multiagent",
-    match: ["multi-agent", "multiagent", "multi agent", "agents", "langgraph", "agentic", "orchestr"],
+    match: ["multi-agent", "multiagent", "multi agent", "agents", "langgraph", "agentic", "orchestr", "whatsapp"],
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_experience", '{"company":"Doctor911"}', 420),
-      tr("result", "get_experience", "1 company · 2 roles", 200),
-      tr("tool", "get_projects", '{"name":"MiAutoCheck"}', 260),
-      tr("result", "get_projects", "1 project · highlights + stack", 200),
-      ...scroll("experience"),
+      ...call("search_cv", '{"query":"agents langgraph whatsapp"}', "6 facts"),
+      ...scroll("doctor911-whatsapp"),
       llm(200),
-      tx(`Doctor911: four WhatsApp agents and two web agents, with shared RAG and payment tools. MiAutoCheck: photo inspection plus five research agents, consolidated into a valuation report.`),
+      tx(`Yes: at Doctor911 a LangGraph orchestrator routes WhatsApp messages to four agents with shared tools. MiAutoCheck adds a supervisor over five research agents.`),
+      src("experience-doctor911", "project-miautocheck"),
+    ],
+  },
+  {
+    id: "contact",
+    match: ["contact", "reach", "email", "hire", "interview", "write to", "get in touch"],
+    steps: [
+      guard(),
+      llm(160),
+      tr("tool", "draft_email", "function_call requested", 420),
+      { kind: "email", delay: 60, draft: {
+        subject: "AI Engineer role: quick chat?",
+        body: "Hi Benjamin,\n\nI'm [Your name] from [Company]. We're hiring for [role] and your work on multi-agent systems at Doctor911 stood out.\n\nWould you be open to a 20-minute call this week?\n\nBest,\n[Your name]",
+      } },
+      tr("result", "draft_email", `→ draft to ${profileStatic.email}`, 80),
     ],
   },
   {
@@ -102,7 +116,7 @@ const enScripts: ReplayScript[] = [
     steps: [
       guard(),
       tr("info", "replay mode", "matching needs the live model — it is switched off", 200),
-      tx(`Matching needs the live model, which is unavailable. Contact Benjamin at ${profileStatic.email}.`),
+      tx(`Matching needs the live model, which is unavailable right now. Contact Benjamin at ${profileStatic.email}.`),
     ],
   },
   {
@@ -124,24 +138,22 @@ const esScripts: ReplayScript[] = [
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_experience", '{"company":"Doctor911"}', 420),
-      tr("result", "get_experience", "1 company · 2 roles · impact + stack", 220),
-      ...scroll("experience"),
+      ...call("get_experience", '{"company":"Doctor911"}', "1 company"),
       llm(200),
-      tx(`CTO desde enero de 2026; lidera tres personas. Desarrolló agentes para WhatsApp y web con LangGraph, recomendaciones RAG y pagos. Incorporó triaje por voz y lectura de exámenes con OCR.`),
+      tx(`Es CTO desde enero de 2026 y lidera a tres personas. Construyó cuatro agentes de WhatsApp y dos web con LangGraph, además de triaje por voz y un asistente RAG interno.`),
+      src("experience-doctor911", "doctor911-whatsapp"),
     ],
   },
   {
     id: "thesis",
-    match: ["tesis", "thesis", "augmentation", "smote", "magíster", "magister"],
+    match: ["tesis", "thesis", "augmentation", "smote", "magíster", "magister", "paper"],
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_thesis", "{}", 420),
-      tr("result", "get_thesis", "abstract · stats · 5 method deltas", 220),
-      ...scroll("thesis"),
+      ...call("get_thesis", "{}", "stats · 5 method deltas · paper"),
       llm(200),
-      tx(`Su tesis mejoró el macro-F1 en 2,25 puntos porcentuales frente a SMOTE: 3.675 configuraciones, p < 0,0001. Defendida en abril de 2026 con Distinción Máxima.`),
+      tx(`+2,25 puntos porcentuales de macro-F1 frente a SMOTE en 3.675 configuraciones (p < 0,0001), con Distinción Máxima. El paper derivado se publicará en IEEE LACCI 2026.`),
+      src("thesis", "thesis-paper"),
     ],
   },
   {
@@ -150,28 +162,37 @@ const esScripts: ReplayScript[] = [
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_projects", '{"name":"EPE"}', 420),
-      tr("result", "get_projects", "1 project · highlights + stack", 200),
-      tr("tool", "get_thesis", "{}", 260),
-      tr("result", "get_thesis", "stats · significance tests", 200),
-      ...scroll("practice"),
+      ...call("search_cv", '{"query":"llm evaluation monitoring"}', "6 facts"),
       llm(200),
-      tx(`En EPE: prompts versionados, asignación A/B por usuario, evaluaciones con LLM-as-judge y monitoreo en Langfuse. Incluye detección de crisis y ocultamiento de datos personales.`),
+      tx(`Con puntajes de LLM-as-judge en Langfuse: en EPE compara versiones de prompts asignadas por usuario y vigila cambios de calidad en el tiempo.`),
+      src("project-epe", "practice"),
     ],
   },
   {
     id: "multiagent",
-    match: ["multi-agente", "multiagente", "multi agente", "agentes", "langgraph", "agéntic", "agentic", "orquest"],
+    match: ["multi-agente", "multiagente", "multi agente", "agentes", "langgraph", "agéntic", "agentic", "orquest", "whatsapp"],
     steps: [
       guard(),
       llm(160),
-      tr("tool", "get_experience", '{"company":"Doctor911"}', 420),
-      tr("result", "get_experience", "1 company · 2 roles", 200),
-      tr("tool", "get_projects", '{"name":"MiAutoCheck"}', 260),
-      tr("result", "get_projects", "1 project · highlights + stack", 200),
-      ...scroll("experience"),
+      ...call("search_cv", '{"query":"agents langgraph whatsapp"}', "6 facts"),
+      ...scroll("doctor911-whatsapp"),
       llm(200),
-      tx(`Doctor911: cuatro agentes de WhatsApp y dos web, con herramientas compartidas de RAG y pagos. MiAutoCheck: inspección de fotos y cinco agentes de investigación para generar tasaciones.`),
+      tx(`Sí: en Doctor911 un orquestador de LangGraph deriva los mensajes de WhatsApp a cuatro agentes con herramientas compartidas. En MiAutoCheck, un supervisor coordina cinco agentes de investigación.`),
+      src("experience-doctor911", "project-miautocheck"),
+    ],
+  },
+  {
+    id: "contact",
+    match: ["contact", "escrib", "correo", "email", "entrevista", "contratar", "reunión", "reunion"],
+    steps: [
+      guard(),
+      llm(160),
+      tr("tool", "draft_email", "function_call requested", 420),
+      { kind: "email", delay: 60, draft: {
+        subject: "Cargo de AI Engineer: ¿conversamos?",
+        body: "Hola Benjamin:\n\nSoy [Tu nombre], de [Empresa]. Estamos buscando [cargo] y me interesó tu trabajo con sistemas multiagente en Doctor911.\n\n¿Tienes 20 minutos esta semana para conversar?\n\nSaludos,\n[Tu nombre]",
+      } },
+      tr("result", "draft_email", `→ draft to ${profileStatic.email}`, 80),
     ],
   },
   {
@@ -180,7 +201,7 @@ const esScripts: ReplayScript[] = [
     steps: [
       guard(),
       tr("info", "replay mode", "matching needs the live model — it is switched off", 200),
-      tx(`La comparación requiere el modelo en vivo, que no está disponible. Contacta a Benjamin en ${profileStatic.email}.`),
+      tx(`La comparación requiere el modelo en vivo, que no está disponible ahora. Contacta a Benjamin en ${profileStatic.email}.`),
     ],
   },
   {
@@ -201,21 +222,21 @@ const esScripts: ReplayScript[] = [
 
 const TOUR_DWELL_MS = 2400;
 
-type TourStop = { section: string; text: string };
+type TourStop = { section: PageTarget; text: string };
 
 const TOUR_STOPS: Record<"en" | "es", TourStop[]> = {
   en: [
-    { section: "experience", text: "• Experience: CTO and OneClinik video consultations at Doctor911; forecasting at WiseConn; automation at Unitti." },
-    { section: "thesis", text: "\n• Thesis: +2.25 percentage points in macro-F1 over SMOTE." },
-    { section: "practice", text: "\n• Practices: EPE prompt experiments and evaluations; Doctor911 agents and RAG." },
-    { section: "projects", text: "\n• Projects: vehicle valuations with MiAutoCheck; workplace well-being with EPE." },
+    { section: "experience", text: "• Experience: CTO at Doctor911; forecasting at WiseConn; automation at Unitti." },
+    { section: "thesis", text: "\n• Thesis: +2.25 pp macro-F1 over SMOTE." },
+    { section: "practice", text: "\n• Practices: prompt A/B tests, LLM-as-judge, permission-aware RAG." },
+    { section: "projects", text: "\n• Projects: MiAutoCheck vehicle valuations; EPE well-being platform." },
     { section: "contact", text: "\n• Contact: email and LinkedIn." },
   ],
   es: [
-    { section: "experience", text: "• Experiencia: CTO y videoconsultas OneClinik en Doctor911; predicción en WiseConn; automatización en Unitti." },
-    { section: "thesis", text: "\n• Tesis: +2,25 puntos porcentuales de macro-F1 frente a SMOTE." },
-    { section: "practice", text: "\n• Prácticas: experimentos y evaluaciones en EPE; agentes y RAG en Doctor911." },
-    { section: "projects", text: "\n• Proyectos: tasación de vehículos con MiAutoCheck; bienestar laboral con EPE." },
+    { section: "experience", text: "• Experiencia: CTO en Doctor911; predicción en WiseConn; automatización en Unitti." },
+    { section: "thesis", text: "\n• Tesis: +2,25 pp de macro-F1 frente a SMOTE." },
+    { section: "practice", text: "\n• Prácticas: pruebas A/B de prompts, LLM-as-judge, RAG con permisos." },
+    { section: "projects", text: "\n• Proyectos: tasaciones con MiAutoCheck; bienestar laboral con EPE." },
     { section: "contact", text: "\n• Contacto: correo y LinkedIn." },
   ],
 };
@@ -226,9 +247,7 @@ const TOUR_MATCH: Record<"en" | "es", string[]> = {
 };
 
 function tourScript(lang: "en" | "es", view: SiteView): ReplayScript {
-  const stops = TOUR_STOPS[lang].filter(
-    (s) => view === "technical" || !TECHNICAL_ONLY_SECTIONS.includes(s.section),
-  );
+  const stops = TOUR_STOPS[lang].filter((s) => targetForView(s.section, view) === s.section);
   const steps: ReplayStep[] = [guard(), llm(160)];
   stops.forEach((s, i) => {
     steps.push(...scroll(s.section, i === 0 ? 240 : TOUR_DWELL_MS), tx(s.text, 160));

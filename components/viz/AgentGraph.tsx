@@ -17,6 +17,15 @@ export function AgentGraph() {
   const { experience } = useData();
   const oneclinik = experience.find(exp => exp.company === "Doctor911")?.systems?.find(system => system.name === "OneClinik");
   const [channel, setChannel] = useState<Channel>("oneclinik");
+  // The site agent's show_section can open a specific demo tab (see lib/agent/targets.ts).
+  useEffect(() => {
+    const onFocus = (e: Event) => {
+      const tab = (e as CustomEvent<{ tab?: string }>).detail?.tab;
+      if (tab === "oneclinik" || tab === "whatsapp" || tab === "web" || tab === "internal") setChannel(tab);
+    };
+    window.addEventListener("agent:focus", onFocus);
+    return () => window.removeEventListener("agent:focus", onFocus);
+  }, []);
   const channels: { id: Channel; label: string }[] = [
     { id: "oneclinik", label: "OneClinik" },
     { id: "whatsapp", label: "WhatsApp" },
@@ -24,7 +33,7 @@ export function AgentGraph() {
     { id: "internal", label: es ? "Agente interno" : "Internal agent" },
   ];
   return (
-    <figure className="min-w-0 space-y-5">
+    <figure id="doctor911-systems" data-agent-target className="min-w-0 space-y-5">
       <figcaption className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-base font-medium text-[var(--foreground)]">{es ? "Sistemas de Doctor911" : "Doctor911 systems"}</p>

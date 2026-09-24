@@ -1,18 +1,47 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Briefcase, ClipboardList, Maximize2, Minimize2, Rocket, Send, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  Briefcase,
+  Check,
+  ClipboardList,
+  Compass,
+  Copy,
+  Download,
+  Mail,
+  Maximize2,
+  Minimize2,
+  PlayCircle,
+  Rocket,
+  Send,
+  X,
+} from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useLanguage } from "@/lib/Language";
 import { useViewMode } from "@/lib/ViewMode";
-import { JD_PREFIX, type MatchReport } from "@/lib/agent/match";
+import { useData } from "@/lib/data";
+import {
+  JD_PREFIX,
+  mailtoHref,
+  matchEmailDraft,
+  type EmailDraft,
+  type MatchReport,
+} from "@/lib/agent/match";
+import { isPageTarget, resolveTarget, type PageTarget } from "@/lib/agent/targets";
 import { palette } from "./viz/primitives/colors";
 
 const MAX_CLIENT_TURNS = 8;
 const MAX_INPUT_CHARS = 500;
 const MAX_JD_CHARS = 16000; // mirrors LIMITS.maxJdChars server-side
 
-type ChatMsg = { role: "user" | "assistant"; content: string; report?: MatchReport };
+type ChatMsg = {
+  role: "user" | "assistant";
+  content: string;
+  report?: MatchReport;
+  email?: EmailDraft;
+  sources?: PageTarget[];
+};
 type TraceEv = { t: number; kind: string; label: string; detail?: string };
 type Mode = "live" | "replay" | null;
 type Tab = "chat" | "trace" | "evals";
@@ -56,12 +85,14 @@ const KIND_COLORS: Record<string, string> = {
   error: palette.red,
 };
 
-// The show_section tool lands here: scroll the visitor to the section the
-// agent is talking about and pulse it briefly. Only known ids are honored.
-function scrollToSection(target: string) {
-  if (!/^[a-z]+$/.test(target)) return;
-  const el = document.getElementById(target);
-  if (!el || el.tagName !== "SECTION") return;
+// The show_section tool and the source chips land here: scroll the visitor to
+// a section, card, or demo tab and pulse it briefly. Only known targets pass.
+function focusOnPage(target: string) {
+  if (!isPageTarget(target)) return;
+  const { elementId, tab } = resolveTarget(target);
+  if (tab) window.dispatchEvent(new CustomEvent("agent:focus", { detail: { tab } }));
+  const el = document.getElementById(elementId);
+  if (!el) return;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   el.classList.remove("agent-flash");
@@ -69,6 +100,21 @@ function scrollToSection(target: string) {
   void el.offsetWidth;
   el.classList.add("agent-flash");
   window.setTimeout(() => el.classList.remove("agent-flash"), 2000);
+}
+
+// Card answers (match table, email draft) have little or no prose, but the
+// model needs to see them next turn — "make the email shorter" must work —
+// and the API rejects empty turns. Send a compact text rendering instead.
+function toWireTurn(m: ChatMsg): { role: ChatMsg["role"]; content: string } {
+  if (m.role === "user") return { role: m.role, content: m.content };
+  const parts = [m.content.trim()];
+  if (m.report) {
+    parts.push(
+      `[Match table shown] ${m.report.role} · fit ${m.report.fit} · ${m.report.rows.map((r) => `${r.requirement}: ${r.verdict}`).join("; ")}`,
+    );
+  }
+  if (m.email) parts.push(`[Email draft shown] Subject: ${m.email.subject}\n${m.email.body}`);
+  return { role: m.role, content: parts.filter(Boolean).join("\n") || "(no answer)" };
 }
 
 export function AgentWidget() {
@@ -82,6 +128,7 @@ export function AgentWidget() {
 function FloatingAgent({ detailed }: { detailed: boolean }) {
   const t = useT();
   const { lang } = useLanguage();
+  const { profile, thesis } = useData();
   const reduced = useReducedMotion();
 
   const [open, setOpen] = useState(false);
@@ -115,7 +162,7 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
   const panelWidth = expanded
     ? "w-[min(44rem,calc(100vw-2rem))]"
     : "w-[min(24rem,calc(100vw-2rem))]";
-  const bodyHeight = expanded ? "h-[min(60vh,560px)]" : "h-[min(45vh,320px)]";
+  const bodyHeight = expanded ? "h-[min(60vh,560px)]" : "h-[min(52vh,400px)]";
 
   useEffect(() => () => abortRef.current?.abort(), []);
   useEffect(() => {
@@ -168,6 +215,12 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
           next[next.length - 1] = { ...last, content: last.content + text };
           return next;
         });
+      const patchLast = (patch: Partial<ChatMsg>) =>
+        setMsgs((cur) => {
+          const next = cur.slice();
+          next[next.length - 1] = { ...next[next.length - 1], ...patch };
+          return next;
+        });
 
       const ac = new AbortController();
       abortRef.current = ac;
@@ -178,7 +231,7 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
           // view lets the server refuse scrolls to sections this variant
           // doesn't render (concise has no practice section).
           body: JSON.stringify({
-            messages: history,
+            messages: history.map(toWireTurn),
             lang,
             view: detailed ? "technical" : "concise",
           }),
@@ -212,17 +265,15 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
               setMode(msg.mode as Mode);
               setModel(typeof msg.model === "string" ? msg.model : null);
             } else if (msg.type === "ui" && msg.action === "scroll_to") {
-              scrollToSection(String(msg.target));
+              focusOnPage(String(msg.target));
+            } else if (msg.type === "ui" && msg.action === "email_draft") {
+              const draft = (msg as { draft?: EmailDraft }).draft;
+              if (draft?.to && draft.subject && draft.body) patchLast({ email: draft });
+            } else if (msg.type === "sources" && Array.isArray(msg.targets)) {
+              patchLast({ sources: (msg.targets as unknown[]).filter(isPageTarget) });
             } else if (msg.type === "ui" && msg.action === "match_report") {
               const report = (msg as { report?: MatchReport }).report;
-              if (report?.rows?.length) {
-                setMsgs((cur) => {
-                  const next = cur.slice();
-                  const last = next[next.length - 1];
-                  next[next.length - 1] = { ...last, report };
-                  return next;
-                });
-              }
+              if (report?.rows?.length) patchLast({ report });
             }
           }
         }
@@ -344,26 +395,42 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
                 className={`${bodyHeight} min-h-0 overflow-y-auto p-4`}
               >
                 {msgs.length === 0 ? (
-                  <div className="h-full flex flex-col justify-end gap-1.5">
-                    <p className="mb-1 font-mono text-[10px] text-[var(--foreground-muted)]">
+                  <div className="min-h-full flex flex-col justify-end gap-2">
+                    <p className="font-mono text-[10px] text-[var(--foreground-muted)]">
                       {"// "}
                       {t.section.agentSubtitle}
                     </p>
-                    {t.agent.suggested.map((q) => (
+                    {([
+                      { key: "match", icon: ClipboardList, run: () => setJdOpen(true) },
+                      { key: "tour", icon: Compass, run: () => sendQuestion(t.agent.tourQuestion) },
+                      { key: "email", icon: Mail, run: () => sendQuestion(t.agent.emailQuestion) },
+                    ] as const).map(({ key, icon: Icon, run }) => (
                       <button
-                        key={q}
-                        onClick={() => sendQuestion(q)}
-                        className="self-start text-left text-[13px] px-3 py-1.5 rounded-md border border-[var(--border)] text-[var(--foreground-dim)] hover:border-[var(--accent)]/40 hover:text-[var(--foreground)] transition-colors"
+                        key={key}
+                        onClick={run}
+                        className={`group flex items-center gap-3 rounded-md border px-3 py-2 text-left transition-colors ${
+                          key === "match" ? matchAccentBorder : "border-[var(--border)] hover:border-[var(--accent)]/40"
+                        }`}
                       >
-                        {q}
+                        <Icon aria-hidden className={`size-4 shrink-0 ${key === "match" ? matchAccentText : "text-[var(--foreground-muted)] group-hover:text-[var(--foreground)]"}`} />
+                        <span className="min-w-0">
+                          <span className="block text-[13px] font-medium text-[var(--foreground)]">{t.agent.capabilities[key].title}</span>
+                          <span className="block text-[11.5px] leading-snug text-[var(--foreground-muted)]">{t.agent.capabilities[key].desc}</span>
+                        </span>
                       </button>
                     ))}
-                    <button
-                      onClick={() => setJdOpen(true)}
-                      className={`self-start inline-flex items-center gap-1.5 text-left text-[13px] px-3 py-1.5 rounded-md border border-dashed transition-colors ${matchAccentBorder} ${matchAccentText}`}
-                    >
-                      <ClipboardList className="size-3.5" aria-hidden /> {t.agent.matchButton}
-                    </button>
+                    <p className="mt-1 font-mono text-[10px] text-[var(--foreground-muted)]">{t.agent.askLabel}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {t.agent.suggested.map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => sendQuestion(q)}
+                          className="text-left text-[12px] px-2.5 py-1 rounded-md border border-[var(--border)] text-[var(--foreground-dim)] hover:border-[var(--accent)]/40 hover:text-[var(--foreground)] transition-colors"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -423,37 +490,21 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
                             </p>
                           )}
                           {m.report && (
-                            <div className="mt-2 rounded-md border border-[var(--border)] overflow-hidden">
-                              <div className="px-3 py-2 bg-[var(--surface-raised)] border-b border-[var(--border)] text-[12px] font-medium text-[var(--foreground)]">
-                                {m.report.role}
-                              </div>
-                              <ul className="divide-y divide-[var(--border)]">
-                                {m.report.rows.map((r, j) => (
-                                  <li key={j} className="px-3 py-2 flex items-start gap-2">
-                                    <span
-                                      className="shrink-0 mt-px font-mono text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded border"
-                                      style={{
-                                        color: verdictColors[r.verdict],
-                                        borderColor: verdictColors[r.verdict],
-                                      }}
-                                    >
-                                      {t.agent.verdicts[r.verdict]}
-                                    </span>
-                                    <span className="min-w-0">
-                                      <span className="block text-[12px] leading-snug text-[var(--foreground)]">
-                                        {r.requirement}
-                                      </span>
-                                      <span className="block mt-0.5 text-[11px] leading-snug text-[var(--foreground-muted)]">
-                                        {r.evidence}
-                                      </span>
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                              <p className="px-3 py-2 border-t border-[var(--border)] bg-[var(--surface-raised)] text-[11.5px] leading-relaxed text-[var(--foreground-dim)]">
-                                {m.report.summary}
-                              </p>
-                            </div>
+                            <MatchCard
+                              report={m.report}
+                              verdictColors={verdictColors}
+                              emailHref={mailtoHref(matchEmailDraft(m.report, profile.email, lang))}
+                              resumeHref={t.resumeHref}
+                            />
+                          )}
+                          {m.email && <EmailCard draft={m.email} />}
+                          {m.role === "assistant" && !(streaming && i === msgs.length - 1) && (
+                            <FollowUps
+                              sources={m.sources ?? []}
+                              detailed={detailed}
+                              paperHref={thesis.paper.url}
+                              onAsk={sendQuestion}
+                            />
                           )}
                         </div>
                       );
@@ -485,7 +536,7 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
                               className="size-1.5 rounded-full shrink-0 translate-y-[-1px]"
                               style={{
                                 // UI tools (they act on the visitor's page) vs data lookups
-                                background: ["show_section", "report_match"].includes(tool.name)
+                                background: ["show_section", "report_match", "draft_email"].includes(tool.name)
                                   ? palette.orange
                                   : palette.cyan,
                               }}
@@ -722,5 +773,177 @@ function FloatingAgent({ detailed }: { detailed: boolean }) {
         </div>
       </div>
     </>
+  );
+}
+
+// ── Answer attachments ───────────────────────────────────────────────────────
+
+const chipClass =
+  "inline-flex items-center gap-1 rounded border border-[var(--border)] px-1.5 py-0.5 text-[11px] text-[var(--foreground-dim)] hover:border-[var(--accent)]/50 hover:text-[var(--foreground)] transition-colors";
+const primaryButton =
+  "inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-2.5 py-1 text-[11.5px] font-medium text-white hover:bg-[var(--accent-dim)] transition-colors";
+const secondaryButton =
+  "inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-1 text-[11.5px] text-[var(--foreground-dim)] hover:text-[var(--foreground)] transition-colors";
+
+/** Source chips (where the answer's evidence lives on the page) plus up to two next steps. */
+function FollowUps({
+  sources,
+  detailed,
+  paperHref,
+  onAsk,
+}: {
+  sources: PageTarget[];
+  detailed: boolean;
+  paperHref: string;
+  onAsk: (question: string) => void;
+}) {
+  const t = useT();
+  const has = (target: PageTarget) => sources.includes(target);
+  const actions: { key: string; label: string; icon: typeof Mail; href?: string; external?: boolean; download?: boolean; run?: () => void }[] = [];
+  if (has("thesis") || has("thesis-paper")) {
+    actions.push({ key: "paper", label: t.agent.actions.paper, icon: ArrowUpRight, href: paperHref, external: true });
+  }
+  if (detailed && has("experience-doctor911") && !sources.some((s) => s.startsWith("doctor911-"))) {
+    actions.push({ key: "demo", label: t.agent.actions.demo, icon: PlayCircle, run: () => focusOnPage("doctor911-whatsapp") });
+  }
+  if (has("contact")) {
+    actions.push({ key: "cv", label: t.agent.actions.cv, icon: Download, href: t.resumeHref, download: true });
+    actions.push({ key: "email", label: t.agent.actions.email, icon: Mail, run: () => onAsk(t.agent.emailQuestion) });
+  }
+  const shown = actions.slice(0, 2);
+  if (sources.length === 0 && shown.length === 0) return null;
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      {sources.length > 0 && (
+        <span className="font-mono text-[10px] text-[var(--foreground-muted)]">{t.agent.sourcesLabel}</span>
+      )}
+      {sources.map((target) => (
+        <button key={target} type="button" onClick={() => focusOnPage(target)} className={chipClass}>
+          {t.agent.targets[target]}
+        </button>
+      ))}
+      {shown.map(({ key, label, icon: Icon, href, external, download, run }) =>
+        href ? (
+          <a
+            key={key}
+            href={href}
+            {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            {...(download ? { download: "Benjamin_Schindler_CV.pdf" } : {})}
+            className={`${chipClass} !border-[var(--accent)]/40 !text-[var(--foreground)]`}
+          >
+            <Icon aria-hidden className="size-3" /> {label}
+          </a>
+        ) : (
+          <button key={key} type="button" onClick={run} className={`${chipClass} !border-[var(--accent)]/40 !text-[var(--foreground)]`}>
+            <Icon aria-hidden className="size-3" /> {label}
+          </button>
+        ),
+      )}
+    </div>
+  );
+}
+
+/** draft_email output: the visitor sends it from their own mail app; nothing is sent from here. */
+function EmailCard({ draft }: { draft: EmailDraft }) {
+  const t = useT();
+  const { profile } = useData();
+  const [copied, setCopied] = useState(false);
+  // Defense in depth: the server already pins the recipient; pin it again here.
+  const safe = { ...draft, to: profile.email };
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${safe.subject}\n\n${safe.body}`);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // clipboard blocked: the mail button still works
+    }
+  };
+  return (
+    <div className="mt-2 rounded-md border border-[var(--border)] overflow-hidden">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--surface-raised)] border-b border-[var(--border)] font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--foreground-muted)]">
+        <Mail aria-hidden className="size-3" /> {t.agent.emailCard.title}
+      </div>
+      <div className="space-y-1.5 px-3 py-2 text-[12px]">
+        <p className="text-[var(--foreground-muted)]">
+          {t.agent.emailCard.to}: <span className="text-[var(--foreground-dim)]">{safe.to}</span>
+        </p>
+        <p className="font-medium text-[var(--foreground)]">{safe.subject}</p>
+        <p className="whitespace-pre-wrap leading-relaxed text-[var(--foreground-dim)]">{safe.body}</p>
+      </div>
+      <div className="flex flex-wrap gap-2 px-3 py-2 border-t border-[var(--border)]">
+        <a href={mailtoHref(safe)} className={primaryButton}>
+          <Mail aria-hidden className="size-3.5" /> {t.agent.emailCard.open}
+        </a>
+        <button type="button" onClick={copy} className={secondaryButton}>
+          {copied ? <Check aria-hidden className="size-3.5" /> : <Copy aria-hidden className="size-3.5" />}
+          {copied ? t.agent.emailCard.copied : t.agent.emailCard.copy}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** report_match output: fit at a glance, one row per requirement, and the obvious next step. */
+function MatchCard({
+  report,
+  verdictColors,
+  emailHref,
+  resumeHref,
+}: {
+  report: MatchReport;
+  verdictColors: typeof VERDICT_COLORS;
+  emailHref: string;
+  resumeHref: string;
+}) {
+  const t = useT();
+  const counts = (["met", "partial", "missing"] as const)
+    .map((v) => [v, report.rows.filter((r) => r.verdict === v).length] as const)
+    .filter(([, n]) => n > 0);
+  const fitColor =
+    report.fit === "strong" ? verdictColors.met : report.fit === "partial" ? verdictColors.partial : verdictColors.missing;
+  return (
+    <div className="mt-2 rounded-md border border-[var(--border)] overflow-hidden">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2 bg-[var(--surface-raised)] border-b border-[var(--border)]">
+        <span className="text-[12px] font-medium text-[var(--foreground)]">{report.role}</span>
+        <span
+          className="ml-auto font-mono text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded border"
+          style={{ color: fitColor, borderColor: fitColor }}
+        >
+          {t.agent.fit[report.fit]}
+        </span>
+        <span className="basis-full font-mono text-[10px] text-[var(--foreground-muted)]">
+          {counts.map(([v, n]) => `${n} ${t.agent.verdicts[v]}`).join(" · ")}
+        </span>
+      </div>
+      <ul className="divide-y divide-[var(--border)]">
+        {report.rows.map((r, j) => (
+          <li key={j} className="px-3 py-2 flex items-start gap-2">
+            <span
+              className="shrink-0 mt-px font-mono text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded border"
+              style={{ color: verdictColors[r.verdict], borderColor: verdictColors[r.verdict] }}
+            >
+              {t.agent.verdicts[r.verdict]}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[12px] leading-snug text-[var(--foreground)]">{r.requirement}</span>
+              <span className="block mt-0.5 text-[11px] leading-snug text-[var(--foreground-muted)]">{r.evidence}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="px-3 py-2 border-t border-[var(--border)] bg-[var(--surface-raised)] text-[11.5px] leading-relaxed text-[var(--foreground-dim)]">
+        {report.summary}
+      </p>
+      <div className="flex flex-wrap gap-2 px-3 py-2 border-t border-[var(--border)]">
+        <a href={emailHref} className={primaryButton}>
+          <Mail aria-hidden className="size-3.5" /> {t.agent.actions.matchEmail}
+        </a>
+        <a href={resumeHref} download="Benjamin_Schindler_CV.pdf" className={secondaryButton}>
+          <Download aria-hidden className="size-3.5" /> {t.agent.actions.cv}
+        </a>
+      </div>
+    </div>
   );
 }

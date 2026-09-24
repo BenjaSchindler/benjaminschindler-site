@@ -66,7 +66,13 @@ export function sanitizeMessages(raw: unknown): ChatTurn[] | null {
     if (typeof m !== "object" || m === null) return null;
     const { role, content } = m as { role?: unknown; content?: unknown };
     if (role !== "user" && role !== "assistant") return null;
-    if (typeof content !== "string" || content.trim().length === 0) return null;
+    if (typeof content !== "string") return null;
+    // An assistant turn may have been a card with no prose; keep the history valid.
+    if (content.trim().length === 0) {
+      if (role === "user") return null;
+      turns.push({ role, content: "(no answer)" });
+      continue;
+    }
     const max =
       role === "assistant"
         ? 2_000

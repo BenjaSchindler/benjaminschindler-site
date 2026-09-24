@@ -1,5 +1,7 @@
 "use client";
 import { useLanguage, type Lang } from "./Language";
+import type { PageTarget } from "./agent/targets";
+import type { MatchFit } from "./agent/match";
 
 type Strings = {
   nav: {
@@ -89,7 +91,6 @@ type Strings = {
     send: string;
     you: string;
     agentLabel: string;
-    traceTitle: string;
     traceEmpty: string;
     toolsTitle: string;
     toolsList: { name: string; desc: string }[];
@@ -99,17 +100,22 @@ type Strings = {
     limitReached: string;
     errorLine: string;
     suggested: string[];
+    askLabel: string;
+    capabilities: Record<"match" | "tour" | "email", { title: string; desc: string }>;
+    tourQuestion: string;
+    emailQuestion: string;
+    sourcesLabel: string;
+    targets: Record<PageTarget, string>;
+    actions: { paper: string; cv: string; email: string; demo: string; matchEmail: string };
+    emailCard: { title: string; to: string; open: string; copy: string; copied: string };
+    fit: Record<MatchFit, string>;
     openChat: string;
     closeChat: string;
     expandChat: string;
     shrinkChat: string;
     chatTab: string;
     traceTab: string;
-    teaserCta: string;
-    teaserDismiss: string;
-    teasers: Record<string, { text: string; question: string }>;
     matchButton: string;
-    recruiterPitch: string;
     matchPlaceholder: string;
     matchRun: string;
     matchCancel: string;
@@ -169,7 +175,7 @@ const en: Strings = {
     practiceTitle: "Practices in projects",
     practiceSubtitle: "workflows, experiments, and evaluations",
     agentTitle: "Ask the Agent",
-    agentSubtitle: "answers grounded in this CV",
+    agentSubtitle: "check a role, tour the site, or ask about his work",
     educationTitle: "Education",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Skills",
@@ -221,18 +227,19 @@ const en: Strings = {
     send: "Send",
     you: "you",
     agentLabel: "agent",
-    traceTitle: "trace",
     traceEmpty: "send a question to watch the harness work",
     toolsTitle: "available tools",
     toolsList: [
-      { name: "get_profile", desc: "identity, contact, resume" },
-      { name: "get_experience", desc: "roles, impact, stack" },
+      { name: "search_cv", desc: "keyword search over every CV fact, with its source" },
+      { name: "get_experience", desc: "roles, impact, stack, systems" },
       { name: "get_projects", desc: "client work: MiAutoCheck, EPE" },
-      { name: "get_thesis", desc: "benchmark, stats, results" },
-      { name: "get_practice", desc: "how he works with models" },
+      { name: "get_thesis", desc: "results, stats, paper" },
+      { name: "get_practice", desc: "how he works, with evidence" },
       { name: "get_education_and_skills", desc: "degrees, skills, languages" },
-      { name: "show_section", desc: "scrolls this page to a section" },
-      { name: "report_match", desc: "renders the job-match table in the chat" },
+      { name: "get_profile", desc: "role, availability, contact, CV" },
+      { name: "show_section", desc: "scrolls this page to a section, card, or demo" },
+      { name: "report_match", desc: "renders a job-match table" },
+      { name: "draft_email", desc: "prepares an email to Benjamin" },
     ],
     live: "live",
     replay: "replay",
@@ -241,49 +248,59 @@ const en: Strings = {
     limitReached: "Session limit reached — use the contact section below.",
     errorLine: "The connection dropped. Try again in a moment.",
     suggested: [
-      "Give me the 30-second tour of this site.",
       "What did Benjamin build at Doctor911?",
+      "Does he have multi-agent experience?",
       "Summarize the thesis results.",
-      "How does he run evals in production?",
     ],
+    askLabel: "or ask",
+    capabilities: {
+      match: { title: "Check a role", desc: "Paste a job description; see what matches" },
+      tour: { title: "30-second tour", desc: "I walk you through the page" },
+      email: { title: "Write to Benjamin", desc: "A ready-to-send email draft" },
+    },
+    tourQuestion: "Give me the 30-second tour of this site.",
+    emailQuestion: "Help me write to Benjamin.",
+    sourcesLabel: "sources",
+    targets: {
+      experience: "Experience",
+      thesis: "Thesis",
+      education: "Education",
+      projects: "Projects",
+      practice: "Practices",
+      skills: "Skills",
+      contact: "Contact",
+      "experience-doctor911": "Doctor911",
+      "experience-wiseconn": "WiseConn",
+      "experience-unitti": "Unitti",
+      "doctor911-oneclinik": "OneClinik demo",
+      "doctor911-whatsapp": "WhatsApp agents demo",
+      "doctor911-web": "PrexX Web demo",
+      "doctor911-internal": "Internal agent demo",
+      "project-miautocheck": "MiAutoCheck",
+      "project-epe": "EPE",
+      "thesis-paper": "Paper",
+    },
+    actions: {
+      paper: "arXiv paper",
+      cv: "Download CV",
+      email: "Write to him",
+      demo: "See the agents live",
+      matchEmail: "Email about this role",
+    },
+    emailCard: { title: "email draft", to: "to", open: "Open in my email", copy: "Copy", copied: "Copied" },
+    fit: { strong: "Strong fit", partial: "Partial fit", weak: "Weak fit" },
     openChat: "Ask the agent",
     closeChat: "Close chat",
     expandChat: "Expand chat",
     shrinkChat: "Shrink chat",
     chatTab: "chat",
     traceTab: "trace",
-    teaserCta: "ask the agent →",
-    teaserDismiss: "Dismiss suggestion",
-    teasers: {
-      experience: {
-        text: "Machine learning on irrigation sensor data at WiseConn.",
-        question: "Tell me about the irrigation forecasting work at WiseConn.",
-      },
-      thesis: {
-        text: "LLM augmentation beat SMOTE by +2.25 pp macro-F1.",
-        question: "How did the thesis beat SMOTE by +2.25 pp?",
-      },
-      projects: {
-        text: "Guardrails, prompt versioning and evals in real client work.",
-        question: "How does he handle guardrails and evals in client projects?",
-      },
-      practice: {
-        text: "Explore evaluations and workflows from real projects.",
-        question: "How does Benjamin work with models?",
-      },
-      skills: {
-        text: "Python, PyTorch, LangGraph, GCP & AWS.",
-        question: "What is his core stack?",
-      },
-    },
     matchButton: "Match a job description",
-    recruiterPitch:
-      "Hiring? Compare a job description with my experience.",
     matchPlaceholder: "Paste the job description here…",
     matchRun: "Match",
     matchCancel: "Cancel",
     matchHint:
-      "The agent checks each requirement against the CV data and reports honest gaps.",
+      "Each requirement is checked against the CV: met, partial, or not in the CV.",
     jdLabel: "job description",
     jdExpand: "show full text",
     jdCollapse: "collapse",
@@ -340,7 +357,7 @@ const es: Strings = {
     practiceTitle: "Prácticas en proyectos",
     practiceSubtitle: "flujos, experimentos y evaluaciones",
     agentTitle: "Pregúntale al Agente",
-    agentSubtitle: "respuestas basadas en este CV",
+    agentSubtitle: "evalúa una vacante, recorre el sitio o pregunta por su trabajo",
     educationTitle: "Educación",
     educationSubtitle: "Universidad Adolfo Ibáñez",
     skillsTitle: "Habilidades",
@@ -392,18 +409,19 @@ const es: Strings = {
     send: "Enviar",
     you: "tú",
     agentLabel: "agente",
-    traceTitle: "trace",
     traceEmpty: "envía una pregunta para ver el harness trabajar",
     toolsTitle: "herramientas disponibles",
     toolsList: [
-      { name: "get_profile", desc: "identidad, contacto, CV" },
-      { name: "get_experience", desc: "roles, impacto, stack" },
+      { name: "search_cv", desc: "búsqueda en todo el CV, con la fuente de cada dato" },
+      { name: "get_experience", desc: "roles, impacto, stack, sistemas" },
       { name: "get_projects", desc: "proyectos para clientes: MiAutoCheck, EPE" },
-      { name: "get_thesis", desc: "benchmark, estadísticas, resultados" },
-      { name: "get_practice", desc: "cómo trabaja con modelos" },
+      { name: "get_thesis", desc: "resultados, estadísticas, paper" },
+      { name: "get_practice", desc: "cómo trabaja, con evidencia" },
       { name: "get_education_and_skills", desc: "títulos, habilidades, idiomas" },
-      { name: "show_section", desc: "desplaza esta página a una sección" },
-      { name: "report_match", desc: "dibuja la tabla de match en el chat" },
+      { name: "get_profile", desc: "cargo, disponibilidad, contacto, CV" },
+      { name: "show_section", desc: "lleva la página a una sección, tarjeta o demo" },
+      { name: "report_match", desc: "dibuja la tabla de match con una vacante" },
+      { name: "draft_email", desc: "prepara un correo para Benjamin" },
     ],
     live: "en vivo",
     replay: "replay",
@@ -412,49 +430,59 @@ const es: Strings = {
     limitReached: "Límite de la sesión alcanzado — usa la sección de contacto más abajo.",
     errorLine: "Se cortó la conexión. Intenta de nuevo en un momento.",
     suggested: [
-      "Dame el tour de 30 segundos por este sitio.",
       "¿Qué construyó Benjamin en Doctor911?",
+      "¿Tiene experiencia con sistemas multiagente?",
       "Resume los resultados de la tesis.",
-      "¿Cómo evalúa las respuestas en producción?",
     ],
+    askLabel: "o pregunta",
+    capabilities: {
+      match: { title: "Evalúa una vacante", desc: "Pega la descripción y ve qué cumple" },
+      tour: { title: "Recorrido de 30 s", desc: "Te muestro la página por partes" },
+      email: { title: "Escríbele a Benjamin", desc: "Un correo listo para enviar" },
+    },
+    tourQuestion: "Dame el tour de 30 segundos por este sitio.",
+    emailQuestion: "Ayúdame a escribirle a Benjamin.",
+    sourcesLabel: "fuentes",
+    targets: {
+      experience: "Experiencia",
+      thesis: "Tesis",
+      education: "Educación",
+      projects: "Proyectos",
+      practice: "Prácticas",
+      skills: "Habilidades",
+      contact: "Contacto",
+      "experience-doctor911": "Doctor911",
+      "experience-wiseconn": "WiseConn",
+      "experience-unitti": "Unitti",
+      "doctor911-oneclinik": "Demo OneClinik",
+      "doctor911-whatsapp": "Demo agentes WhatsApp",
+      "doctor911-web": "Demo PrexX Web",
+      "doctor911-internal": "Demo agente interno",
+      "project-miautocheck": "MiAutoCheck",
+      "project-epe": "EPE",
+      "thesis-paper": "Paper",
+    },
+    actions: {
+      paper: "Paper en arXiv",
+      cv: "Descargar CV",
+      email: "Escribirle",
+      demo: "Ver agentes en vivo",
+      matchEmail: "Escribirle por este cargo",
+    },
+    emailCard: { title: "borrador de correo", to: "para", open: "Abrir en mi correo", copy: "Copiar", copied: "Copiado" },
+    fit: { strong: "Encaje alto", partial: "Encaje parcial", weak: "Encaje bajo" },
     openChat: "Pregúntale al agente",
     closeChat: "Cerrar chat",
     expandChat: "Agrandar chat",
     shrinkChat: "Reducir chat",
     chatTab: "chat",
     traceTab: "trace",
-    teaserCta: "preguntar →",
-    teaserDismiss: "Ocultar sugerencia",
-    teasers: {
-      experience: {
-        text: "Machine learning sobre datos de sensores de riego en WiseConn.",
-        question: "Cuéntame del trabajo de predicción de riego en WiseConn.",
-      },
-      thesis: {
-        text: "El aumento de datos con LLMs superó a SMOTE por +2,25 pp de macro-F1.",
-        question: "¿Cómo superó la tesis a SMOTE por +2,25 pp?",
-      },
-      projects: {
-        text: "Guardrails, versionado de prompts y evals en trabajo real con clientes.",
-        question: "¿Cómo maneja guardrails y evals en proyectos de clientes?",
-      },
-      practice: {
-        text: "Conoce las evaluaciones y los flujos usados en proyectos.",
-        question: "¿Cómo trabaja Benjamin con los modelos?",
-      },
-      skills: {
-        text: "Python, PyTorch, LangGraph, GCP y AWS.",
-        question: "¿Cuál es su stack principal?",
-      },
-    },
     matchButton: "Evalúa una oferta laboral",
-    recruiterPitch:
-      "¿Estás contratando? Compara una oferta laboral con mi experiencia.",
     matchPlaceholder: "Pega aquí la descripción del cargo…",
     matchRun: "Evaluar",
     matchCancel: "Cancelar",
     matchHint:
-      "El agente contrasta cada requisito con los datos del CV y reporta brechas con honestidad.",
+      "Reviso cada requisito contra el CV: cumple, parcial o no aparece.",
     jdLabel: "descripción del cargo",
     jdExpand: "ver texto completo",
     jdCollapse: "contraer",

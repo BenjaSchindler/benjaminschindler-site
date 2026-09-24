@@ -55,7 +55,7 @@ function ThesisPaper() {
   }).format(new Date(paper.date));
 
   return (
-    <article aria-label={es ? "Artículo de investigación" : "Research paper"} className="mt-8 border-l-2 border-[var(--accent-warm)] bg-[var(--surface)] p-5 sm:p-6">
+    <article id="thesis-paper" data-agent-target aria-label={es ? "Artículo de investigación" : "Research paper"} className="mt-8 border-l-2 border-[var(--accent-warm)] bg-[var(--surface)] p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--foreground-muted)]">
         <span className="font-medium text-[var(--foreground-dim)]">Paper · arXiv</span>
         <time dateTime={paper.date}>{date}</time>

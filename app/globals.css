@@ -82,6 +82,9 @@ body {
 section {
   scroll-margin-top: 4.5rem;
 }
+[data-agent-target] {
+  scroll-margin-top: 5rem;
+}
 
 /* Selection */
 ::selection {

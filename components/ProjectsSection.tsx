@@ -26,6 +26,8 @@ export function ProjectsSection() {
             {projects.map((p, idx) => (
               <motion.article
                 key={p.name}
+                id={`project-${p.name.toLowerCase()}`}
+                data-agent-target
                 initial={reduced ? false : { y: 12 }}
                 whileInView={{ y: 0 }}
                 viewport={{ once: true, margin: "-60px", amount: 0.05 }}
@@ -73,6 +75,8 @@ export function ProjectsSection() {
             {projects.map((p) => (
               <li
                 key={p.name}
+                id={`project-${p.name.toLowerCase()}`}
+                data-agent-target
                 className="py-6 grid sm:grid-cols-[170px_1fr] gap-2 sm:gap-10"
               >
                 <div className="text-sm font-medium text-[var(--foreground-muted)] flex items-center gap-2 sm:pt-1.5">

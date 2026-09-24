@@ -31,6 +31,9 @@ function VizSkeleton({
   );
 }
 
+// "Doctor911" → "experience-doctor911": targets the agent's show_section can reach.
+const experienceAnchor = (exp: Experience) => `experience-${exp.company.split(" ")[0].toLowerCase()}`;
+
 export function ExperienceCard({ exp }: { exp: Experience }) {
   const { detailed } = useViewMode();
 
@@ -47,7 +50,7 @@ function ExperienceCardConcise({ exp }: { exp: Experience }) {
     .join(" · ");
 
   return (
-    <article className="grid sm:grid-cols-[170px_1fr] gap-3 sm:gap-10">
+    <article id={experienceAnchor(exp)} data-agent-target className="grid sm:grid-cols-[170px_1fr] gap-3 sm:gap-10">
       <div className="text-sm font-medium text-[var(--foreground-muted)] sm:pt-2 flex items-center gap-2">
         <span
           aria-hidden
@@ -105,6 +108,8 @@ function ExperienceCardDetailed({ exp }: { exp: Experience }) {
 
   return (
     <motion.article
+      id={experienceAnchor(exp)}
+      data-agent-target
       initial={reduced ? false : { y: 16 }}
       whileInView={{ y: 0 }}
       viewport={{ once: true, margin: "-80px", amount: 0.05 }}

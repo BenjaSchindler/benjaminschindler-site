@@ -34,3 +34,9 @@ test("a rendered match table is an answer; scrolling or an empty report is not",
   assert.equal(healthy([{ action: "match_report", report: { rows: [] } }]), false);
   assert.equal(healthy([{ action: "match_report" }]), false);
 });
+
+test("an email draft card is an answer; an empty draft is not", () => {
+  const healthy = (ui) => responseHealthChecks.every(check => check.fn({ text: "", traces: [], ui }));
+  assert.equal(healthy([{ action: "email_draft", draft: { to: "b@example.com", subject: "Hi", body: "Hello Benjamin" } }]), true);
+  assert.equal(healthy([{ action: "email_draft", draft: { to: "b@example.com", subject: "Hi", body: " " } }]), false);
+});
