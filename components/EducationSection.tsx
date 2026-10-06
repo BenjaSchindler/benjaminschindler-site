@@ -44,10 +44,6 @@ export function EducationSection() {
                     <div className="flex-1">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <h3 className="text-base sm:text-lg text-[var(--foreground)]">{e.degree}</h3>
-                        <span className="font-mono text-xs text-[var(--foreground-muted)]">{e.period}</span>
-                        {e.grade && (
-                          <span className="font-mono text-xs text-[var(--accent)]">{e.grade}</span>
-                        )}
                       </div>
                       {e.note && (
                         <p className="mt-1 text-sm text-[var(--foreground-dim)]">{e.note}</p>
@@ -84,13 +80,8 @@ export function EducationSection() {
                 key={e.degree}
                 className="py-6 grid sm:grid-cols-[170px_1fr] gap-2 sm:gap-10"
               >
-                <div className="text-sm font-medium text-[var(--foreground-muted)] flex items-center gap-2 sm:pt-1.5">
-                  <span
-                    aria-hidden
-                    className="hidden sm:inline-block h-px w-3 bg-[var(--accent-gold)]"
-                  />
-                  <span>{e.period}</span>
-                </div>
+                {/* Empty column keeps degrees aligned with the companies above. */}
+                <div aria-hidden className="hidden sm:block" />
                 <div>
                   <h3 className="font-serif text-xl sm:text-2xl text-[var(--foreground)] tracking-tight">
                     {e.degree}
@@ -108,14 +99,6 @@ export function EducationSection() {
                       <span className="font-semibold text-[var(--accent-gold-soft)]">
                         {Math.round(e.progress * 100)}% · {t.education.inProgress}
                       </span>
-                    )}
-                    {e.grade && (
-                      <>
-                        {" · "}
-                        <span className="font-semibold text-[var(--accent-gold-soft)]">
-                          {e.grade}
-                        </span>
-                      </>
                     )}
                   </p>
                 </div>

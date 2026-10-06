@@ -39,10 +39,8 @@ export type Profile = {
 export type Education = {
   institution: string;
   degree: string;
-  period: string;
   progress: number;
   note?: string;
-  grade?: string;
 };
 
 export type Project = {
@@ -120,7 +118,7 @@ export type DataSet = {
 const dataEn: DataSet = {
   "profile": {
     "name": "Benjamin Schindler",
-    "title": "AI Engineer",
+    "title": "Senior AI Engineer",
     "subtitle": "Master of Science in Data Science",
     "location": "Santiago, Chile",
     "email": "benjamin.schindlerv@gmail.com",
@@ -198,11 +196,13 @@ const dataEn: DataSet = {
           "period": "Jan 2026 – Present",
           "bullets": [
             "Lead a three-person product team: two engineers and one UX/UI designer.",
-            "Built voice triage with Gemini Live and lab-report processing with Cloud Vision OCR.",
-            "Built an internal RAG assistant with Vertex AI Search across Drive, Gmail, and Jira, respecting each user's access permissions.",
+            "Built an interactive Gemini Live voice agent that guides users on a single screen: recommendations, support, and product guidance.",
+            "Built a lab-results reader with Cloud Vision OCR that, when values fall outside normal ranges, points patients to the right specialist and consultation.",
+            "Built an internal RAG assistant with Vertex AI Search across Drive, Gmail, Jira, and Asana, respecting each user's access permissions.",
             "Added Vector Search over curated manuals, code, and policies, with a shared retrieval endpoint for agents.",
             "Built an internal agent for team coordination and recurring operational tasks.",
-            "Developed an MCP server connecting agents to RAG and internal tools, including Asana ticket management.",
+            "Developed an MCP server connecting agents to RAG and internal tools, including Asana ticket management, and unifying GPT, Claude, and Gemini behind one interface.",
+            "Built pre-production evals with golden datasets for RAG and agents (recall@k, faithfulness, agent runtime) to test every model or flow change before release.",
             "Lead AI strategy at Doctor911, selected for ChileMass Emprende 2026."
           ]
         },
@@ -211,7 +211,7 @@ const dataEn: DataSet = {
           "title": "AI Engineer",
           "period": "Mar 2025 – Jan 2026",
           "bullets": [
-            "Built four WhatsApp agents and two web agents with LangGraph and FastAPI.",
+            "Built four WhatsApp agents and two web agents with LangGraph and FastAPI; the web agents have handled over 19,000 messages.",
             "Built RAG and XGBoost exam recommenders as shared tools for the agents.",
             "Integrated Meta Flows, catalogs, and Transbank payments.",
             "Combined AI agents with business rules and medical review for clinical approvals.",
@@ -360,24 +360,18 @@ const dataEn: DataSet = {
     {
       "institution": "Universidad Adolfo Ibáñez",
       "degree": "Master of Science in Data Science",
-      "period": "2024 – 2026",
       "progress": 1,
-      "grade": "GPA 3.6 / 4.0",
       "note": "Thesis defended with Maximum Distinction: LLM-based data augmentation."
     },
     {
       "institution": "Universidad Adolfo Ibáñez",
       "degree": "Software Engineering",
-      "period": "2020 – Jul 2025",
-      "progress": 1,
-      "grade": "GPA 3.5 / 4.0"
+      "progress": 1
     },
     {
       "institution": "Universidad Adolfo Ibáñez",
       "degree": "Industrial Engineering",
-      "period": "2020 – Jul 2025",
-      "progress": 1,
-      "grade": "GPA 3.4 / 4.0"
+      "progress": 1
     }
   ],
   "thesis": {
@@ -500,7 +494,7 @@ const dataEn: DataSet = {
 const dataEs: DataSet = {
   "profile": {
     "name": "Benjamin Schindler",
-    "title": "Ingeniero de IA",
+    "title": "Ingeniero de IA Senior",
     "subtitle": "Magíster en Ciencia de Datos",
     "location": "Santiago, Chile",
     "email": "benjamin.schindlerv@gmail.com",
@@ -578,11 +572,13 @@ const dataEs: DataSet = {
           "period": "Ene 2026 – Presente",
           "bullets": [
             "Lidero un equipo de producto de tres personas: dos ingenieros y un diseñador UX/UI.",
-            "Desarrollé triaje por voz con Gemini Live y lectura de exámenes con Cloud Vision OCR.",
-            "Desarrollé un asistente RAG interno con Vertex AI Search sobre Drive, Gmail y Jira, respetando los permisos de cada usuario.",
+            "Desarrollé un agente de voz con Gemini Live que guía al usuario en una sola pantalla: recomendaciones, soporte y orientación sobre productos.",
+            "Desarrollé un sistema que lee resultados de exámenes con Cloud Vision OCR y, si hay valores fuera de rango, orienta sobre qué especialista y consulta tomar.",
+            "Desarrollé un asistente RAG interno con Vertex AI Search sobre Drive, Gmail, Jira y Asana, respetando los permisos de cada usuario.",
             "Incorporé Vector Search para consultar manuales, código y políticas seleccionadas, con un endpoint de búsqueda compartido entre agentes.",
             "Construí un agente interno para coordinar al equipo y automatizar tareas operativas recurrentes.",
-            "Desarrollé un servidor MCP que conecta agentes con RAG y herramientas internas, incluida la gestión de tickets en Asana.",
+            "Desarrollé un servidor MCP que conecta agentes con RAG y herramientas internas, incluida la gestión de tickets en Asana, y unifica GPT, Claude y Gemini en una sola interfaz.",
+            "Construí evals pre-producción con golden datasets para RAG y agentes (recall@k, faithfulness, tiempo de ejecución) con los que se prueba cada cambio de modelo o de flujo.",
             "Lidero la estrategia de IA de Doctor911, seleccionada para ChileMass Emprende 2026."
           ]
         },
@@ -591,7 +587,7 @@ const dataEs: DataSet = {
           "title": "Ingeniero de IA",
           "period": "Mar 2025 – Ene 2026",
           "bullets": [
-            "Construí cuatro agentes de WhatsApp y dos agentes web con LangGraph y FastAPI.",
+            "Construí cuatro agentes de WhatsApp y dos agentes web con LangGraph y FastAPI; los agentes web ya suman más de 19.000 mensajes.",
             "Construí recomendadores de exámenes con RAG y XGBoost como herramientas compartidas entre agentes.",
             "Integré Meta Flows, catálogos y pagos con Transbank.",
             "Combiné agentes con reglas de negocio y revisión médica para las aprobaciones clínicas.",
@@ -740,24 +736,18 @@ const dataEs: DataSet = {
     {
       "institution": "Universidad Adolfo Ibáñez",
       "degree": "Magíster en Ciencia de Datos",
-      "period": "2024 – 2026",
       "progress": 1,
-      "grade": "6,23 / 7,0",
       "note": "Tesis defendida con Distinción Máxima: aumento de datos con LLMs."
     },
     {
       "institution": "Universidad Adolfo Ibáñez",
       "degree": "Ingeniería Civil Informática",
-      "period": "2020 – Jul 2025",
-      "progress": 1,
-      "grade": "6,20 / 7,0"
+      "progress": 1
     },
     {
       "institution": "Universidad Adolfo Ibáñez",
       "degree": "Ingeniería Civil Industrial",
-      "period": "2020 – Jul 2025",
-      "progress": 1,
-      "grade": "6,01 / 7,0"
+      "progress": 1
     }
   ],
   "thesis": {

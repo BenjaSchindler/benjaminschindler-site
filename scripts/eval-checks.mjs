@@ -1,7 +1,7 @@
 // Broad experience questions may reasonably focus on any documented system.
 // Framework-specific recall is evaluated by a separate, explicit question.
 export function mentionsDoctor911System(text) {
-  return /\b(?:langgraph|whatsapp|oneclinik|prexx|rag)\b|\bvoice triage\b/i.test(text);
+  return /\b(?:langgraph|whatsapp|oneclinik|prexx|rag)\b|\bvoice agent\b/i.test(text);
 }
 
 // Answers that render as a card instead of prose: a match table or an email draft.

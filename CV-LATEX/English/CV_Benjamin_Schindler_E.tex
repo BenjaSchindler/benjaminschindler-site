@@ -14,58 +14,56 @@
 \begin{document}
 \begin{center}
 {\LARGE\bfseries Benjamin Schindler}\\[3pt]
-\textbf{AI Engineering Lead} $\cdot$ M.Sc. Data Science\\[4pt]
+\textbf{Senior AI Engineer} $\cdot$ M.Sc. Data Science\\[4pt]
 +56 9 5627 9434 $\cdot$ \href{mailto:benjamin.schindlerv@gmail.com}{benjamin.schindlerv@gmail.com} $\cdot$ Santiago, Chile\\[2pt]
 \href{https://benjaminschindler.vercel.app}{benjaminschindler.vercel.app} $\cdot$ \href{https://github.com/BenjaSchindler}{github.com/BenjaSchindler} $\cdot$ \href{https://www.linkedin.com/in/benjamin-schindler-92881a2b2/}{LinkedIn}
 \end{center}
 \section*{Profile}
-I'm an AI engineer and CTO at Doctor911, where I lead a three-person product team. I build AI assistants, RAG search systems, and tools that automate business tasks.
+AI engineer with over four years of experience shipping AI systems to production. As CTO at Doctor911 I stay hands-on: I build agents, retrieval systems, and MCP servers, and set how we evaluate and monitor them. My portfolio runs a live agent with public evals, and my paper on LLM data augmentation was accepted at IEEE LACCI 2026.
 \section*{Experience}
-\textbf{Doctor911} \hfill Mar 2025 -- Present\\
+\textbf{Doctor911} $\cdot$ Chilean healthtech: telemedicine, at-home care, and lab exams \hfill Mar 2025 -- Present\\
 \textit{Chief Technology Officer (CTO)} \hfill \textit{Jan 2026 -- Present}
 \begin{itemize}
-\item Lead a three-person product team: two engineers and one UX/UI designer.
 \item The AI products I built contributed to 10$\times$ web traffic growth and company profitability.
-\item Built voice triage with Gemini Live and lab-report processing with Cloud Vision OCR.
-\item Designed RAG search on Vertex AI and an MCP server for internal tools.
-\item Lead AI strategy at Doctor911, selected for ChileMass Emprende 2026.
+\item Built RAG search on Vertex AI that respects each user's permissions.
+\item Built pre-production evals with golden datasets for RAG and agents (recall@k, faithfulness, agent runtime) to test every model or flow change before release.
+\item Built an MCP server that connects agents to RAG and internal tools, and unifies GPT, Claude, and Gemini.
+\item Built a Gemini Live voice agent that recommends, supports, and guides users through products on a single screen.
+\item Built a lab-results reader with Cloud Vision OCR that, when values fall outside normal ranges, points patients to the right specialist and consultation.
+\item Lead two engineers and a UX/UI designer, and set the standards for observability and CI/CD.
 \end{itemize}
 \textit{AI Engineer} \hfill \textit{Mar 2025 -- Jan 2026}
 \begin{itemize}
-\item Built four WhatsApp agents and two web agents with LangGraph and FastAPI.
-\item Integrated exam recommendations, Meta Flows, catalogs, and Transbank payments.
-\item Combined AI agents with business rules and medical review for clinical approvals.
-\item Deployed the platform on GCP Cloud Run with production monitoring.
+\item Built the conversational AI platform with LangGraph and FastAPI: four WhatsApp agents (onboarding, sales, support, and fulfillment) and two web agents with over 19,000 messages handled and a $\sim$100 ms semantic intent router.
+\item Integrated Meta Flows, catalogs, and Transbank payments; combined agents with business rules and medical review.
+\item Built hybrid catalog search for the web agents (embeddings and BM25 fused with RRF), plus XGBoost and RAG exam recommenders shared as tools across every agent.
+\item Deployed on GCP Cloud Run with production monitoring, personal-data protection, and prompt-injection mitigation.
 \end{itemize}
-\textbf{WiseConn Latam} \hfill Sep 2024 -- Mar 2025\\
+\textbf{WiseConn Latam} $\cdot$ Irrigation technology for growers in Latin America and the US \hfill Sep 2024 -- Mar 2025\\
 \textit{Data Science Intern}
 \begin{itemize}
-\item Built CNN forecasting models for irrigation and classifiers for solar installations.
-\item Deployed models on SageMaker and S3 with validation and metric tracking.
-\item Led a cross-department data governance initiative.
+\item Deployed CNN irrigation forecasting models and solar installation classifiers on SageMaker and S3.
+\item Led a cross-department data governance initiative that consolidated company data into shared pipelines.
 \end{itemize}
-\textbf{Unitti} \hfill Jul 2022 -- Jul 2024\\
+\textbf{Unitti} $\cdot$ Cloud operations and cybersecurity services across Latin America \hfill Jul 2022 -- Jul 2024\\
 \textit{Jr AI Engineer}
 \begin{itemize}
-\item Automated extraction and reconciliation of about 800 PDF invoices per month.
-\item 85\% of invoices processed without manual intervention; ten minutes to under one per document; monthly close from eight days to three.
-\item Built an NL-to-SQL app and improved queries using feedback from users.
+\item Automated reconciliation of about 800 invoices a month with a multimodal model and deterministic rules: 85\% with no manual intervention, monthly close from 8 days to 3, and about 110 hours freed each month.
+\item Built a natural-language-to-SQL app that let non-technical staff query the database directly.
 \item Developed Python APIs over PostgreSQL with automated tests.
 \end{itemize}
-\section*{Selected projects}
-\textbf{MiAutoCheck} (client): An API that combines vehicle photos and market research into a PDF valuation report. Photo inspection, five research agents, and a supervisor.
+\section*{Client projects}
+\textbf{MiAutoCheck}: Used-vehicle valuation. A vision agent grades the photos, five agents research the market in parallel, and a supervisor writes the PDF report. A 30--60 minute appraisal became a 3-minute API call; about 90\% of reports were approved without material changes on a validation set.
 
-\textbf{EPE} (client): AI features for workplace well-being: emotion analysis and personalized exercises, with crisis detection and personal-data redaction. A/B prompts, LLM-as-judge, and Langfuse.
-
-\textbf{Doctor911 internal operations}: agent for team coordination and recurring tasks.
-\section*{Education}
-\textbf{Master of Science in Data Science} $\cdot$ U. Adolfo Ibáñez \hfill 2024 -- 2026\\
-\textbf{Software Engineering} $\cdot$ U. Adolfo Ibáñez \hfill 2020 -- Jul 2025\\
-\textbf{Industrial Engineering} $\cdot$ U. Adolfo Ibáñez \hfill 2020 -- Jul 2025\\
-M.Sc. GPA: 3.6/4.0. Thesis with Maximum Distinction: +2.25 pp macro-F1 over SMOTE (3,675 configurations).
+\textbf{EPE}: AI features for workplace well-being, with crisis detection and personal-data redaction. Versioned prompts with A/B tests, LLM-as-judge with drift monitoring, and Langfuse.
+\section*{Education and publications}
+\textbf{Master of Science in Data Science} $\cdot$ U. Adolfo Ibáñez $\cdot$ Thesis with Maximum Distinction\\
+\textbf{Software Engineering and Industrial Engineering} (double degree) $\cdot$ U. Adolfo Ibáñez\\
+Paper: \href{https://arxiv.org/abs/2608.13866}{\textit{Geometric Filtering of LLM-Generated Samples for Few-Shot Text Classification}}, accepted at IEEE LACCI 2026.
 \section*{Tools and languages}
-\textbf{AI:} LangGraph, LangChain, RAG, MCP, PyTorch, XGBoost, OpenAI, Anthropic, Gemini Live, Langfuse.\\
-\textbf{Development:} Python, TypeScript, SQL, FastAPI, Next.js, PostgreSQL, Docker, CI/CD.\\
-\textbf{Cloud:} GCP (Cloud Run, Vertex AI, Cloud Vision), AWS (SageMaker, S3), Azure.\\
+\textbf{Agents and retrieval:} LangGraph, LangChain, MCP, RAG, hybrid search, Vertex AI Search, pgvector.\\
+\textbf{Evals and observability:} golden datasets, recall@k, faithfulness, LLM-as-judge, prompt A/B tests, Langfuse.\\
+\textbf{Models:} OpenAI, Anthropic, Gemini (incl. Live), PyTorch, XGBoost.\\
+\textbf{Development and cloud:} Python, TypeScript, SQL, FastAPI, Next.js, PostgreSQL, Docker, CI/CD, GCP, AWS, Azure.\\
 \textbf{Languages:} Spanish (native), English (advanced), German (basic).
 \end{document}

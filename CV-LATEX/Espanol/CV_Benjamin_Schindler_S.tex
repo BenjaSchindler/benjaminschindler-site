@@ -14,58 +14,56 @@
 \begin{document}
 \begin{center}
 {\LARGE\bfseries Benjamin Schindler}\\[3pt]
-\textbf{Líder de Ingeniería de IA} $\cdot$ Magíster en Ciencia de Datos\\[4pt]
+\textbf{Ingeniero de IA Senior} $\cdot$ Magíster en Ciencia de Datos\\[4pt]
 +56 9 5627 9434 $\cdot$ \href{mailto:benjamin.schindlerv@gmail.com}{benjamin.schindlerv@gmail.com} $\cdot$ Santiago, Chile\\[2pt]
 \href{https://benjaminschindler.vercel.app}{benjaminschindler.vercel.app} $\cdot$ \href{https://github.com/BenjaSchindler}{github.com/BenjaSchindler} $\cdot$ \href{https://www.linkedin.com/in/benjamin-schindler-92881a2b2/}{LinkedIn}
 \end{center}
 \section*{Perfil}
-Soy ingeniero de IA y CTO en Doctor911, donde lidero un equipo de producto de tres personas. Desarrollo asistentes de IA, sistemas de búsqueda con RAG y herramientas para automatizar tareas del negocio.
+Ingeniero de IA con más de cuatro años llevando sistemas de IA a producción. Como CTO de Doctor911 sigo programando: construyo agentes, búsqueda RAG y servidores MCP, y defino cómo se evalúan y monitorean. Mi portafolio tiene un agente en vivo con evals públicas, y mi paper sobre aumento de datos con LLMs fue aceptado en IEEE LACCI 2026.
 \section*{Experiencia}
-\textbf{Doctor911} \hfill Mar 2025 -- Presente\\
+\textbf{Doctor911} $\cdot$ Healthtech chilena de telemedicina, atención a domicilio y exámenes \hfill Mar 2025 -- Presente\\
 \textit{Chief Technology Officer (CTO)} \hfill \textit{Ene 2026 -- Presente}
 \begin{itemize}
-\item Lidero un equipo de producto de tres personas: dos ingenieros y un diseñador UX/UI.
 \item Los productos de IA que desarrollé contribuyeron al crecimiento de 10$\times$ del tráfico web y a la rentabilidad.
-\item Desarrollé triaje por voz con Gemini Live y lectura de exámenes con Cloud Vision OCR.
-\item Diseñé la búsqueda RAG en Vertex AI y un servidor MCP para herramientas internas.
-\item Lidero la estrategia de IA de Doctor911, seleccionada para ChileMass Emprende 2026.
+\item Construí búsqueda RAG en Vertex AI que respeta los permisos de cada usuario.
+\item Construí evals pre-producción con golden datasets para RAG y agentes (recall@k, faithfulness, tiempo de ejecución) con los que se prueba cada cambio de modelo o de flujo.
+\item Construí un servidor MCP que conecta agentes con el RAG y herramientas internas, y unifica GPT, Claude y Gemini.
+\item Desarrollé un agente de voz con Gemini Live que recomienda, da soporte y orienta sobre productos en una sola pantalla.
+\item Desarrollé un sistema que lee resultados de exámenes con Cloud Vision OCR y, si hay valores fuera de rango, orienta sobre qué especialista y consulta tomar.
+\item Lidero a dos ingenieros y un diseñador UX/UI, y defino los estándares de observabilidad y CI/CD.
 \end{itemize}
 \textit{Ingeniero de IA} \hfill \textit{Mar 2025 -- Ene 2026}
 \begin{itemize}
-\item Construí cuatro agentes de WhatsApp y dos agentes web con LangGraph y FastAPI.
-\item Integré recomendaciones de exámenes, Meta Flows, catálogos y pagos con Transbank.
-\item Combiné agentes con reglas de negocio y revisión médica para las aprobaciones clínicas.
-\item Desplegué la plataforma en GCP Cloud Run con monitoreo de producción.
+\item Construí la plataforma conversacional con LangGraph y FastAPI: cuatro agentes de WhatsApp (onboarding, ventas, soporte y despacho) y dos agentes web con más de 19.000 mensajes y un router semántico de unos 100 ms.
+\item Integré Meta Flows, catálogos y pagos con Transbank; combiné agentes con reglas de negocio y revisión médica.
+\item Construí la búsqueda híbrida del catálogo para los agentes web (embeddings y BM25 fusionados con RRF), y recomendadores de exámenes con XGBoost y RAG compartidos como herramienta por todos los agentes.
+\item Desplegué en GCP Cloud Run con monitoreo, protección de datos personales y mitigación de prompt injection.
 \end{itemize}
-\textbf{WiseConn Latam} \hfill Sep 2024 -- Mar 2025\\
+\textbf{WiseConn Latam} $\cdot$ Tecnología de riego para agricultores de Latinoamérica y EE.\,UU. \hfill Sep 2024 -- Mar 2025\\
 \textit{Practicante de Ciencia de Datos}
 \begin{itemize}
-\item Desarrollé predicciones de riego con CNN y clasificadores para instalaciones solares.
-\item Desplegué modelos en SageMaker y S3 con validación y seguimiento de métricas.
-\item Lideré una iniciativa de gobierno de datos entre departamentos.
+\item Desplegué en SageMaker y S3 modelos CNN de predicción de riego y clasificadores para instalaciones solares.
+\item Lideré una iniciativa de gobierno de datos que centralizó los datos de la empresa en pipelines comunes.
 \end{itemize}
-\textbf{Unitti} \hfill Jul 2022 -- Jul 2024\\
+\textbf{Unitti} $\cdot$ Operaciones cloud y ciberseguridad para empresas de Latinoamérica \hfill Jul 2022 -- Jul 2024\\
 \textit{Ingeniero de IA Jr.}
 \begin{itemize}
-\item Automaticé la extracción y conciliación de unas 800 facturas PDF al mes.
-\item 85\% de las facturas sin intervención manual; procesamiento de diez a menos de un minuto y cierre mensual de ocho a tres días.
-\item Desarrollé una aplicación de lenguaje natural a SQL y ajusté las consultas con comentarios de usuarios.
+\item Automaticé la conciliación de unas 800 facturas al mes con un modelo multimodal y reglas deterministas: 85\,\% sin intervención manual, cierre mensual de 8 a 3 días y unas 110 horas liberadas al mes.
+\item Desarrollé una aplicación de lenguaje natural a SQL para que el personal no técnico consultara la base de datos.
 \item Desarrollé APIs en Python sobre PostgreSQL con pruebas automatizadas.
 \end{itemize}
-\section*{Proyectos}
-\textbf{MiAutoCheck} (cliente): Una API que combina fotografías del vehículo e información de mercado en un informe PDF de tasación. Inspección visual, cinco agentes de investigación y un supervisor.
+\section*{Proyectos para clientes}
+\textbf{MiAutoCheck}: Tasación de vehículos usados. Un agente de visión evalúa las fotos, cinco agentes investigan el mercado en paralelo y un supervisor genera el informe PDF. Una tasación de 30--60 minutos pasó a ser una llamada de API de 3 minutos; cerca del 90\,\% de los informes se aprobó sin cambios importantes en un conjunto de validación.
 
-\textbf{EPE} (cliente): Funciones de IA para bienestar laboral: análisis de emociones y ejercicios personalizados, con detección de crisis y ocultamiento de datos personales. Prompts A/B, LLM-as-judge y Langfuse.
-
-\textbf{Operaciones de Doctor911}: agente para coordinar al equipo y automatizar tareas recurrentes.
-\section*{Educación}
-\textbf{Magíster en Ciencia de Datos} $\cdot$ U. Adolfo Ibáñez \hfill 2024 -- 2026\\
-\textbf{Ingeniería Civil Informática} $\cdot$ U. Adolfo Ibáñez \hfill 2020 -- Jul 2025\\
-\textbf{Ingeniería Civil Industrial} $\cdot$ U. Adolfo Ibáñez \hfill 2020 -- Jul 2025\\
-Magíster: 6,23/7,0. Tesis con Distinción Máxima: +2,25 pp macro-F1 sobre SMOTE (3.675 configuraciones).
+\textbf{EPE}: Funciones de IA para bienestar laboral, con detección de crisis y ocultamiento de datos personales. Prompts versionados con pruebas A/B, LLM-as-judge con monitoreo de drift y Langfuse.
+\section*{Educación y publicaciones}
+\textbf{Magíster en Ciencia de Datos} $\cdot$ U. Adolfo Ibáñez $\cdot$ Tesis con Distinción Máxima\\
+\textbf{Ingeniería Civil Informática e Ingeniería Civil Industrial} (doble título) $\cdot$ U. Adolfo Ibáñez\\
+Paper: \href{https://arxiv.org/abs/2608.13866}{\textit{Geometric Filtering of LLM-Generated Samples for Few-Shot Text Classification}}, aceptado en IEEE LACCI 2026.
 \section*{Herramientas e idiomas}
-\textbf{IA:} LangGraph, LangChain, RAG, MCP, PyTorch, XGBoost, OpenAI, Anthropic, Gemini Live, Langfuse.\\
-\textbf{Desarrollo:} Python, TypeScript, SQL, FastAPI, Next.js, PostgreSQL, Docker, CI/CD.\\
-\textbf{Cloud:} GCP (Cloud Run, Vertex AI, Cloud Vision), AWS (SageMaker, S3), Azure.\\
+\textbf{Agentes y búsqueda:} LangGraph, LangChain, MCP, RAG, búsqueda híbrida, Vertex AI Search, pgvector.\\
+\textbf{Evals y observabilidad:} golden datasets, recall@k, faithfulness, LLM-as-judge, pruebas A/B de prompts, Langfuse.\\
+\textbf{Modelos:} OpenAI, Anthropic, Gemini (incl. Live), PyTorch, XGBoost.\\
+\textbf{Desarrollo y cloud:} Python, TypeScript, SQL, FastAPI, Next.js, PostgreSQL, Docker, CI/CD, GCP, AWS, Azure.\\
 \textbf{Idiomas:} Español (nativo), Inglés (avanzado), Alemán (básico).
 \end{document}

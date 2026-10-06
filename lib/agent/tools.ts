@@ -8,7 +8,6 @@ import { PAGE_TARGETS, type PageTarget } from "./targets";
 // specific place on the page, with no infrastructure to keep alive.
 
 const en = getData("en");
-const es = getData("es");
 
 export { SECTION_IDS, PAGE_TARGETS, targetForView } from "./targets";
 
@@ -71,7 +70,7 @@ function buildFacts(): Fact[] {
   );
   add(`Paper "${t.paper.title}" (${t.paper.authors.join(", ")}; arXiv, ${t.paper.date}; ${t.paper.venue}): ${t.paper.summary}`, "arXiv paper", "thesis-paper");
   for (const ed of en.education) {
-    add(`${ed.degree}, ${ed.institution}, ${ed.period}, ${ed.grade ?? ""}. ${ed.note ?? ""}`.trim(), ed.degree, "education");
+    add(`${ed.degree}, ${ed.institution}. ${ed.note ?? ""}`.trim(), ed.degree, "education");
   }
   for (const [category, items] of Object.entries(en.skills)) {
     add(`${category} skills: ${items.join(", ")}.`, "Skills", "skills");
@@ -212,7 +211,7 @@ export const CV_TOOLS: OpenAI.Responses.FunctionTool[] = [
   {
     type: "function",
     name: "get_education_and_skills",
-    description: "Degrees with grades, the skills matrix, and spoken languages.",
+    description: "Degrees, the skills matrix, and spoken languages.",
     strict: false,
     parameters: { type: "object", properties: {}, additionalProperties: false },
   },
@@ -404,11 +403,8 @@ export function runCvTool(name: string, input: ToolInput): ToolRun {
     case "get_education_and_skills": {
       return run(
         {
-          education: en.education.map((e, i) => ({
+          education: en.education.map((e) => ({
             degree: e.degree,
-            period: e.period,
-            grade_us_scale: e.grade,
-            grade_chilean_scale: es.education[i]?.grade,
             note: e.note,
           })),
           skills: en.skills,

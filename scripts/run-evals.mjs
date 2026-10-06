@@ -114,7 +114,7 @@ const CASES = [
   {
     id: "education-lookup",
     category: "grounding",
-    messages: user("What degrees does Benjamin have and what were his grades?"),
+    messages: user("What degrees does Benjamin have?"),
     checks: [toolCalled("get_education_and_skills")],
   },
   {
